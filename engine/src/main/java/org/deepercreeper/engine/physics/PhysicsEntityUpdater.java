@@ -1,18 +1,22 @@
 package org.deepercreeper.engine.physics;
 
+import org.deepercreeper.engine.util.Box;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 public class PhysicsEntityUpdater
 {
-    private static final double MAX_STEP_VELOCITY = .1;
+    private static final double MAX_STEP_VELOCITY = 1;
 
     private final Set<PhysicsEntity> entities = new HashSet<>();
 
-    private boolean collided = false;
+    private Set<PhysicsEntity> collidedEntities = new HashSet<>();
 
     private double delta;
+
+    private double leftDelta;
 
     private double stepDelta;
 
@@ -32,18 +36,32 @@ public class PhysicsEntityUpdater
 
     private void update()
     {
+        if (entities.size() == 1)
+        {
+            updateSingleEntity();
+            return;
+        }
+        leftDelta = delta;
         initDelta();
         while (steps > 0)
         {
-            moveEntities();
+            collidedEntities.clear();
+            //TODO Tear apart
             collideEntities();
-            delta -= stepDelta;
+            moveEntities();
+            leftDelta -= stepDelta;
             steps--;
-            if (collided)
+            if (!collidedEntities.isEmpty())
             {
                 initDelta();
             }
         }
+    }
+
+    private void updateSingleEntity()
+    {
+        PhysicsEntity entity = entities.iterator().next();
+        entity.move(delta);
     }
 
     private void collideEntities()
@@ -54,25 +72,32 @@ public class PhysicsEntityUpdater
         {
             PhysicsEntity entity = iterator.next();
             iterator.remove();
-            collideEntityWith(entity, collisionEntities);
+            if (iterator.hasNext())
+            {
+                collideEntityWith(entity, collisionEntities);
+            }
         }
     }
 
     private void collideEntityWith(PhysicsEntity entity, Set<PhysicsEntity> collisionEntities)
     {
-        collisionEntities.stream().filter(entity::isTouching).forEach(collisionEntity ->
+        Box box = entity.getBox().shift(entity.getVelocity().times(stepDelta));
+        for (PhysicsEntity collisionEntity : collisionEntities)
         {
-            entity.collideWith(collisionEntity);
-            collided = true;
-        });
+            Box entityBox = collisionEntity.getBox().shift(collisionEntity.getVelocity().times(stepDelta));
+            if (box.isTouching(entityBox))
+            {
+                entity.collideWith(collisionEntity);
+                collidedEntities.add(entity);
+                collidedEntities.add(collisionEntity);
+            }
+        }
     }
 
     private void moveEntities()
     {
-        for (PhysicsEntity entity : entities)
-        {
-            entity.move(stepDelta);
-        }
+        entities.stream().filter(entity -> !collidedEntities.contains(entity)).forEach(entity ->
+                entity.move(stepDelta));
     }
 
     private void initDelta()
@@ -81,11 +106,11 @@ public class PhysicsEntityUpdater
                                      .max(Double::compare).orElse(.0);
         if (maxVelocity < MAX_STEP_VELOCITY)
         {
-            stepDelta = delta;
+            stepDelta = leftDelta;
             steps = 1;
             return;
         }
-        stepDelta = delta * MAX_STEP_VELOCITY / maxVelocity;
-        steps = (int) Math.round(delta / stepDelta);
+        stepDelta = leftDelta * MAX_STEP_VELOCITY / maxVelocity;
+        steps = (int) Math.ceil(leftDelta / stepDelta);
     }
 }

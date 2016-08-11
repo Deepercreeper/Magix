@@ -1,4 +1,4 @@
-package org.deepercreeper.engine.physics;
+package org.deepercreeper.engine.util;
 
 public class Box
 {
@@ -6,34 +6,31 @@ public class Box
 
     private final Vector size;
 
-    public Box(double x, double y)
-    {
-        position = new Vector(x, y);
-        size = new Vector();
-    }
-
     public Box(double x, double y, double width, double height)
     {
         position = new Vector(x, y);
         size = new Vector(width, height);
     }
 
-    public Box(Vector position)
+    public Box(double x, double y)
     {
-        this.position = new Vector(position);
-        size = new Vector();
-    }
-
-    public Box(Box box)
-    {
-        position = new Vector(box.position);
-        size = new Vector(box.size);
+        this(x, y, 0, 0);
     }
 
     public Box(Vector position, Vector size)
     {
         this.position = new Vector(position);
         this.size = new Vector(size);
+    }
+
+    public Box(Vector position)
+    {
+        this(position, new Vector());
+    }
+
+    public Box(Box box)
+    {
+        this(box.position, box.size);
     }
 
     public Vector getPosition()
@@ -81,6 +78,11 @@ public class Box
         return getY() + getHeight();
     }
 
+    public void moveTo(Vector position)
+    {
+        this.position.set(position);
+    }
+
     public void move(Vector vector)
     {
         position.add(vector);
@@ -103,6 +105,11 @@ public class Box
         double width = Math.max(getMaxX(), box.getMaxX()) - x;
         double height = Math.max(getMaxY(), box.getMaxY()) - y;
         return new Box(x, y, width, height);
+    }
+
+    public Rectangle asRectangle()
+    {
+        return new Rectangle(position.asPoint(), size.asPoint());
     }
 
     @Override

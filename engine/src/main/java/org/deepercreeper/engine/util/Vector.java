@@ -1,16 +1,10 @@
-package org.deepercreeper.engine.physics;
+package org.deepercreeper.engine.util;
 
 public class Vector
 {
     private double x;
 
     private double y;
-
-    public Vector()
-    {
-        x = 0;
-        y = 0;
-    }
 
     public Vector(double x, double y)
     {
@@ -20,8 +14,12 @@ public class Vector
 
     public Vector(Vector vector)
     {
-        x = vector.x;
-        y = vector.y;
+        this(vector.x, vector.y);
+    }
+
+    public Vector()
+    {
+        this(0, 0);
     }
 
     public double getX()
@@ -95,7 +93,12 @@ public class Vector
 
     public double times(Vector vector)
     {
-        return (x * vector.x + y * vector.y);
+        return x * vector.x + y * vector.y;
+    }
+
+    public Point asPoint()
+    {
+        return new Point((int) Math.round(x), (int) Math.round(y));
     }
 
     @Override

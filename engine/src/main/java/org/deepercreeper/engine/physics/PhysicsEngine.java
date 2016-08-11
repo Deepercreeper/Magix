@@ -1,8 +1,8 @@
-package org.deepercreeper.engine;
+package org.deepercreeper.engine.physics;
 
-import org.deepercreeper.engine.physics.PhysicsEntity;
-import org.deepercreeper.engine.physics.PhysicsEntityUpdater;
-import org.deepercreeper.engine.physics.Vector;
+import org.deepercreeper.engine.display.Display;
+import org.deepercreeper.engine.util.Rectangle;
+import org.deepercreeper.engine.util.Vector;
 
 import java.util.*;
 
@@ -14,8 +14,11 @@ public class PhysicsEngine
 
     private final PhysicsEntityUpdater entityUpdater = new PhysicsEntityUpdater();
 
-    public PhysicsEngine()
+    private final Display display;
+
+    public PhysicsEngine(Display display)
     {
+        this.display = display;
     }
 
     public void addEntity(PhysicsEntity entity)
@@ -29,15 +32,38 @@ public class PhysicsEngine
         removeRemovedEntities();
 
         accelerateEntities(delta);
+        saveLastEntityBoxes();
         updateEntities(delta);
+        renderEntities();
+    }
+
+    private void saveLastEntityBoxes()
+    {
+        entities.forEach(PhysicsEntity::saveBox);
+    }
+
+    private void renderEntities()
+    {
+        for (PhysicsEntity entity : entities)
+        {
+            display.clear(entity.getLastBox().asRectangle());
+        }
+        for (PhysicsEntity entity : entities)
+        {
+            Rectangle rectangle = entity.getBox().asRectangle();
+            display.render(rectangle, Display.createRectangle(rectangle.getWidth(), rectangle.getHeight(), 0xff123456));
+        }
     }
 
     private void accelerateEntities(double delta)
     {
         entities.stream().filter(PhysicsEntity::isAccelerated).forEach(entity ->
         {
-            Vector acceleration = entity.computeAcceleration();
-            entity.accelerate(acceleration.times(delta));
+            if (entity.isAccelerated())
+            {
+                Vector acceleration = entity.computeAcceleration();
+                entity.accelerate(acceleration.times(delta));
+            }
         });
     }
 

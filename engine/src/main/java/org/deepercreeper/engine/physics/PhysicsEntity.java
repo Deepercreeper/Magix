@@ -1,12 +1,17 @@
 package org.deepercreeper.engine.physics;
 
+import org.deepercreeper.engine.util.Box;
+import org.deepercreeper.engine.util.Vector;
+
 public abstract class PhysicsEntity
 {
     private static int ID_COUNTER = 0;
 
-    private int id;
+    private final int id;
 
     private final Box box;
+
+    private final Box lastBox;
 
     private final Vector velocity;
 
@@ -19,6 +24,7 @@ public abstract class PhysicsEntity
         this.box = new Box(box);
         velocity = new Vector();
         this.mass = mass;
+        lastBox = new Box(box);
         id = ID_COUNTER++;
     }
 
@@ -27,6 +33,7 @@ public abstract class PhysicsEntity
         this.box = new Box(box);
         this.velocity = new Vector(velocity);
         this.mass = mass;
+        lastBox = new Box(box);
         id = ID_COUNTER++;
     }
 
@@ -35,6 +42,7 @@ public abstract class PhysicsEntity
         this.box = new Box(position);
         velocity = new Vector();
         this.mass = mass;
+        lastBox = new Box(box);
         id = ID_COUNTER++;
     }
 
@@ -43,7 +51,19 @@ public abstract class PhysicsEntity
         this.box = new Box(position);
         this.velocity = new Vector(velocity);
         this.mass = mass;
+        lastBox = new Box(box);
         id = ID_COUNTER++;
+    }
+
+    public PhysicsEntity(double x, double y, double width, double height, double mass)
+    {
+        this(new Box(x, y, width, height), mass);
+    }
+
+    public PhysicsEntity(double x, double y, double width, double height, double xVelocity, double yVelocity, double
+            mass)
+    {
+        this(new Box(x, y, width, height), new Vector(xVelocity, yVelocity), mass);
     }
 
     public Vector getCenter()
@@ -54,6 +74,11 @@ public abstract class PhysicsEntity
     public Box getBox()
     {
         return box;
+    }
+
+    public Box getLastBox()
+    {
+        return lastBox;
     }
 
     public Vector getVelocity()
@@ -104,6 +129,11 @@ public abstract class PhysicsEntity
     public void move(double delta)
     {
         box.move(velocity.times(delta));
+    }
+
+    public void saveBox()
+    {
+        lastBox.moveTo(box.getPosition());
     }
 
     public void collideWith(PhysicsEntity entity)
