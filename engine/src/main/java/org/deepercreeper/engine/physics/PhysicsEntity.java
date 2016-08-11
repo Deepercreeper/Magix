@@ -1,5 +1,6 @@
 package org.deepercreeper.engine.physics;
 
+import org.deepercreeper.engine.display.Display;
 import org.deepercreeper.engine.util.Box;
 import org.deepercreeper.engine.util.Vector;
 
@@ -60,8 +61,7 @@ public abstract class PhysicsEntity
         this(new Box(x, y, width, height), mass);
     }
 
-    public PhysicsEntity(double x, double y, double width, double height, double xVelocity, double yVelocity, double
-            mass)
+    public PhysicsEntity(double x, double y, double width, double height, double xVelocity, double yVelocity, double mass)
     {
         this(new Box(x, y, width, height), new Vector(xVelocity, yVelocity), mass);
     }
@@ -142,10 +142,8 @@ public abstract class PhysicsEntity
         Vector distance = getCenter().minus(entity.getCenter());
         Vector entityDistance = distance.negative();
         double distanceNormSquared = Math.pow(distance.norm(), 2);
-        double factor = 2 * entity.getMass() / mass * getVelocity().minus(entity.getVelocity())
-                                                                   .times(distance) / distanceNormSquared;
-        double entityFactor = 2 * getMass() / mass * entity.getVelocity().minus(getVelocity())
-                                                           .times(entityDistance) / distanceNormSquared;
+        double factor = 2 * entity.getMass() / mass * getVelocity().minus(entity.getVelocity()).times(distance) / distanceNormSquared;
+        double entityFactor = 2 * getMass() / mass * entity.getVelocity().minus(getVelocity()).times(entityDistance) / distanceNormSquared;
 
         Vector velocity = getVelocity().minus(distance.times(factor));
         Vector entityVelocity = entity.getVelocity().minus(entityDistance.times(entityFactor));
@@ -156,6 +154,8 @@ public abstract class PhysicsEntity
     public abstract boolean isAccelerated();
 
     public abstract Vector computeAcceleration();
+
+    public abstract void render(Display display);
 
     @Override
     public boolean equals(Object obj)

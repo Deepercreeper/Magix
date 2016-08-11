@@ -1,10 +1,13 @@
 package org.deepercreeper.windows;
 
+import org.deepercreeper.engine.display.Display;
 import org.deepercreeper.engine.physics.PhysicsEngine;
 import org.deepercreeper.engine.physics.PhysicsEntity;
+import org.deepercreeper.engine.util.Rectangle;
 import org.deepercreeper.engine.util.Vector;
 import org.junit.Test;
 
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -51,7 +54,7 @@ public class FrameTest
                 long stamp = System.currentTimeMillis();
                 while (!closed[0])
                 {
-                    FrameTest.this.sleep(1);
+                    FrameTest.this.sleep(10);
                     long difference = System.currentTimeMillis() - stamp;
                     stamp += difference;
                     engine.update((double) difference / 200);
@@ -81,6 +84,14 @@ public class FrameTest
         }
 
         @Override
+        public void render(Display display)
+        {
+            Rectangle rectangle = getBox().asRectangle();
+            Color color = Color.getHSBColor(0.001f * (System.currentTimeMillis() % 1000), 1, 1);
+            display.render(rectangle, Display.createRectangle(rectangle.getWidth(), rectangle.getHeight(), 0xff000000 | color.getRGB()));
+        }
+
+        @Override
         public boolean isAccelerated()
         {
             return true;
@@ -90,7 +101,7 @@ public class FrameTest
         public Vector computeAcceleration()
         {
             Vector distance = position.minus(getBox().getCenter());
-            return distance.times(getMass() * 2000 / (distance.norm() * distance.norm() * distance.norm()));
+            return distance.times(getMass() * 2000 / (distance.norm() * distance.norm()));
         }
     }
 }

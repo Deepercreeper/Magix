@@ -1,7 +1,6 @@
 package org.deepercreeper.engine.physics;
 
 import org.deepercreeper.engine.display.Display;
-import org.deepercreeper.engine.util.Rectangle;
 import org.deepercreeper.engine.util.Vector;
 
 import java.util.*;
@@ -50,8 +49,7 @@ public class PhysicsEngine
         }
         for (PhysicsEntity entity : entities)
         {
-            Rectangle rectangle = entity.getBox().asRectangle();
-            display.render(rectangle, Display.createRectangle(rectangle.getWidth(), rectangle.getHeight(), 0xff123456));
+            entity.render(display);
         }
     }
 

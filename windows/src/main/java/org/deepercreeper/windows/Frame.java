@@ -106,11 +106,6 @@ public class Frame extends JFrame implements Display
         }
     }
 
-    public static void main(String[] args)
-    {
-        new Frame();
-    }
-
     private class FrameDisplay extends AbstractDisplay
     {
         @Override
@@ -120,9 +115,10 @@ public class Frame extends JFrame implements Display
             {
                 Frame.this.image.setRGB(x, y, width, height, image, 0, width);
             }
-            catch (ArrayIndexOutOfBoundsException ignored) {}
-
-            repaint();
+            catch (ArrayIndexOutOfBoundsException ignored)
+            {
+            }
+            repaint(x, y, width, height);
         }
 
         @Override
@@ -130,10 +126,12 @@ public class Frame extends JFrame implements Display
         {
             try
             {
-                Frame.this.image
-                        .setRGB(x, y, width, height, Display.createRectangle(width, height, 0xff000000), 0, width);
+                Frame.this.image.setRGB(x, y, width, height, Display.createRectangle(width, height, 0xff000000), 0, width);
             }
-            catch (ArrayIndexOutOfBoundsException ignored) {}
+            catch (ArrayIndexOutOfBoundsException ignored)
+            {
+            }
+            repaint(x, y, width, height);
         }
 
         @Override
