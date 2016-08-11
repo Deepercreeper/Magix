@@ -31,7 +31,12 @@ public class FrameTest
                 }
                 else
                 {
-                    engine.addEntity(new TestEntity(e.getX() - 5, e.getY() - 5));
+                    engine.addEntity(new TestEntity(e.getX() - 5, e.getY() - 5, false, false));
+                    engine.addEntity(new TestEntity(e.getX() - 5, e.getY() - 100));
+                    engine.addEntity(new TestEntity(e.getX() - 5, e.getY() - 200));
+                    engine.addEntity(new TestEntity(e.getX() - 5, e.getY() - 300));
+                    engine.addEntity(new TestEntity(e.getX() - 5, e.getY() - 400));
+                    engine.addEntity(new TestEntity(e.getX() - 5, e.getY() - 500));
                 }
             }
         });
@@ -83,6 +88,11 @@ public class FrameTest
             super(x, y, 50, 50, 0, 0, 1);
         }
 
+        public TestEntity(double x, double y, boolean moves, boolean accelerates)
+        {
+            super(x, y, 50, 50, 0, 0, moves, accelerates);
+        }
+
         @Override
         public void render(Display display)
         {
@@ -100,8 +110,9 @@ public class FrameTest
         @Override
         public Vector computeAcceleration()
         {
-            Vector distance = position.minus(getBox().getCenter());
-            return distance.times(getMass() * 2000 / (distance.norm() * distance.norm()));
+            //Vector distance = position.minus(getBox().getCenter());
+            //return distance.times(getMass() * 2000 / (distance.norm() * distance.norm()));
+            return new Vector(0,9.81);
         }
     }
 }

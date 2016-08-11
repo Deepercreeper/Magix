@@ -20,6 +20,10 @@ public abstract class PhysicsEntity
 
     private boolean removed = false;
 
+    private boolean moves = true;
+
+    private boolean accelerates = true;
+
     public PhysicsEntity(Box box, double mass)
     {
         this.box = new Box(box);
@@ -66,6 +70,13 @@ public abstract class PhysicsEntity
         this(new Box(x, y, width, height), new Vector(xVelocity, yVelocity), mass);
     }
 
+    public PhysicsEntity(double x, double y, double width, double height, double xVelocity, double yVelocity, boolean moves, boolean accelerates)
+    {
+        this(new Box(x, y, width, height), new Vector(xVelocity, yVelocity), 1000000);
+        this.moves = moves;
+        this.accelerates = accelerates;
+    }
+
     public Vector getCenter()
     {
         return box.getCenter();
@@ -93,7 +104,9 @@ public abstract class PhysicsEntity
 
     public void accelerate(Vector acceleration)
     {
-        velocity.add(acceleration);
+        if (accelerates) {
+            velocity.add(acceleration);
+        }
     }
 
     public void setVelocity(Vector velocity)
@@ -128,7 +141,9 @@ public abstract class PhysicsEntity
 
     public void move(double delta)
     {
-        box.move(velocity.times(delta));
+        if (moves){
+            box.move(velocity.times(delta));
+        }
     }
 
     public void saveBox()
@@ -136,14 +151,14 @@ public abstract class PhysicsEntity
         lastBox.moveTo(box.getPosition());
     }
 
-    public void collideWith(PhysicsEntity entity)
+    public void collideWith(PhysicsEntity entity, double elasticity)
     {
         double mass = getMass() + entity.getMass();
         Vector distance = getCenter().minus(entity.getCenter());
         Vector entityDistance = distance.negative();
         double distanceNormSquared = Math.pow(distance.norm(), 2);
-        double factor = 2 * entity.getMass() / mass * getVelocity().minus(entity.getVelocity()).times(distance) / distanceNormSquared;
-        double entityFactor = 2 * getMass() / mass * entity.getVelocity().minus(getVelocity()).times(entityDistance) / distanceNormSquared;
+        double factor = 2 * entity.getMass() / mass * getVelocity().minus(entity.getVelocity()).times(elasticity).times(distance) / distanceNormSquared;
+        double entityFactor = 2 * getMass() / mass * entity.getVelocity().minus(getVelocity()).times(elasticity).times(entityDistance) / distanceNormSquared;
 
         Vector velocity = getVelocity().minus(distance.times(factor));
         Vector entityVelocity = entity.getVelocity().minus(entityDistance.times(entityFactor));

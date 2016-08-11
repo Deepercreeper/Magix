@@ -90,7 +90,7 @@ public class PhysicsEntityUpdater
             Box entityBox = collisionEntity.getBox().shift(collisionEntity.getVelocity().times(stepDelta));
             if (box.isTouching(entityBox))
             {
-                entity.collideWith(collisionEntity);
+                entity.collideWith(collisionEntity, 0.75);
                 collidedEntities.add(entity);
                 collidedEntities.add(collisionEntity);
             }
