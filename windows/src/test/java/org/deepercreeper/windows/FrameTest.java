@@ -22,8 +22,9 @@ public class FrameTest
             {
                 final boolean movable = e.getButton() == MouseEvent.BUTTON1;
                 double mass = movable ? 1 : Double.POSITIVE_INFINITY;
-                double size = movable ? 20 : 25;
-                engine.addEntity(new TestEntity(e.getX() - size / 2, e.getY() - size / 2, size, size, mass)
+                double width = movable ? 20 : 1000;
+                double height = movable ? 20 : 25;
+                engine.addEntity(new TestEntity(e.getX() - width / 2, e.getY() - height / 2, width, height, mass)
                 {
                     @Override
                     public double getElasticity()
@@ -34,21 +35,16 @@ public class FrameTest
                     @Override
                     public void accelerate(double delta)
                     {
-                        Vector acceleration = getAcceleration();
-                        accelerate(acceleration.times(delta));
-                    }
-
-                    private Vector getAcceleration()
-                    {
                         if (!movable)
                         {
-                            return new Vector();
+                            return;
                         }
-                        double accelerationCoefficient = 1024;
+                        double accelerationCoefficient = isOnGround() ? 2000 : 800;
                         double rightAcceleration = getEngine().getInput().isActive(Key.RIGHT) ? accelerationCoefficient : 0;
                         double leftAcceleration = getEngine().getInput().isActive(Key.LEFT) ? -accelerationCoefficient : 0;
-                        double friction = -getVelocity().getX() * 2;
-                        return new Vector(rightAcceleration + leftAcceleration + friction, 16 * 16 * 9.81);
+                        Vector friction = isOnGround() ? getVelocity().times(-6) : getVelocity().times(-.5);
+                        Vector acceleration = new Vector(rightAcceleration + leftAcceleration, 16 * 16 * 9.81).plus(friction);
+                        accelerate(acceleration.times(delta));
                     }
 
                     @Override
@@ -57,6 +53,19 @@ public class FrameTest
                         if (movable && isOnGround() && getEngine().getInput().isActive(Key.JUMP))
                         {
                             setVelocity(getVelocity().plus(new Vector(0, -16 * 16 * 3)));
+                        }
+                        if (movable)
+                        {
+                            if (getEngine().getInput().isActive(Key.CROUCH) && getBox().getHeight() == height)
+                            {
+                                getEngine().getDisplay().clear(getBox().asRectangle());
+                                getBox().move(new Vector(0, height / 2));
+                            }
+                            if (!getEngine().getInput().isActive(Key.CROUCH) && getBox().getHeight() == height / 2)
+                            {
+                                getBox().move(new Vector(0, -height / 2));
+                            }
+                            getBox().setSize(getBox().getWidth(), getEngine().getInput().isActive(Key.CROUCH) ? height / 2 : height);
                         }
                         if (getBox().asRectangle().getCut(getEngine().getDisplay().getRectangle()).isEmpty())
                         {

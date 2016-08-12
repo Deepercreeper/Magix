@@ -48,6 +48,11 @@ public class Box
         return new Vector(size);
     }
 
+    public void setSize(double width, double height)
+    {
+        size.set(width, height);
+    }
+
     public double getX()
     {
         return position.getX();
