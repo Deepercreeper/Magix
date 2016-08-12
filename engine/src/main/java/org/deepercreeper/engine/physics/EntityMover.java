@@ -47,13 +47,18 @@ public class EntityMover
             entityCollider.collide(entities, stepDelta);
             moveEntities();
             entitySplitter.split(entities);
-            leftDelta -= stepDelta;
-            steps--;
+            decreaseDelta();
             if (entityCollider.hasCollisions())
             {
                 initDelta();
             }
         }
+    }
+
+    private void decreaseDelta()
+    {
+        leftDelta -= stepDelta;
+        steps--;
     }
 
     private void moveSingleEntity()
