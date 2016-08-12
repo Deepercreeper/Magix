@@ -1,7 +1,8 @@
 package org.deepercreeper.windows;
 
-import org.deepercreeper.engine.display.AbstractDisplay;
 import org.deepercreeper.engine.display.Display;
+import org.deepercreeper.engine.input.Input;
+import org.deepercreeper.engine.input.Key;
 import org.deepercreeper.engine.util.Rectangle;
 
 import javax.swing.*;
@@ -12,9 +13,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
-public class Frame extends JFrame implements Display
+public class Frame extends JFrame implements Display, Input
 {
-    private final FrameDisplay frameDisplay = new FrameDisplay();
+    private final FrameDisplay frameDisplay = new FrameDisplay(this);
+
+    private final FrameInput frameInput = new FrameInput(this);
 
     private BufferedImage image;
 
@@ -45,6 +48,12 @@ public class Frame extends JFrame implements Display
     }
 
     @Override
+    public boolean isActive(Key key)
+    {
+        return frameInput.isActive(key);
+    }
+
+    @Override
     public void paint(Graphics g)
     {
         g.drawImage(image, 0, 0, null);
@@ -60,6 +69,11 @@ public class Frame extends JFrame implements Display
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation(screenSize.width / 2 - getWidth() / 2, screenSize.height / 2 - getHeight() / 2);
+    }
+
+    public BufferedImage getImage()
+    {
+        return image;
     }
 
     @Override
@@ -103,47 +117,6 @@ public class Frame extends JFrame implements Display
             catch (InterruptedException ignored)
             {
             }
-        }
-    }
-
-    private class FrameDisplay extends AbstractDisplay
-    {
-        @Override
-        protected void renderInternal(int x, int y, int width, int height, int[] image)
-        {
-            try
-            {
-                Frame.this.image.setRGB(x, y, width, height, image, 0, width);
-            }
-            catch (ArrayIndexOutOfBoundsException ignored)
-            {
-            }
-            repaint(x, y, width, height);
-        }
-
-        @Override
-        protected void clearInternal(int x, int y, int width, int height)
-        {
-            try
-            {
-                Frame.this.image.setRGB(x, y, width, height, Display.createRectangle(width, height, 0xff000000), 0, width);
-            }
-            catch (ArrayIndexOutOfBoundsException ignored)
-            {
-            }
-            repaint(x, y, width, height);
-        }
-
-        @Override
-        public int getWidth()
-        {
-            return Frame.this.getWidth();
-        }
-
-        @Override
-        public int getHeight()
-        {
-            return Frame.this.getHeight();
         }
     }
 }
