@@ -143,16 +143,14 @@ public class Engine
         Set<Set<Entity>> connectedEntities = findConnectedEntities(delta);
         entityMover.setDelta(delta);
         connectedEntities.forEach(entityMover::move);
+        entities.stream().filter(entity -> !entity.isSolid()).forEach(entity -> entity.move(delta));
         LOGGER.debug("<== Move finished in {} ms", System.currentTimeMillis() - timeStamp);
     }
 
     private Set<Set<Entity>> findConnectedEntities(double delta)
     {
         Set<Set<Entity>> connectionComponents = new HashSet<>();
-        for (Entity entity : entities)
-        {
-            addToConnectionComponents(entity, connectionComponents, delta);
-        }
+        entities.stream().filter(Entity::isSolid).forEach(entity -> addToConnectionComponents(entity, connectionComponents, delta));
         return connectionComponents;
     }
 

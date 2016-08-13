@@ -176,6 +176,11 @@ public abstract class Entity
     {
     }
 
+    public boolean isSolid()
+    {
+        return true;
+    }
+
     public boolean isAccelerated()
     {
         return false;

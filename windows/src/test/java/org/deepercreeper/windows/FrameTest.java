@@ -20,7 +20,7 @@ public class FrameTest
             @Override
             public void mousePressed(MouseEvent e)
             {
-                final boolean movable = e.getButton() == MouseEvent.BUTTON1;
+                final boolean movable = e.getButton() != MouseEvent.BUTTON3;
                 double mass = movable ? 1 : Double.POSITIVE_INFINITY;
                 double width = movable ? 24 : 1000;
                 double height = movable ? 24 : 24;
@@ -65,6 +65,12 @@ public class FrameTest
                         {
                             remove();
                         }
+                    }
+
+                    @Override
+                    public boolean isSolid()
+                    {
+                        return e.getButton() != MouseEvent.BUTTON2;
                     }
                 });
             }
