@@ -260,10 +260,9 @@ public class Engine
                     timeStamp = System.currentTimeMillis();
                     difference = timeStamp - lastExecution;
                     timeout = Math.max(0, 1000 / fps - difference);
-                    LOGGER.debug("Sleeping timeout of {} ms", timeout);
                     trySleep(timeout);
                     lastExecution = System.currentTimeMillis();
-                    update((double) timeout * speed / 1000);
+                    update(1000 / fps * speed / 1000);
                 }
                 else
                 {

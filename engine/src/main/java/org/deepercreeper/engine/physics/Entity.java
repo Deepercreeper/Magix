@@ -202,7 +202,7 @@ public abstract class Entity
     public final void clear()
     {
         Display display = getEngine().getDisplay();
-        getLastBox().asRectangle().getSubtraction(getBox().asRectangle()).forEach(display::clear);
+        getLastBox().asScaledRectangle(getEngine().getScale()).getSubtraction(getBox().asScaledRectangle(getEngine().getScale())).forEach(display::clear);
     }
 
     @Override
