@@ -1,5 +1,6 @@
 package org.deepercreeper.engine.physics;
 
+import org.deepercreeper.engine.display.Display;
 import org.deepercreeper.engine.util.Box;
 import org.deepercreeper.engine.util.Vector;
 
@@ -54,184 +55,77 @@ public abstract class Entity
         this(new Box(x, y, width, height), new Vector(xVelocity, yVelocity));
     }
 
-    void setEngine(Engine engine)
+    final void setEngine(Engine engine)
     {
         this.engine = engine;
     }
 
-    public Vector getCenter()
+    public final Vector getCenter()
     {
         return box.getCenter();
     }
 
-    public Box getBox()
+    public final Box getBox()
     {
         return box;
     }
 
-    public Box getLastBox()
+    public final Box getLastBox()
     {
         return lastBox;
     }
 
-    public Vector getVelocity()
+    public final Vector getVelocity()
     {
         return velocity;
     }
 
-    public void accelerate(Vector acceleration)
-    {
-        velocity.add(acceleration);
-    }
-
-    public void setVelocity(Vector velocity)
+    public final void setVelocity(Vector velocity)
     {
         this.velocity.set(velocity);
     }
 
-    public Box getVelocityBox(double delta)
+    public final Box getVelocityBox(double delta)
     {
         return box.getContainment(box.shift(velocity.times(delta)));
     }
 
-    public boolean isPossiblyTouching(Entity entity, double delta)
+    public final boolean isVelocityTouching(Entity entity, double delta)
     {
         return getVelocityBox(delta).isTouching(entity.getVelocityBox(delta));
     }
 
-    public boolean isTouching(Entity entity)
+    public final boolean isTouching(Entity entity)
     {
         return box.isTouching(entity.box);
     }
 
-    public void remove()
+    public final void remove()
     {
         removed = true;
     }
 
-    public boolean isRemoved()
+    public final boolean isRemoved()
     {
         return removed;
     }
 
-    public void move(double delta)
+    public final void move(double delta)
     {
         box.move(velocity.times(delta));
     }
 
-    public void saveBox()
+    public final void saveBox()
     {
         lastBox.moveTo(box.getPosition());
     }
 
-    public void collideWith(Entity entity)
-    {
-        Vector difference = entity.getCenter().minus(getCenter());
-        Vector corner = new Vector(difference.getX() > 0 ? getBox().getMaxX() : getBox().getX(), difference
-                .getY() > 0 ? getBox().getMaxY() : getBox().getY());
-        Vector entityCorner = new Vector(difference.getX() > 0 ? entity.getBox().getX() : entity.getBox()
-                                                                                                .getMaxX(), difference
-                .getY() > 0 ? entity.getBox().getY() : entity.getBox().getMaxY());
-        if (Math.abs(corner.getX() - entityCorner.getX()) > Math.abs(corner.getY() - entityCorner.getY()))
-        {
-            collideVertical(entity);
-        }
-        else
-        {
-            collideHorizontal(entity);
-        }
-    }
-
-    private void collideVertical(Entity entity)
-    {
-        double elasticity = Math.sqrt(getElasticity() * entity.getElasticity());
-        double mass = getMass() + entity.getMass();
-        double massPoint = (getMass() * getVelocity().getY() + entity.getMass() * entity.getVelocity().getY()) / mass;
-        double yVelocity;
-        double yEntityVelocity;
-        if (Double.isInfinite(entity.getMass()) && Double.isInfinite(getMass()))
-        {
-            double average = (getVelocity().getY() + entity.getVelocity().getY()) / 2;
-            yVelocity = average - (getVelocity().getY() - entity.getVelocity().getY()) * elasticity / 2;
-            yEntityVelocity = average - (entity.getVelocity().getY() - getVelocity().getY()) * elasticity / 2;
-        }
-        else if (Double.isInfinite(entity.getMass()))
-        {
-            yVelocity = entity.getVelocity().getY() - (getVelocity().getY() - entity.getVelocity().getY()) * elasticity;
-            yEntityVelocity = entity.getVelocity().getY();
-        }
-        else if (Double.isInfinite(getMass()))
-        {
-            yVelocity = getVelocity().getY();
-            yEntityVelocity = getVelocity().getY() - (entity.getVelocity().getY() - getVelocity().getY()) * elasticity;
-        }
-        else
-        {
-            yVelocity = massPoint - (entity.getMass() * (getVelocity().getY() - entity.getVelocity()
-                                                                                      .getY()) * elasticity) / mass;
-            yEntityVelocity = massPoint - (getMass() * (entity.getVelocity().getY() - getVelocity()
-                    .getY()) * elasticity) / mass;
-        }
-
-        Vector velocity = new Vector(getVelocity().getX(), yVelocity);
-        Vector entityVelocity = new Vector(entity.getVelocity().getX(), yEntityVelocity);
-
-        setVelocity(velocity);
-        entity.setVelocity(entityVelocity);
-
-        if (getBox().getY() < entity.getBox().getY())
-        {
-            onGround = true;
-        }
-        else
-        {
-            entity.onGround = true;
-        }
-    }
-
-    private void collideHorizontal(Entity entity)
-    {
-        double elasticity = Math.sqrt(getElasticity() * entity.getElasticity());
-        double mass = getMass() + entity.getMass();
-        double massPoint = (getMass() * getVelocity().getX() + entity.getMass() * entity.getVelocity().getX()) / mass;
-        double xVelocity;
-        double xEntityVelocity;
-        if (Double.isInfinite(entity.getMass()) && Double.isInfinite(getMass()))
-        {
-            double average = (getVelocity().getX() + entity.getVelocity().getX()) / 2;
-            xVelocity = average - (getVelocity().getX() - entity.getVelocity().getX()) * elasticity / 2;
-            xEntityVelocity = average - (entity.getVelocity().getX() - getVelocity().getX()) * elasticity / 2;
-        }
-        else if (Double.isInfinite(entity.getMass()))
-        {
-            xVelocity = entity.getVelocity().getX() - (getVelocity().getX() - entity.getVelocity().getX()) * elasticity;
-            xEntityVelocity = entity.getVelocity().getX();
-        }
-        else if (Double.isInfinite(getMass()))
-        {
-            xVelocity = getVelocity().getX();
-            xEntityVelocity = getVelocity().getX() - (entity.getVelocity().getX() - getVelocity().getX()) * elasticity;
-        }
-        else
-        {
-            xVelocity = massPoint - (entity.getMass() * (getVelocity().getX() - entity.getVelocity()
-                                                                                      .getX()) * elasticity) / mass;
-            xEntityVelocity = massPoint - (getMass() * (entity.getVelocity().getX() - getVelocity()
-                    .getX()) * elasticity) / mass;
-        }
-        Vector velocity = new Vector(xVelocity, getVelocity().getY());
-        Vector entityVelocity = new Vector(xEntityVelocity, entity.getVelocity().getY());
-
-        setVelocity(velocity);
-        entity.setVelocity(entityVelocity);
-    }
-
-    public Engine getEngine()
+    public final Engine getEngine()
     {
         return engine;
     }
 
-    public void update(double delta)
+    public final void update(double delta)
     {
         if (isAccelerated())
         {
@@ -241,27 +135,64 @@ public abstract class Entity
         onGround = false;
     }
 
-    public boolean isOnGround()
+    public final void onGround()
+    {
+        onGround = true;
+    }
+
+    public final boolean isOnGround()
     {
         return onGround;
     }
 
-    public abstract void update();
+    public final double getMassScaleTo(Entity entity)
+    {
+        if (Double.isInfinite(getMass()))
+        {
+            return Double.isInfinite(entity.getMass()) ? 0.5 : 1;
+        }
+        if (Double.isInfinite(entity.getMass()))
+        {
+            return 0;
+        }
+        return getMass() / (getMass() + entity.getMass());
+    }
 
-    public abstract double getElasticity();
+    public void update()
+    {
+    }
 
-    public abstract double getMass();
+    public double getElasticity()
+    {
+        return .75;
+    }
 
-    public abstract void accelerate(double delta);
+    public double getMass()
+    {
+        return 1;
+    }
 
-    public abstract boolean isAccelerated();
+    public void accelerate(double delta)
+    {
+    }
 
-    public abstract void render();
+    public boolean isAccelerated()
+    {
+        return false;
+    }
 
-    public abstract void clear();
+    public void render()
+    {
+    }
+
+    public final void clear()
+    {
+        Display display = getEngine().getDisplay();
+        getLastBox().asRectangle().getSubtraction(getBox().asRectangle()).forEach(display::clear);
+    }
 
     @Override
-    public boolean equals(Object obj)
+    public final boolean equals(Object obj)
     {
         return this == obj;
     }

@@ -53,22 +53,22 @@ public class EntityMover
         while (steps > 0)
         {
             stepCounter++;
+            entitySplitter.split(entities);
             entityCollider.collide(entities, stepDelta);
             moveEntities();
-            entitySplitter.split(entities);
             decreaseDelta();
             if (entityCollider.hasCollisions())
             {
                 initDelta();
             }
         }
-        LOGGER.debug("Moved {} entities in {} steps and {} ms", entities.size(), stepCounter, System
-                .currentTimeMillis() - timeStamp);
+        LOGGER.debug("Moved {} entities in {} steps and {} ms", entities.size(), stepCounter, System.currentTimeMillis() - timeStamp);
     }
 
     private void decreaseDelta()
     {
         leftDelta -= stepDelta;
+        stepDelta = Math.min(leftDelta, stepDelta);
         steps--;
     }
 
@@ -85,9 +85,7 @@ public class EntityMover
 
     private void initDelta()
     {
-        double maxVelocity = entities.stream().map(entity -> entity.getVelocity().times(delta).norm())
-                                     .max(Double::compare)
-                                     .orElse(.0);
+        double maxVelocity = entities.stream().map(entity -> entity.getVelocity().times(delta).norm()).max(Double::compare).orElse(.0);
         if (maxVelocity < MAX_STEP_VELOCITY)
         {
             stepDelta = leftDelta;

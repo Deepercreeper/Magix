@@ -24,12 +24,6 @@ public abstract class TestEntity extends Entity
     }
 
     @Override
-    public double getElasticity()
-    {
-        return .75;
-    }
-
-    @Override
     public boolean isAccelerated()
     {
         return true;
@@ -46,12 +40,5 @@ public abstract class TestEntity extends Entity
         color = Color.getHSBColor(0.001f * (System.currentTimeMillis() % 1000), 1, .5f);
         rectangle = new Box(getBox().getPosition().plus(getBox().getSize().times(.25)), getBox().getSize().times(.5)).asRectangle();
         getEngine().getDisplay().render(rectangle, Display.createRectangle(rectangle.getWidth(), rectangle.getHeight(), 0xff000000 | color.getRGB()));
-    }
-
-    @Override
-    public void clear()
-    {
-        Display display = getEngine().getDisplay();
-        getLastBox().asRectangle().getSubtraction(getBox().asRectangle()).forEach(display::clear);
     }
 }

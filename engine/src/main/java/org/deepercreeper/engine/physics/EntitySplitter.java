@@ -47,24 +47,23 @@ public class EntitySplitter
         double negativeXDistance = secondBox.getMaxX() - firstBox.getX();
         double positiveYDistance = firstBox.getMaxY() - secondBox.getY();
         double negativeYDistance = secondBox.getMaxY() - firstBox.getY();
-        if (Math.min(Math.abs(positiveXDistance), Math.abs(negativeXDistance)) < Math
-                .min(Math.abs(positiveYDistance), Math.abs(negativeYDistance)))
+        if (Math.min(Math.abs(positiveXDistance), Math.abs(negativeXDistance)) < Math.min(Math.abs(positiveYDistance), Math.abs(negativeYDistance)))
         {
-            splitHorizontal(firstEntity, secondEntity, Math.abs(positiveXDistance) < Math.abs(negativeXDistance));
+            splitHorizontal(firstEntity, secondEntity, firstEntity.getCenter().getX() < secondEntity.getCenter().getX());
         }
         else
         {
-            splitVertical(firstEntity, secondEntity, Math.abs(positiveYDistance) < Math.abs(negativeYDistance));
+            splitVertical(firstEntity, secondEntity, firstEntity.getCenter().getY() < secondEntity.getCenter().getY());
         }
     }
 
-    private void splitHorizontal(Entity firstEntity, Entity secondEntity, boolean positive)
+    private void splitHorizontal(Entity firstEntity, Entity secondEntity, boolean firstOnLeft)
     {
-        double scale = computeScaleOf(firstEntity, secondEntity);
+        double scale = firstEntity.getMassScaleTo(secondEntity);
         double position;
         double firstX;
         double secondX;
-        if (positive)
+        if (firstOnLeft)
         {
             position = (1 - scale) * secondEntity.getBox().getX() + scale * firstEntity.getBox().getMaxX();
             firstX = position - firstEntity.getBox().getWidth() - (1 - scale) * EPSILON;
@@ -80,13 +79,13 @@ public class EntitySplitter
         secondEntity.getBox().moveTo(new Vector(secondX, secondEntity.getBox().getY()));
     }
 
-    private void splitVertical(Entity firstEntity, Entity secondEntity, boolean positive)
+    private void splitVertical(Entity firstEntity, Entity secondEntity, boolean firstOnTop)
     {
-        double scale = computeScaleOf(firstEntity, secondEntity);
+        double scale = firstEntity.getMassScaleTo(secondEntity);
         double position;
         double firstY;
         double secondY;
-        if (positive)
+        if (firstOnTop)
         {
             position = (1 - scale) * secondEntity.getBox().getY() + scale * firstEntity.getBox().getMaxY();
             firstY = position - firstEntity.getBox().getHeight() - (1 - scale) * EPSILON;
@@ -100,18 +99,5 @@ public class EntitySplitter
         }
         firstEntity.getBox().moveTo(new Vector(firstEntity.getBox().getX(), firstY));
         secondEntity.getBox().moveTo(new Vector(secondEntity.getBox().getX(), secondY));
-    }
-
-    private double computeScaleOf(Entity firstEntity, Entity secondEntity)
-    {
-        if (Double.isInfinite(firstEntity.getMass()))
-        {
-            return Double.isInfinite(secondEntity.getMass()) ? 0.5 : 1;
-        }
-        if (Double.isInfinite(secondEntity.getMass()))
-        {
-            return 0;
-        }
-        return firstEntity.getMass() / (firstEntity.getMass() + secondEntity.getMass());
     }
 }

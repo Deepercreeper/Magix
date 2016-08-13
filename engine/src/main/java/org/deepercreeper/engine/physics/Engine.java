@@ -142,7 +142,7 @@ public class Engine
             Set<Entity> connectionComponent = iterator.next();
             for (Entity connectedEntity : connectionComponent)
             {
-                if (entity.isPossiblyTouching(connectedEntity, delta))
+                if (entity.isVelocityTouching(connectedEntity, delta))
                 {
                     connectedEntities.addAll(connectionComponent);
                     iterator.remove();
@@ -166,8 +166,10 @@ public class Engine
         Iterator<Entity> iterator = entities.iterator();
         while (iterator.hasNext())
         {
-            if (iterator.next().isRemoved())
+            Entity entity = iterator.next();
+            if (entity.isRemoved())
             {
+                entity.setEngine(null);
                 iterator.remove();
             }
         }
