@@ -14,7 +14,7 @@ public class FrameTest
     public void testPhysicsEntity()
     {
         Frame frame = new Frame();
-        Engine engine = new Engine(60, 16, frame, frame);
+        Engine engine = new Engine(100, 16, frame, frame);
         frame.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -22,8 +22,8 @@ public class FrameTest
             {
                 final boolean movable = e.getButton() == MouseEvent.BUTTON1;
                 double mass = movable ? 1 : Double.POSITIVE_INFINITY;
-                double width = movable ? 25 : 1000;
-                double height = movable ? 25 : 25;
+                double width = movable ? 24 : 1000;
+                double height = movable ? 24 : 24;
                 engine.addEntity(new TestEntity(e.getX() - width / 2, e.getY() - height / 2, width, height, mass)
                 {
                     @Override
