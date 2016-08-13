@@ -36,7 +36,7 @@ public class FrameTest
                         if (!movable)
                         {
                             return;
-                        } //10 = 2x
+                        }
                         double accelerationCoefficient = isOnGround() ? 20 : 12;
                         double rightAcceleration = getEngine().getInput().isActive(Key.RIGHT) ? accelerationCoefficient : 0;
                         double leftAcceleration = getEngine().getInput().isActive(Key.LEFT) ? -accelerationCoefficient : 0;
@@ -74,7 +74,7 @@ public class FrameTest
                     @Override
                     public double getElasticity()
                     {
-                        return .75;
+                        return elasticity;
                     }
 
                     @Override

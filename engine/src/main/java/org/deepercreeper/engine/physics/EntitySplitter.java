@@ -7,7 +7,7 @@ import java.util.*;
 
 public class EntitySplitter
 {
-    private static final double EPSILON = 10E-5;
+    private static final double EPSILON = 10E-10;
 
     private final Set<Entity> entities = new HashSet<>();
 
