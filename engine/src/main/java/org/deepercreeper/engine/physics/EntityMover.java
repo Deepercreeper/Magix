@@ -85,7 +85,7 @@ public class EntityMover
 
     private void initDelta()
     {
-        double maxVelocity = entities.stream().map(entity -> entity.getVelocity().times(delta).norm()).max(Double::compare).orElse(.0);
+        double maxVelocity = entities.stream().map(entity -> entity.getVelocity().times(entity.getSpeed() * delta).norm()).max(Double::compare).orElse(.0);
         if (maxVelocity < MAX_STEP_VELOCITY)
         {
             stepDelta = leftDelta;

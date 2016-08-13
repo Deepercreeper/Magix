@@ -5,5 +5,6 @@ public enum Key
     JUMP,
     RIGHT,
     LEFT,
-    CROUCH
+    CROUCH,
+    PAUSE
 }

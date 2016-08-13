@@ -2,6 +2,8 @@ package org.deepercreeper.engine.physics;
 
 import org.deepercreeper.engine.display.Display;
 import org.deepercreeper.engine.input.Input;
+import org.deepercreeper.engine.input.Key;
+import org.deepercreeper.engine.util.Box;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,8 @@ public class Engine
 
     private final double scale;
 
+    private boolean pause = false;
+
     public Engine(int fps, double scale, Display display, Input input)
     {
         updater = new Updater(fps);
@@ -47,16 +51,24 @@ public class Engine
     public void start()
     {
         updater.setUpdating(true);
+        LOGGER.info("Engine started");
     }
 
     public void stop()
     {
         updater.setUpdating(false);
+        LOGGER.info("Engine stopped");
     }
 
     public void shutDown()
     {
         updater.shutDown();
+        LOGGER.info("Engine shut down");
+    }
+
+    public void setPause(boolean pause)
+    {
+        this.pause = pause;
     }
 
     public void update(double delta)
@@ -66,11 +78,20 @@ public class Engine
         addNewEntities();
         removeRemovedEntities();
 
-        updateEntities(delta);
-        saveLastEntityBoxes();
-        moveEntities(delta);
+        updateInput();
+        if (!pause)
+        {
+            updateEntities(delta);
+            saveLastEntityBoxes();
+            moveEntities(delta);
+        }
         renderEntities();
         LOGGER.debug("<== Update finished in {} ms", System.currentTimeMillis() - timeStamp);
+    }
+
+    public void setSpeed(double speed)
+    {
+        updater.setSpeed(speed);
     }
 
     public Input getInput()
@@ -86,6 +107,38 @@ public class Engine
     public double getScale()
     {
         return scale;
+    }
+
+    public boolean isFree(Box box)
+    {
+        for (Entity entity : entities)
+        {
+            if (entity.getBox().isTouching(box))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isFreeIn(Box box, double delta)
+    {
+        for (Entity entity : entities)
+        {
+            if (entity.getVelocityBox(delta).isTouching(box))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void updateInput()
+    {
+        if (getInput().checkHit(Key.PAUSE))
+        {
+            setPause(!pause);
+        }
     }
 
     private void saveLastEntityBoxes()
@@ -120,16 +173,14 @@ public class Engine
         Set<Set<Entity>> connectedEntities = findConnectedEntities(delta);
         entityMover.setDelta(delta);
         connectedEntities.forEach(entityMover::move);
+        entities.stream().filter(entity -> !entity.isSolid()).forEach(entity -> entity.move(delta));
         LOGGER.debug("<== Move finished in {} ms", System.currentTimeMillis() - timeStamp);
     }
 
     private Set<Set<Entity>> findConnectedEntities(double delta)
     {
         Set<Set<Entity>> connectionComponents = new HashSet<>();
-        for (Entity entity : entities)
-        {
-            addToConnectionComponents(entity, connectionComponents, delta);
-        }
+        entities.stream().filter(Entity::isSolid).forEach(entity -> addToConnectionComponents(entity, connectionComponents, delta));
         return connectionComponents;
     }
 
@@ -177,6 +228,8 @@ public class Engine
 
     private class Updater extends Thread
     {
+        private double speed = 1;
+
         private boolean running = true;
 
         private boolean updating = false;
@@ -210,7 +263,7 @@ public class Engine
                     LOGGER.debug("Sleeping timeout of {} ms", timeout);
                     trySleep(timeout);
                     lastExecution = System.currentTimeMillis();
-                    update((double) (difference + timeout) / 1000);
+                    update((double) timeout * speed / 1000);
                 }
                 else
                 {
@@ -231,6 +284,11 @@ public class Engine
                 sleep(timeout);
             }
             catch (InterruptedException ignored) {}
+        }
+
+        public void setSpeed(double speed)
+        {
+            this.speed = speed;
         }
 
         public void setUpdating(boolean updating)

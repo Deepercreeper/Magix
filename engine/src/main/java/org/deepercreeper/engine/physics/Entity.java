@@ -87,7 +87,7 @@ public abstract class Entity
 
     public final Box getVelocityBox(double delta)
     {
-        return box.getContainment(box.shift(velocity.times(delta)));
+        return box.getContainment(box.shift(velocity.times(getSpeed() * delta)));
     }
 
     public final boolean isVelocityTouching(Entity entity, double delta)
@@ -112,12 +112,12 @@ public abstract class Entity
 
     public final void move(double delta)
     {
-        box.move(velocity.times(delta));
+        box.move(velocity.times(getSpeed() * delta));
     }
 
     public final void saveBox()
     {
-        lastBox.moveTo(box.getPosition());
+        lastBox.set(box);
     }
 
     public final Engine getEngine()
@@ -129,7 +129,7 @@ public abstract class Entity
     {
         if (isAccelerated())
         {
-            accelerate(delta);
+            accelerate(getSpeed() * delta);
         }
         update();
         onGround = false;
@@ -158,6 +158,15 @@ public abstract class Entity
         return getMass() / (getMass() + entity.getMass());
     }
 
+    public void collideWith(Entity entity)
+    {
+    }
+
+    public double getSpeed()
+    {
+        return 1;
+    }
+
     public void update()
     {
     }
@@ -174,6 +183,11 @@ public abstract class Entity
 
     public void accelerate(double delta)
     {
+    }
+
+    public boolean isSolid()
+    {
+        return true;
     }
 
     public boolean isAccelerated()

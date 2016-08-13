@@ -14,13 +14,13 @@ public class FrameTest
     public void testPhysicsEntity()
     {
         Frame frame = new Frame();
-        Engine engine = new Engine(100, 16, frame, frame);
+        Engine engine = new Engine(100, 16, frame.getDisplay(), frame.getInput());
         frame.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mousePressed(MouseEvent e)
             {
-                final boolean movable = e.getButton() == MouseEvent.BUTTON1;
+                final boolean movable = e.getButton() != MouseEvent.BUTTON3;
                 double mass = movable ? 1 : Double.POSITIVE_INFINITY;
                 double width = movable ? 24 : 1000;
                 double height = movable ? 24 : 24;
@@ -65,6 +65,18 @@ public class FrameTest
                         {
                             remove();
                         }
+                    }
+
+                    @Override
+                    public double getElasticity()
+                    {
+                        return .75;
+                    }
+
+                    @Override
+                    public double getSpeed()
+                    {
+                        return e.getButton() == MouseEvent.BUTTON2 ? 2 : 1;
                     }
                 });
             }

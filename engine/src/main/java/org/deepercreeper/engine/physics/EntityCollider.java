@@ -12,7 +12,7 @@ public class EntityCollider
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityCollider.class);
 
-    private static final double EPSILON = 56;
+    private static final double DEFAULT_DUMPING_LIMIT = 25;
 
     private final Set<Entity> entities = new HashSet<>();
 
@@ -51,10 +51,10 @@ public class EntityCollider
 
     private void checkCollisionsOf(Entity entity)
     {
-        Box box = entity.getBox().shift(entity.getVelocity().times(delta));
+        Box box = entity.getBox().shift(entity.getVelocity().times(entity.getSpeed() * delta));
         for (Entity collisionEntity : connectedEntities.get(entity))
         {
-            Box entityBox = collisionEntity.getBox().shift(collisionEntity.getVelocity().times(delta));
+            Box entityBox = collisionEntity.getBox().shift(collisionEntity.getVelocity().times(entity.getSpeed() * delta));
             if (box.isTouching(entityBox))
             {
                 Set<Entity> collision = new HashSet<>();
@@ -78,6 +78,9 @@ public class EntityCollider
 
     public void collide(Entity firstEntity, Entity secondEntity)
     {
+        firstEntity.collideWith(secondEntity);
+        secondEntity.collideWith(firstEntity);
+
         Vector difference = secondEntity.getCenter().minus(firstEntity.getCenter());
 
         double xFirstCorner = difference.getX() > 0 ? firstEntity.getBox().getMaxX() : firstEntity.getBox().getX();
@@ -127,7 +130,7 @@ public class EntityCollider
             secondVelocity = massPoint - (firstEntity.getMass() * (secondEntity.getVelocity().getY() - firstEntity.getVelocity().getY()) * elasticity) / mass;
         }
 
-        setVerticalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity);
+        setVerticalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity, DEFAULT_DUMPING_LIMIT);
 
         if (firstEntity.getBox().getY() < secondEntity.getBox().getY())
         {
@@ -139,15 +142,16 @@ public class EntityCollider
         }
     }
 
-    private void setVerticalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity)
+    private void setVerticalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity, double dampingLimit)
     {
         double differenceLength = Math
                 .min(Math.abs(secondEntity.getBox().getY() - firstEntity.getBox().getMaxY()), Math.abs(firstEntity.getBox().getY() - secondEntity.getBox().getMaxY()));
         double difference = Math.signum(secondEntity.getCenter().getY() - firstEntity.getCenter().getY()) * differenceLength;
-        if (Math.abs(firstVelocity) < EPSILON || Math.abs(secondVelocity) < EPSILON)
+        if (Math.abs(firstVelocity) < dampingLimit * firstEntity.getSpeed() || Math.abs(secondVelocity) < dampingLimit * secondEntity.getSpeed())
         {
-            firstVelocity = Math.abs(firstVelocity) < EPSILON ? 0 : firstVelocity;
-            secondVelocity = Math.abs(secondVelocity) < EPSILON ? 0 : secondVelocity;
+            LOGGER.info("Stopping entities: {}, {}", firstVelocity, secondVelocity);
+            firstVelocity = Math.abs(firstVelocity) < dampingLimit * firstEntity.getSpeed() ? 0 : firstVelocity;
+            secondVelocity = Math.abs(secondVelocity) < dampingLimit * secondEntity.getSpeed() ? 0 : secondVelocity;
 
             double scale = firstEntity.getMassScaleTo(secondEntity);
 
@@ -188,18 +192,18 @@ public class EntityCollider
             secondVelocity = massPoint - (firstEntity.getMass() * (secondEntity.getVelocity().getX() - firstEntity.getVelocity().getX()) * elasticity) / mass;
         }
 
-        setHorizontalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity);
+        setHorizontalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity, DEFAULT_DUMPING_LIMIT);
     }
 
-    private void setHorizontalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity)
+    private void setHorizontalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity, double dampingLimit)
     {
         double differenceLength = Math
                 .min(Math.abs(secondEntity.getBox().getX() - firstEntity.getBox().getMaxX()), Math.abs(firstEntity.getBox().getX() - secondEntity.getBox().getMaxX()));
         double difference = Math.signum(secondEntity.getCenter().getX() - firstEntity.getCenter().getX()) * differenceLength;
-        if (Math.abs(firstVelocity) < EPSILON || Math.abs(secondVelocity) < EPSILON)
+        if (Math.abs(firstVelocity) < dampingLimit * firstEntity.getSpeed() || Math.abs(secondVelocity) < dampingLimit * secondEntity.getSpeed())
         {
-            firstVelocity = Math.abs(firstVelocity) < EPSILON ? 0 : firstVelocity;
-            secondVelocity = Math.abs(secondVelocity) < EPSILON ? 0 : secondVelocity;
+            firstVelocity = Math.abs(firstVelocity) < dampingLimit * firstEntity.getSpeed() ? 0 : firstVelocity;
+            secondVelocity = Math.abs(secondVelocity) < dampingLimit * secondEntity.getSpeed() ? 0 : secondVelocity;
 
             double scale = firstEntity.getMassScaleTo(secondEntity);
 
@@ -209,6 +213,48 @@ public class EntityCollider
 
         firstEntity.setVelocity(new Vector(firstVelocity, firstEntity.getVelocity().getY()));
         secondEntity.setVelocity(new Vector(secondVelocity, secondEntity.getVelocity().getY()));
+    }
+
+    private double computeDampingLimit(double elasticity)
+    {
+        if (0.0 <= elasticity && elasticity <= 0.5)
+        {
+            return 4;
+        }
+        else if (0.5 < elasticity && elasticity <= 0.55)
+        {
+            return 60 * elasticity - 26;
+        }
+        else if (0.55 < elasticity && elasticity < 0.6)
+        {
+            return 160 * elasticity - 81;
+        }
+        else if (0.6 <= elasticity && elasticity <= 1)
+        {
+            double epsilon = -95333 * Math.pow(elasticity, 5) + 364333 * Math.pow(elasticity, 4) - 546415 * Math.pow(elasticity, 3) + 402705 * Math
+                    .pow(elasticity, 2) - 145756 * elasticity + 20716;
+            if (0.65 <= elasticity && elasticity <= 0.75)
+            {
+                epsilon += -1600 * Math.pow(elasticity, 2) + 2240 * elasticity - 780;
+            }
+            return epsilon;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public boolean isCollided(Entity entity)
+    {
+        for (Set<Entity> collision : collisions)
+        {
+            if (collision.contains(entity))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean hasCollisions()

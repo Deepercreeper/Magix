@@ -88,6 +88,12 @@ public class Box
         this.position.set(position);
     }
 
+    public void set(Box box)
+    {
+        position.set(box.getPosition());
+        size.set(box.getSize());
+    }
+
     public void move(Vector vector)
     {
         position.add(vector);

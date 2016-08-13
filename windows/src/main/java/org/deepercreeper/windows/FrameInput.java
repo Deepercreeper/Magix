@@ -10,6 +10,8 @@ public class FrameInput implements Input
 {
     private final boolean[] activeKeys = new boolean[Key.values().length];
 
+    private final boolean[] hitKeys = new boolean[Key.values().length];
+
     public FrameInput(Frame frame)
     {
         frame.addKeyListener(new KeyAdapter()
@@ -33,6 +35,10 @@ public class FrameInput implements Input
         int index = getKey(keyCode);
         if (index >= 0)
         {
+            if (!activeKeys[index])
+            {
+                hitKeys[index] = true;
+            }
             activeKeys[index] = true;
         }
     }
@@ -58,6 +64,8 @@ public class FrameInput implements Input
                 return Key.JUMP.ordinal();
             case KeyEvent.VK_CONTROL:
                 return Key.CROUCH.ordinal();
+            case KeyEvent.VK_ESCAPE:
+                return Key.PAUSE.ordinal();
         }
         return -1;
     }
@@ -66,5 +74,16 @@ public class FrameInput implements Input
     public boolean isActive(Key key)
     {
         return activeKeys[key.ordinal()];
+    }
+
+    @Override
+    public boolean checkHit(Key key)
+    {
+        if (hitKeys[key.ordinal()])
+        {
+            hitKeys[key.ordinal()] = false;
+            return true;
+        }
+        return false;
     }
 }
