@@ -68,9 +68,15 @@ public class FrameTest
                     }
 
                     @Override
-                    public boolean isSolid()
+                    public double getElasticity()
                     {
-                        return e.getButton() != MouseEvent.BUTTON2;
+                        return .75;
+                    }
+
+                    @Override
+                    public double getSpeed()
+                    {
+                        return e.getButton() == MouseEvent.BUTTON2 ? 2 : 1;
                     }
                 });
             }

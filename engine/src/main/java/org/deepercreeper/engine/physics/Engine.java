@@ -3,6 +3,7 @@ package org.deepercreeper.engine.physics;
 import org.deepercreeper.engine.display.Display;
 import org.deepercreeper.engine.input.Input;
 import org.deepercreeper.engine.input.Key;
+import org.deepercreeper.engine.util.Box;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +89,11 @@ public class Engine
         LOGGER.debug("<== Update finished in {} ms", System.currentTimeMillis() - timeStamp);
     }
 
+    public void setSpeed(double speed)
+    {
+        updater.setSpeed(speed);
+    }
+
     public Input getInput()
     {
         return input;
@@ -101,6 +107,30 @@ public class Engine
     public double getScale()
     {
         return scale;
+    }
+
+    public boolean isFree(Box box)
+    {
+        for (Entity entity : entities)
+        {
+            if (entity.getBox().isTouching(box))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isFreeIn(Box box, double delta)
+    {
+        for (Entity entity : entities)
+        {
+            if (entity.getVelocityBox(delta).isTouching(box))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void updateInput()
@@ -198,6 +228,8 @@ public class Engine
 
     private class Updater extends Thread
     {
+        private double speed = 1;
+
         private boolean running = true;
 
         private boolean updating = false;
@@ -231,7 +263,7 @@ public class Engine
                     LOGGER.debug("Sleeping timeout of {} ms", timeout);
                     trySleep(timeout);
                     lastExecution = System.currentTimeMillis();
-                    update((double) (difference + timeout) / 1000);
+                    update((double) timeout * speed / 1000);
                 }
                 else
                 {
@@ -252,6 +284,11 @@ public class Engine
                 sleep(timeout);
             }
             catch (InterruptedException ignored) {}
+        }
+
+        public void setSpeed(double speed)
+        {
+            this.speed = speed;
         }
 
         public void setUpdating(boolean updating)
