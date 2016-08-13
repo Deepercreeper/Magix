@@ -117,7 +117,7 @@ public abstract class Entity
 
     public final void saveBox()
     {
-        lastBox.moveTo(box.getPosition());
+        lastBox.set(box);
     }
 
     public final Engine getEngine()
