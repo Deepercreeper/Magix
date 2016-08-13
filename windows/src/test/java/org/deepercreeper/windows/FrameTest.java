@@ -27,12 +27,6 @@ public class FrameTest
                 engine.addEntity(new TestEntity(e.getX() - width / 2, e.getY() - height / 2, width, height, mass)
                 {
                     @Override
-                    public double getElasticity()
-                    {
-                        return 0;
-                    }
-
-                    @Override
                     public void accelerate(double delta)
                     {
                         if (!movable)
@@ -44,7 +38,7 @@ public class FrameTest
                         double leftAcceleration = getEngine().getInput().isActive(Key.LEFT) ? -accelerationCoefficient : 0;
                         Vector friction = isOnGround() ? getVelocity().times(-6) : getVelocity().times(-.5);
                         Vector acceleration = new Vector(rightAcceleration + leftAcceleration, 16 * 16 * 9.81).plus(friction);
-                        accelerate(acceleration.times(delta));
+                        getVelocity().add(acceleration.times(delta));
                     }
 
                     @Override
