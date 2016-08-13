@@ -78,12 +78,12 @@ public class Rectangle
 
     public int getMaxX()
     {
-        return getX() + getWidth();
+        return getX() + getWidth() - 1;
     }
 
     public int getMaxY()
     {
-        return getY() + getHeight();
+        return getY() + getHeight() - 1;
     }
 
     public void move(Point point)
@@ -98,7 +98,7 @@ public class Rectangle
 
     public boolean isTouching(Rectangle rectangle)
     {
-        return !(getMaxX() < rectangle.getX() || rectangle.getMaxX() < getX() || getMaxY() < rectangle.getY() || rectangle.getMaxY() < getY());
+        return rectangle.getX() <= getMaxX() && getX() <= rectangle.getMaxX() && rectangle.getY() <= getMaxY() && getY() <= rectangle.getMaxY();
     }
 
     public Rectangle getCut(Rectangle rectangle)
@@ -109,8 +109,8 @@ public class Rectangle
         }
         int x = Math.max(getX(), rectangle.getX());
         int y = Math.max(getY(), rectangle.getY());
-        int width = Math.min(getMaxX(), rectangle.getMaxX()) - x;
-        int height = Math.min(getMaxY(), rectangle.getMaxY()) - y;
+        int width = Math.min(getMaxX(), rectangle.getMaxX()) - x + 1;
+        int height = Math.min(getMaxY(), rectangle.getMaxY()) - y + 1;
         return new Rectangle(x, y, width, height);
     }
 
@@ -118,8 +118,8 @@ public class Rectangle
     {
         int x = Math.min(getX(), rectangle.getX());
         int y = Math.min(getY(), rectangle.getY());
-        int width = Math.max(getMaxX(), rectangle.getMaxX()) - x;
-        int height = Math.max(getMaxY(), rectangle.getMaxY()) - y;
+        int width = Math.max(getMaxX(), rectangle.getMaxX()) - x + 1;
+        int height = Math.max(getMaxY(), rectangle.getMaxY()) - y + 1;
         return new Rectangle(x, y, width, height);
     }
 
@@ -140,7 +140,7 @@ public class Rectangle
         {
             subtraction.add(component);
         }
-        component = new Rectangle(getX(), rectangle.getMaxY(), getWidth(), Math.max(0, getMaxY() - rectangle.getMaxY()));
+        component = new Rectangle(getX(), rectangle.getMaxY() + 1, getWidth(), Math.max(0, getMaxY() - rectangle.getMaxY()));
         if (!component.isEmpty())
         {
             subtraction.add(component);
@@ -150,7 +150,7 @@ public class Rectangle
         {
             subtraction.add(component);
         }
-        component = new Rectangle(rectangle.getMaxX(), rectangle.getY(), Math.max(0, getMaxX() - rectangle.getMaxX()), rectangle.getHeight());
+        component = new Rectangle(rectangle.getMaxX() + 1, rectangle.getY(), Math.max(0, getMaxX() - rectangle.getMaxX()), rectangle.getHeight());
         if (!component.isEmpty())
         {
             subtraction.add(component);
@@ -160,7 +160,7 @@ public class Rectangle
 
     public boolean contains(Rectangle rectangle)
     {
-        return getX() <= rectangle.getX() && getY() < rectangle.getY() && getMaxX() >= rectangle.getMaxX() && getMaxY() >= rectangle.getMaxY();
+        return getX() <= rectangle.getX() && getY() <= rectangle.getY() && getMaxX() >= rectangle.getMaxX() && getMaxY() >= rectangle.getMaxY();
     }
 
     public boolean isEmpty()
