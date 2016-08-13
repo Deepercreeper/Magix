@@ -14,6 +14,8 @@ public interface Display
 
     void clear(Rectangle rectangle);
 
+    void clear();
+
     int getWidth();
 
     int getHeight();

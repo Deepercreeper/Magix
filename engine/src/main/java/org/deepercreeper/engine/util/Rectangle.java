@@ -1,5 +1,9 @@
 package org.deepercreeper.engine.util;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 public class Rectangle
 {
     private final Point position;
@@ -94,8 +98,7 @@ public class Rectangle
 
     public boolean isTouching(Rectangle rectangle)
     {
-        return !(getMaxX() < rectangle.getX() || rectangle.getMaxX() < getX() || getMaxY() < rectangle
-                .getY() || rectangle.getMaxY() < getY());
+        return !(getMaxX() < rectangle.getX() || rectangle.getMaxX() < getX() || getMaxY() < rectangle.getY() || rectangle.getMaxY() < getY());
     }
 
     public Rectangle getCut(Rectangle rectangle)
@@ -118,6 +121,46 @@ public class Rectangle
         int width = Math.max(getMaxX(), rectangle.getMaxX()) - x;
         int height = Math.max(getMaxY(), rectangle.getMaxY()) - y;
         return new Rectangle(x, y, width, height);
+    }
+
+    public Set<Rectangle> getSubtraction(Rectangle rectangle)
+    {
+        if (!isTouching(rectangle))
+        {
+            return Collections.singleton(this);
+        }
+        if (rectangle.contains(this))
+        {
+            return Collections.emptySet();
+        }
+        Set<Rectangle> subtraction = new HashSet<>();
+        Rectangle component;
+        component = new Rectangle(getX(), getY(), getWidth(), Math.max(0, rectangle.getY() - getY()));
+        if (!component.isEmpty())
+        {
+            subtraction.add(component);
+        }
+        component = new Rectangle(getX(), rectangle.getMaxY(), getWidth(), Math.max(0, getMaxY() - rectangle.getMaxY()));
+        if (!component.isEmpty())
+        {
+            subtraction.add(component);
+        }
+        component = new Rectangle(getX(), rectangle.getY(), Math.max(0, rectangle.getX() - getX()), rectangle.getHeight());
+        if (!component.isEmpty())
+        {
+            subtraction.add(component);
+        }
+        component = new Rectangle(rectangle.getMaxX(), rectangle.getY(), Math.max(0, getMaxX() - rectangle.getMaxX()), rectangle.getHeight());
+        if (!component.isEmpty())
+        {
+            subtraction.add(component);
+        }
+        return subtraction;
+    }
+
+    public boolean contains(Rectangle rectangle)
+    {
+        return getX() <= rectangle.getX() && getY() < rectangle.getY() && getMaxX() >= rectangle.getMaxX() && getMaxY() >= rectangle.getMaxY();
     }
 
     public boolean isEmpty()
