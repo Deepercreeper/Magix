@@ -12,7 +12,7 @@ public class EntityCollider
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityCollider.class);
 
-    private static final double DEFAULT_DUMPING_LIMIT = 25;
+    private static final double DEFAULT_DAMPING_LIMIT = 1;
 
     private final Set<Entity> entities = new HashSet<>();
 
@@ -104,7 +104,6 @@ public class EntityCollider
     private void collideVertical(Entity firstEntity, Entity secondEntity)
     {
         double elasticity = Math.sqrt(firstEntity.getElasticity() * secondEntity.getElasticity());
-        double mass = firstEntity.getMass() + secondEntity.getMass();
         double firstVelocity;
         double secondVelocity;
         if (Double.isInfinite(secondEntity.getMass()) && Double.isInfinite(firstEntity.getMass()))
@@ -125,12 +124,13 @@ public class EntityCollider
         }
         else
         {
+            double mass = firstEntity.getMass() + secondEntity.getMass();
             double massPoint = (firstEntity.getMass() * firstEntity.getVelocity().getY() + secondEntity.getMass() * secondEntity.getVelocity().getY()) / mass;
             firstVelocity = massPoint - (secondEntity.getMass() * (firstEntity.getVelocity().getY() - secondEntity.getVelocity().getY()) * elasticity) / mass;
             secondVelocity = massPoint - (firstEntity.getMass() * (secondEntity.getVelocity().getY() - firstEntity.getVelocity().getY()) * elasticity) / mass;
         }
 
-        setVerticalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity, DEFAULT_DUMPING_LIMIT);
+        setVerticalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity, elasticity);
 
         if (firstEntity.getBox().getY() < secondEntity.getBox().getY())
         {
@@ -142,14 +142,15 @@ public class EntityCollider
         }
     }
 
-    private void setVerticalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity, double dampingLimit)
+    private void setVerticalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity, double elasticity)
     {
+        double dampingLimit = computeDampingLimit(elasticity);
         double differenceLength = Math
                 .min(Math.abs(secondEntity.getBox().getY() - firstEntity.getBox().getMaxY()), Math.abs(firstEntity.getBox().getY() - secondEntity.getBox().getMaxY()));
         double difference = Math.signum(secondEntity.getCenter().getY() - firstEntity.getCenter().getY()) * differenceLength;
+        LOGGER.info("Stopping entities: {}, {}, Elasticity: {}, Damping limit: {}", firstVelocity, secondVelocity, elasticity, dampingLimit);
         if (Math.abs(firstVelocity) < dampingLimit * firstEntity.getSpeed() || Math.abs(secondVelocity) < dampingLimit * secondEntity.getSpeed())
         {
-            LOGGER.info("Stopping entities: {}, {}", firstVelocity, secondVelocity);
             firstVelocity = Math.abs(firstVelocity) < dampingLimit * firstEntity.getSpeed() ? 0 : firstVelocity;
             secondVelocity = Math.abs(secondVelocity) < dampingLimit * secondEntity.getSpeed() ? 0 : secondVelocity;
 
@@ -166,7 +167,6 @@ public class EntityCollider
     private void collideHorizontal(Entity firstEntity, Entity secondEntity)
     {
         double elasticity = Math.sqrt(firstEntity.getElasticity() * secondEntity.getElasticity());
-        double mass = firstEntity.getMass() + secondEntity.getMass();
         double firstVelocity;
         double secondVelocity;
         if (Double.isInfinite(secondEntity.getMass()) && Double.isInfinite(firstEntity.getMass()))
@@ -187,16 +187,18 @@ public class EntityCollider
         }
         else
         {
+            double mass = firstEntity.getMass() + secondEntity.getMass();
             double massPoint = (firstEntity.getMass() * firstEntity.getVelocity().getX() + secondEntity.getMass() * secondEntity.getVelocity().getX()) / mass;
             firstVelocity = massPoint - (secondEntity.getMass() * (firstEntity.getVelocity().getX() - secondEntity.getVelocity().getX()) * elasticity) / mass;
             secondVelocity = massPoint - (firstEntity.getMass() * (secondEntity.getVelocity().getX() - firstEntity.getVelocity().getX()) * elasticity) / mass;
         }
 
-        setHorizontalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity, DEFAULT_DUMPING_LIMIT);
+        setHorizontalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity, elasticity);
     }
 
-    private void setHorizontalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity, double dampingLimit)
+    private void setHorizontalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity, double elasticity)
     {
+        double dampingLimit = computeDampingLimit(elasticity);
         double differenceLength = Math
                 .min(Math.abs(secondEntity.getBox().getX() - firstEntity.getBox().getMaxX()), Math.abs(firstEntity.getBox().getX() - secondEntity.getBox().getMaxX()));
         double difference = Math.signum(secondEntity.getCenter().getX() - firstEntity.getCenter().getX()) * differenceLength;
@@ -217,6 +219,10 @@ public class EntityCollider
 
     private double computeDampingLimit(double elasticity)
     {
+        if (Double.isFinite(elasticity))
+        {
+            return DEFAULT_DAMPING_LIMIT;
+        }
         if (0.0 <= elasticity && elasticity <= 0.5)
         {
             return 4;

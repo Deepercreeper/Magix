@@ -118,9 +118,9 @@ public class Box
         return new Box(x, y, width, height);
     }
 
-    public Rectangle asRectangle()
+    public Rectangle asScaledRectangle(double scale)
     {
-        return new Rectangle(position.asPoint(), size.asPoint());
+        return new Rectangle(position.times(scale).asPoint(), size.times(scale).asPoint());
     }
 
     @Override
