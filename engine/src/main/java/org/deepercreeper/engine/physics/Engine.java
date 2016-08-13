@@ -2,6 +2,7 @@ package org.deepercreeper.engine.physics;
 
 import org.deepercreeper.engine.display.Display;
 import org.deepercreeper.engine.input.Input;
+import org.deepercreeper.engine.input.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,8 @@ public class Engine
 
     private final double scale;
 
+    private boolean pause = false;
+
     public Engine(int fps, double scale, Display display, Input input)
     {
         updater = new Updater(fps);
@@ -47,16 +50,24 @@ public class Engine
     public void start()
     {
         updater.setUpdating(true);
+        LOGGER.info("Engine started");
     }
 
     public void stop()
     {
         updater.setUpdating(false);
+        LOGGER.info("Engine stopped");
     }
 
     public void shutDown()
     {
         updater.shutDown();
+        LOGGER.info("Engine shut down");
+    }
+
+    public void setPause(boolean pause)
+    {
+        this.pause = pause;
     }
 
     public void update(double delta)
@@ -66,9 +77,13 @@ public class Engine
         addNewEntities();
         removeRemovedEntities();
 
-        updateEntities(delta);
-        saveLastEntityBoxes();
-        moveEntities(delta);
+        updateInput();
+        if (!pause)
+        {
+            updateEntities(delta);
+            saveLastEntityBoxes();
+            moveEntities(delta);
+        }
         renderEntities();
         LOGGER.debug("<== Update finished in {} ms", System.currentTimeMillis() - timeStamp);
     }
@@ -86,6 +101,14 @@ public class Engine
     public double getScale()
     {
         return scale;
+    }
+
+    private void updateInput()
+    {
+        if (getInput().checkHit(Key.PAUSE))
+        {
+            setPause(!pause);
+        }
     }
 
     private void saveLastEntityBoxes()

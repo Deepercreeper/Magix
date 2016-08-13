@@ -14,7 +14,7 @@ public class FrameTest
     public void testPhysicsEntity()
     {
         Frame frame = new Frame();
-        Engine engine = new Engine(100, 16, frame, frame);
+        Engine engine = new Engine(100, 16, frame.getDisplay(), frame.getInput());
         frame.addMouseListener(new MouseAdapter()
         {
             @Override

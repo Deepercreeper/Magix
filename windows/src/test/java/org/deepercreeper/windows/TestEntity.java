@@ -30,6 +30,12 @@ public abstract class TestEntity extends Entity
     }
 
     @Override
+    public double getElasticity()
+    {
+        return .75;
+    }
+
+    @Override
     public void render()
     {
         Rectangle rectangle = getBox().asRectangle();

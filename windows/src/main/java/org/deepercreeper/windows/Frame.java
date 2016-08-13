@@ -1,10 +1,5 @@
 package org.deepercreeper.windows;
 
-import org.deepercreeper.engine.display.Display;
-import org.deepercreeper.engine.input.Input;
-import org.deepercreeper.engine.input.Key;
-import org.deepercreeper.engine.util.Rectangle;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -13,7 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
-public class Frame extends JFrame implements Display, Input
+public class Frame extends JFrame
 {
     private final FrameDisplay frameDisplay = new FrameDisplay(this);
 
@@ -47,10 +42,14 @@ public class Frame extends JFrame implements Display, Input
         setVisible(true);
     }
 
-    @Override
-    public boolean isActive(Key key)
+    public FrameDisplay getDisplay()
     {
-        return frameInput.isActive(key);
+        return frameDisplay;
+    }
+
+    public FrameInput getInput()
+    {
+        return frameInput;
     }
 
     @Override
@@ -74,42 +73,6 @@ public class Frame extends JFrame implements Display, Input
     public BufferedImage getImage()
     {
         return image;
-    }
-
-    @Override
-    public void render(Rectangle rectangle, int[] image)
-    {
-        frameDisplay.render(rectangle, image);
-    }
-
-    @Override
-    public void render(int x, int y, int width, int height, int[] image)
-    {
-        frameDisplay.render(x, y, width, height, image);
-    }
-
-    @Override
-    public void clear(Rectangle rectangle)
-    {
-        frameDisplay.clear(rectangle);
-    }
-
-    @Override
-    public void clear(int x, int y, int width, int height)
-    {
-        frameDisplay.clear(x, y, width, height);
-    }
-
-    @Override
-    public void clear()
-    {
-        frameDisplay.clear();
-    }
-
-    @Override
-    public Rectangle getRectangle()
-    {
-        return frameDisplay.getRectangle();
     }
 
     public void waitUntilClosed()
