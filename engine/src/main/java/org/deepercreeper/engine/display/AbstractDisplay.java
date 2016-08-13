@@ -47,6 +47,12 @@ public abstract class AbstractDisplay implements Display
     }
 
     @Override
+    public void clear()
+    {
+        clearInternal(0, 0, getWidth(), getHeight());
+    }
+
+    @Override
     public void clear(int x, int y, int width, int height)
     {
         clear(new Rectangle(x, y, width, height));

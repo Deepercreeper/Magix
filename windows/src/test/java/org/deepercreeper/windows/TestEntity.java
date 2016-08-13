@@ -38,7 +38,14 @@ public abstract class TestEntity extends Entity
     public void render()
     {
         Rectangle rectangle = getBox().asRectangle();
-        Color color = Color.getHSBColor(0.001f * (System.currentTimeMillis() % 1000), 1, 1);
+        Color color = Color.getHSBColor(0, (float) (Math.min(getVelocity().norm() / 1000, 1)), 1);
         getEngine().getDisplay().render(rectangle, Display.createRectangle(rectangle.getWidth(), rectangle.getHeight(), 0xff000000 | color.getRGB()));
+    }
+
+    @Override
+    public void clear()
+    {
+        Display display = getEngine().getDisplay();
+        getLastBox().asRectangle().getSubtraction(getBox().asRectangle()).forEach(display::clear);
     }
 }

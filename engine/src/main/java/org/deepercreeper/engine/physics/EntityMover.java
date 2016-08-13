@@ -1,10 +1,15 @@
 package org.deepercreeper.engine.physics;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class EntityMover
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityMover.class);
+
     private static final double MAX_STEP_VELOCITY = 1;
 
     private final EntityCollider entityCollider = new EntityCollider();
@@ -35,15 +40,19 @@ public class EntityMover
 
     private void move()
     {
+        long timeStamp = System.currentTimeMillis();
         if (entities.size() == 1)
         {
             moveSingleEntity();
+            LOGGER.debug("Moved single entity in {} ms", System.currentTimeMillis() - timeStamp);
             return;
         }
+        int stepCounter = 0;
         leftDelta = delta;
         initDelta();
         while (steps > 0)
         {
+            stepCounter++;
             entityCollider.collide(entities, stepDelta);
             moveEntities();
             entitySplitter.split(entities);
@@ -53,6 +62,8 @@ public class EntityMover
                 initDelta();
             }
         }
+        LOGGER.debug("Moved {} entities in {} steps and {} ms", entities.size(), stepCounter, System
+                .currentTimeMillis() - timeStamp);
     }
 
     private void decreaseDelta()
@@ -74,7 +85,9 @@ public class EntityMover
 
     private void initDelta()
     {
-        double maxVelocity = entities.stream().map(entity -> entity.getVelocity().norm()).max(Double::compare).orElse(.0);
+        double maxVelocity = entities.stream().map(entity -> entity.getVelocity().times(delta).norm())
+                                     .max(Double::compare)
+                                     .orElse(.0);
         if (maxVelocity < MAX_STEP_VELOCITY)
         {
             stepDelta = leftDelta;

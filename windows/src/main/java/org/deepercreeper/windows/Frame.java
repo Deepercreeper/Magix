@@ -101,6 +101,12 @@ public class Frame extends JFrame implements Display, Input
     }
 
     @Override
+    public void clear()
+    {
+        frameDisplay.clear();
+    }
+
+    @Override
     public Rectangle getRectangle()
     {
         return frameDisplay.getRectangle();

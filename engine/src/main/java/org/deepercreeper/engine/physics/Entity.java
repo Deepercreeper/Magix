@@ -5,6 +5,10 @@ import org.deepercreeper.engine.util.Vector;
 
 public abstract class Entity
 {
+    private static int ID_COUNTER = 0;
+
+    private final int id;
+
     private final Box box;
 
     private final Box lastBox;
@@ -17,32 +21,27 @@ public abstract class Entity
 
     private boolean onGround = false;
 
-    public Entity(Box box)
-    {
-        this.box = new Box(box);
-        velocity = new Vector();
-        lastBox = new Box(box);
-    }
-
     public Entity(Box box, Vector velocity)
     {
         this.box = new Box(box);
         this.velocity = new Vector(velocity);
         lastBox = new Box(box);
+        id = ID_COUNTER++;
+    }
+
+    public Entity(Box box)
+    {
+        this(box, new Vector());
     }
 
     public Entity(Vector position)
     {
-        this.box = new Box(position);
-        velocity = new Vector();
-        lastBox = new Box(box);
+        this(position, new Vector());
     }
 
     public Entity(Vector position, Vector velocity)
     {
-        this.box = new Box(position);
-        this.velocity = new Vector(velocity);
-        lastBox = new Box(box);
+        this(new Box(position), velocity);
     }
 
     public Entity(double x, double y, double width, double height)
@@ -128,8 +127,11 @@ public abstract class Entity
     public void collideWith(Entity entity)
     {
         Vector difference = entity.getCenter().minus(getCenter());
-        Vector corner = new Vector(difference.getX() > 0 ? getBox().getMaxX() : getBox().getX(), difference.getY() > 0 ? getBox().getMaxY() : getBox().getY());
-        Vector entityCorner = new Vector(difference.getX() > 0 ? entity.getBox().getX() : entity.getBox().getMaxX(), difference.getY() > 0 ? entity.getBox().getY() : entity.getBox().getMaxY());
+        Vector corner = new Vector(difference.getX() > 0 ? getBox().getMaxX() : getBox().getX(), difference
+                .getY() > 0 ? getBox().getMaxY() : getBox().getY());
+        Vector entityCorner = new Vector(difference.getX() > 0 ? entity.getBox().getX() : entity.getBox()
+                                                                                                .getMaxX(), difference
+                .getY() > 0 ? entity.getBox().getY() : entity.getBox().getMaxY());
         if (Math.abs(corner.getX() - entityCorner.getX()) > Math.abs(corner.getY() - entityCorner.getY()))
         {
             collideVertical(entity);
@@ -165,8 +167,10 @@ public abstract class Entity
         }
         else
         {
-            yVelocity = massPoint - (entity.getMass() * (getVelocity().getY() - entity.getVelocity().getY()) * elasticity) / mass;
-            yEntityVelocity = massPoint - (getMass() * (entity.getVelocity().getY() - getVelocity().getY()) * elasticity) / mass;
+            yVelocity = massPoint - (entity.getMass() * (getVelocity().getY() - entity.getVelocity()
+                                                                                      .getY()) * elasticity) / mass;
+            yEntityVelocity = massPoint - (getMass() * (entity.getVelocity().getY() - getVelocity()
+                    .getY()) * elasticity) / mass;
         }
 
         Vector velocity = new Vector(getVelocity().getX(), yVelocity);
@@ -210,8 +214,10 @@ public abstract class Entity
         }
         else
         {
-            xVelocity = massPoint - (entity.getMass() * (getVelocity().getX() - entity.getVelocity().getX()) * elasticity) / mass;
-            xEntityVelocity = massPoint - (getMass() * (entity.getVelocity().getX() - getVelocity().getX()) * elasticity) / mass;
+            xVelocity = massPoint - (entity.getMass() * (getVelocity().getX() - entity.getVelocity()
+                                                                                      .getX()) * elasticity) / mass;
+            xEntityVelocity = massPoint - (getMass() * (entity.getVelocity().getX() - getVelocity()
+                    .getX()) * elasticity) / mass;
         }
         Vector velocity = new Vector(xVelocity, getVelocity().getY());
         Vector entityVelocity = new Vector(xEntityVelocity, entity.getVelocity().getY());
@@ -252,6 +258,8 @@ public abstract class Entity
 
     public abstract void render();
 
+    public abstract void clear();
+
     @Override
     public boolean equals(Object obj)
     {
@@ -261,6 +269,6 @@ public abstract class Entity
     @Override
     public String toString()
     {
-        return "Entity";
+        return "Entity-" + id;
     }
 }
