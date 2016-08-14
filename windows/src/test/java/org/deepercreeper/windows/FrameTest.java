@@ -54,18 +54,18 @@ public class FrameTest
                         }
                         if (movable)
                         {
-                            if (getEngine().getInput().isActive(Key.CROUCH) && getBox().getHeight() == height)
+                            if (getEngine().getInput().isActive(Key.CROUCH) && getHeight() == height)
                             {
-                                getEngine().getDisplay().clear(getBox().asScaledRectangle(getEngine().getScale()));
+                                getEngine().getDisplay().clear(asScaledRectangle(getEngine().getScale()));
                                 moveBy(0, height / 2);
                             }
-                            if (!getEngine().getInput().isActive(Key.CROUCH) && getBox().getHeight() == height / 2)
+                            if (!getEngine().getInput().isActive(Key.CROUCH) && getHeight() == height / 2)
                             {
                                 moveBy(0, -height / 2);
                             }
                             setHeight(getEngine().getInput().isActive(Key.CROUCH) ? height / 2 : height);
                         }
-                        if (getBox().asScaledRectangle(getEngine().getScale()).getCut(getEngine().getDisplay().getRectangle()).isEmpty())
+                        if (asScaledRectangle(getEngine().getScale()).getCut(getEngine().getDisplay().getRectangle()).isEmpty())
                         {
                             remove();
                         }

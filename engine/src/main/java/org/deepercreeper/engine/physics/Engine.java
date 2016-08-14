@@ -110,7 +110,7 @@ public class Engine
     {
         for (Entity entity : entities)
         {
-            if (entity.getBox().isTouching(box))
+            if (entity.isTouching(box))
             {
                 return false;
             }
