@@ -73,8 +73,6 @@ public class Engine
 
     public void update(double delta)
     {
-        LOGGER.debug("==> Starting update");
-        long timeStamp = System.currentTimeMillis();
         addNewEntities();
         removeRemovedEntities();
 
@@ -86,7 +84,6 @@ public class Engine
             moveEntities(delta);
         }
         renderEntities();
-        LOGGER.debug("<== Update finished in {} ms", System.currentTimeMillis() - timeStamp);
     }
 
     public void setSpeed(double speed)
@@ -121,11 +118,11 @@ public class Engine
         return true;
     }
 
-    public boolean isFreeIn(Box box, double delta)
+    public boolean isVelocityFree(Box box, double delta)
     {
         for (Entity entity : entities)
         {
-            if (entity.getVelocityBox(delta).isTouching(box))
+            if (entity.getVelocityBoxContainment(delta).isTouching(box))
             {
                 return false;
             }
@@ -143,38 +140,26 @@ public class Engine
 
     private void saveLastEntityBoxes()
     {
-        LOGGER.debug("==> Starting save of last box");
-        long timeStamp = System.currentTimeMillis();
         entities.forEach(Entity::saveBox);
-        LOGGER.debug("<== Save of last box finished in {} ms", System.currentTimeMillis() - timeStamp);
     }
 
     private void renderEntities()
     {
-        LOGGER.debug("==> Starting render");
-        long timeStamp = System.currentTimeMillis();
-        entities.forEach(Entity::clear);
+        entities.forEach(Entity::clearLastBox);
         entities.forEach(Entity::render);
-        LOGGER.debug("<== Render finished in {} ms", System.currentTimeMillis() - timeStamp);
     }
 
     private void updateEntities(double delta)
     {
-        LOGGER.debug("==> Starting update");
-        long timeStamp = System.currentTimeMillis();
         entities.forEach((Entity entity) -> entity.update(delta));
-        LOGGER.debug("<== Update finished in {} ms", System.currentTimeMillis() - timeStamp);
     }
 
     private void moveEntities(double delta)
     {
-        LOGGER.debug("==> Starting move");
-        long timeStamp = System.currentTimeMillis();
         Set<Set<Entity>> connectedEntities = findConnectedEntities(delta);
         entityMover.setDelta(delta);
         connectedEntities.forEach(entityMover::move);
         entities.stream().filter(entity -> !entity.isSolid()).forEach(entity -> entity.move(delta));
-        LOGGER.debug("<== Move finished in {} ms", System.currentTimeMillis() - timeStamp);
     }
 
     private Set<Set<Entity>> findConnectedEntities(double delta)

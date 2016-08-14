@@ -24,12 +24,6 @@ public abstract class TestEntity extends Entity
     }
 
     @Override
-    public boolean isAccelerated()
-    {
-        return true;
-    }
-
-    @Override
     public double getElasticity()
     {
         return .75;

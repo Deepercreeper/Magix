@@ -1,8 +1,5 @@
 package org.deepercreeper.engine.physics;
 
-import org.deepercreeper.engine.util.Box;
-import org.deepercreeper.engine.util.Vector;
-
 import java.util.*;
 
 public class EntitySplitter
@@ -20,8 +17,6 @@ public class EntitySplitter
 
     private void split()
     {
-        List<Entity> entities = new ArrayList<>(this.entities);
-        Collections.sort(entities, (o1, o2) -> -Double.compare(o1.getMass(), o2.getMass()));
         Iterator<Entity> iterator = entities.iterator();
         while (iterator.hasNext())
         {
@@ -29,31 +24,29 @@ public class EntitySplitter
             iterator.remove();
             if (iterator.hasNext())
             {
-                splitEntityFrom(entity, entities);
+                split(entity);
             }
         }
     }
 
-    private void splitEntityFrom(Entity entity, List<Entity> splitEntities)
+    private void split(Entity entity)
     {
-        splitEntities.stream().filter(entity::isTouching).forEach(splitEntity -> split(entity, splitEntity));
+        entities.stream().filter(entity::isTouching).forEach(splitEntity -> split(entity, splitEntity));
     }
 
     private void split(Entity firstEntity, Entity secondEntity)
     {
-        Box firstBox = firstEntity.getBox();
-        Box secondBox = secondEntity.getBox();
-        double positiveXDistance = firstBox.getMaxX() - secondBox.getX();
-        double negativeXDistance = secondBox.getMaxX() - firstBox.getX();
-        double positiveYDistance = firstBox.getMaxY() - secondBox.getY();
-        double negativeYDistance = secondBox.getMaxY() - firstBox.getY();
+        double positiveXDistance = firstEntity.getMaxX() - secondEntity.getX();
+        double negativeXDistance = secondEntity.getMaxX() - firstEntity.getX();
+        double positiveYDistance = firstEntity.getMaxY() - secondEntity.getY();
+        double negativeYDistance = secondEntity.getMaxY() - firstEntity.getY();
         if (Math.min(Math.abs(positiveXDistance), Math.abs(negativeXDistance)) < Math.min(Math.abs(positiveYDistance), Math.abs(negativeYDistance)))
         {
-            splitHorizontal(firstEntity, secondEntity, firstEntity.getCenter().getX() < secondEntity.getCenter().getX());
+            splitHorizontal(firstEntity, secondEntity, firstEntity.getCenterX() < secondEntity.getCenterX());
         }
         else
         {
-            splitVertical(firstEntity, secondEntity, firstEntity.getCenter().getY() < secondEntity.getCenter().getY());
+            splitVertical(firstEntity, secondEntity, firstEntity.getCenterY() < secondEntity.getCenterY());
         }
     }
 
@@ -65,18 +58,18 @@ public class EntitySplitter
         double secondX;
         if (firstOnLeft)
         {
-            position = (1 - scale) * secondEntity.getBox().getX() + scale * firstEntity.getBox().getMaxX();
-            firstX = position - firstEntity.getBox().getWidth() - (1 - scale) * EPSILON;
+            position = (1 - scale) * secondEntity.getX() + scale * firstEntity.getMaxX();
+            firstX = position - firstEntity.getWidth() - (1 - scale) * EPSILON;
             secondX = position + scale * EPSILON;
         }
         else
         {
-            position = (1 - scale) * secondEntity.getBox().getMaxX() + scale * firstEntity.getBox().getX();
+            position = (1 - scale) * secondEntity.getMaxX() + scale * firstEntity.getX();
             firstX = position + (1 - scale) * EPSILON;
-            secondX = position - secondEntity.getBox().getWidth() - scale * EPSILON;
+            secondX = position - secondEntity.getWidth() - scale * EPSILON;
         }
-        firstEntity.getBox().moveTo(new Vector(firstX, firstEntity.getBox().getY()));
-        secondEntity.getBox().moveTo(new Vector(secondX, secondEntity.getBox().getY()));
+        firstEntity.setX(firstX);
+        secondEntity.setX(secondX);
     }
 
     private void splitVertical(Entity firstEntity, Entity secondEntity, boolean firstOnTop)
@@ -87,17 +80,17 @@ public class EntitySplitter
         double secondY;
         if (firstOnTop)
         {
-            position = (1 - scale) * secondEntity.getBox().getY() + scale * firstEntity.getBox().getMaxY();
-            firstY = position - firstEntity.getBox().getHeight() - (1 - scale) * EPSILON;
+            position = (1 - scale) * secondEntity.getY() + scale * firstEntity.getMaxY();
+            firstY = position - firstEntity.getHeight() - (1 - scale) * EPSILON;
             secondY = position + scale * EPSILON;
         }
         else
         {
-            position = (1 - scale) * secondEntity.getBox().getMaxY() + scale * firstEntity.getBox().getY();
+            position = (1 - scale) * secondEntity.getMaxY() + scale * firstEntity.getY();
             firstY = position + (1 - scale) * EPSILON;
-            secondY = position - secondEntity.getBox().getHeight() - scale * EPSILON;
+            secondY = position - secondEntity.getHeight() - scale * EPSILON;
         }
-        firstEntity.getBox().moveTo(new Vector(firstEntity.getBox().getX(), firstY));
-        secondEntity.getBox().moveTo(new Vector(secondEntity.getBox().getX(), secondY));
+        firstEntity.setY(firstY);
+        secondEntity.setY(secondY);
     }
 }

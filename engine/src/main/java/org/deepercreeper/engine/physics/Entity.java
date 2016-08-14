@@ -22,62 +22,75 @@ public abstract class Entity
 
     private boolean onGround = false;
 
-    public Entity(Box box, Vector velocity)
+    public Entity(double x, double y, double width, double height, double xVelocity, double yVelocity)
+    {
+        box = new Box(x, y, width, height);
+        velocity = new Vector(xVelocity, yVelocity);
+        lastBox = new Box(x, y, width, height);
+        id = ID_COUNTER++;
+    }
+
+    public Entity(Box box, double xVelocity, double yVelocity)
     {
         this.box = new Box(box);
-        this.velocity = new Vector(velocity);
+        this.velocity = new Vector(xVelocity, yVelocity);
         lastBox = new Box(box);
         id = ID_COUNTER++;
     }
 
-    public Entity(Box box)
-    {
-        this(box, new Vector());
-    }
-
-    public Entity(Vector position)
-    {
-        this(position, new Vector());
-    }
-
-    public Entity(Vector position, Vector velocity)
-    {
-        this(new Box(position), velocity);
-    }
-
     public Entity(double x, double y, double width, double height)
     {
-        this(new Box(x, y, width, height));
+        this(x, y, width, height, 0, 0);
     }
 
-    public Entity(double x, double y, double width, double height, double xVelocity, double yVelocity)
+    public Entity(Box box, Vector velocity)
     {
-        this(new Box(x, y, width, height), new Vector(xVelocity, yVelocity));
+        this(box, velocity.getX(), velocity.getY());
     }
 
-    final void setEngine(Engine engine)
+    public Entity(double x, double y)
     {
-        this.engine = engine;
+        this(x, y, 0, 0);
     }
 
-    public final Vector getCenter()
+    public final void setBox(Box box)
     {
-        return box.getCenter();
+        this.box.set(box);
     }
 
-    public final Box getBox()
+    public final void setPosition(double x, double y)
     {
-        return box;
+        box.setPosition(x, y);
     }
 
-    public final Box getLastBox()
+    public final void setPosition(Vector position)
     {
-        return lastBox;
+        box.setPosition(position);
     }
 
-    public final Vector getVelocity()
+    public final void setSize(double width, double height)
     {
-        return velocity;
+        box.setSize(width, height);
+    }
+
+    public final void setSize(Vector size)
+    {
+        box.setSize(size);
+    }
+
+    public final void setCenter(double x, double y)
+    {
+        box.setCenter(x, y);
+    }
+
+    public final void setCenter(Vector center)
+    {
+        box.setCenter(center);
+    }
+
+    public final void setVelocity(double xVelocity, double yVelocity)
+    {
+        velocity.set(xVelocity, yVelocity);
     }
 
     public final void setVelocity(Vector velocity)
@@ -85,14 +98,159 @@ public abstract class Entity
         this.velocity.set(velocity);
     }
 
+    public final void setX(double x)
+    {
+        box.setX(x);
+    }
+
+    public final void setY(double y)
+    {
+        box.setY(y);
+    }
+
+    public final void setMaxX(double x)
+    {
+        box.setMaxX(x);
+    }
+
+    public final void setMaxY(double y)
+    {
+        box.setMaxY(y);
+    }
+
+    public final void setCenterX(double x)
+    {
+        box.setCenterX(x);
+    }
+
+    public final void setCenterY(double y)
+    {
+        box.setCenterY(y);
+    }
+
+    public final void setWidth(double width)
+    {
+        box.setWidth(width);
+    }
+
+    public final void setHeight(double height)
+    {
+        box.setHeight(height);
+    }
+
+    public final void setXVelocity(double xVelocity)
+    {
+        velocity.setX(xVelocity);
+    }
+
+    public final void setYVelocity(double yVelocity)
+    {
+        velocity.setY(yVelocity);
+    }
+
+    public final void moveBy(double x, double y)
+    {
+        box.moveBy(x, y);
+    }
+
+    public final void moveBy(Vector vector)
+    {
+        box.moveBy(vector);
+    }
+
+    public final Box getBox()
+    {
+        return box;
+    }
+
+    public final Vector getPosition()
+    {
+        return box.getPosition();
+    }
+
+    public final Vector getSize()
+    {
+        return box.getSize();
+    }
+
+    public final Vector getCenter()
+    {
+        return box.getCenter();
+    }
+
+    public final Vector getVelocity()
+    {
+        return velocity;
+    }
+
+    public final double getX()
+    {
+        return box.getX();
+    }
+
+    public final double getY()
+    {
+        return box.getY();
+    }
+
+    public final double getMaxX()
+    {
+        return box.getMaxX();
+    }
+
+    public final double getMaxY()
+    {
+        return box.getMaxY();
+    }
+
+    public final double getCenterX()
+    {
+        return box.getCenterX();
+    }
+
+    public final double getCenterY()
+    {
+        return box.getCenterY();
+    }
+
+    public final double getWidth()
+    {
+        return box.getWidth();
+    }
+
+    public final double getHeight()
+    {
+        return box.getHeight();
+    }
+
+    public final double getXVelocity()
+    {
+        return velocity.getX();
+    }
+
+    public final double getYVelocity()
+    {
+        return velocity.getY();
+    }
+
+    public final Box getLastBox()
+    {
+        return lastBox;
+    }
+
     public final Box getVelocityBox(double delta)
     {
-        return box.getContainment(box.shift(velocity.times(getSpeed() * delta)));
+        return box.shift(velocity.times(getSpeed() * delta));
+    }
+
+    public final Box getVelocityBoxContainment(double delta)
+    {
+        return box.getContainment(getVelocityBox(delta));
     }
 
     public final boolean isVelocityTouching(Entity entity, double delta)
     {
-        return getVelocityBox(delta).isTouching(entity.getVelocityBox(delta));
+        return getVelocityBoxContainment(delta).isTouching(entity.getVelocityBoxContainment(delta));
     }
 
     public final boolean isTouching(Entity entity)
@@ -105,14 +263,9 @@ public abstract class Entity
         removed = true;
     }
 
-    public final boolean isRemoved()
-    {
-        return removed;
-    }
-
     public final void move(double delta)
     {
-        box.move(velocity.times(getSpeed() * delta));
+        box.moveBy(velocity.times(getSpeed() * delta));
     }
 
     public final void saveBox()
@@ -127,15 +280,12 @@ public abstract class Entity
 
     public final void update(double delta)
     {
-        if (isAccelerated())
-        {
-            accelerate(getSpeed() * delta);
-        }
+        updateVelocity(getSpeed() * delta);
         update();
         onGround = false;
     }
 
-    public final void onGround()
+    public final void hitGround()
     {
         onGround = true;
     }
@@ -156,6 +306,22 @@ public abstract class Entity
             return 0;
         }
         return getMass() / (getMass() + entity.getMass());
+    }
+
+    public final void clearLastBox()
+    {
+        Display display = getEngine().getDisplay();
+        getLastBox().asScaledRectangle(getEngine().getScale()).getSubtraction(getBox().asScaledRectangle(getEngine().getScale())).forEach(display::clear);
+    }
+
+    final void setEngine(Engine engine)
+    {
+        this.engine = engine;
+    }
+
+    final boolean isRemoved()
+    {
+        return removed;
     }
 
     public void collideWith(Entity entity)
@@ -181,7 +347,7 @@ public abstract class Entity
         return 1;
     }
 
-    public void accelerate(double delta)
+    public void updateVelocity(double delta)
     {
     }
 
@@ -190,19 +356,8 @@ public abstract class Entity
         return true;
     }
 
-    public boolean isAccelerated()
-    {
-        return false;
-    }
-
     public void render()
     {
-    }
-
-    public final void clear()
-    {
-        Display display = getEngine().getDisplay();
-        getLastBox().asScaledRectangle(getEngine().getScale()).getSubtraction(getBox().asScaledRectangle(getEngine().getScale())).forEach(display::clear);
     }
 
     @Override

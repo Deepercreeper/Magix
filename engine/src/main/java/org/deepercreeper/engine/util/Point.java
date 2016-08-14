@@ -6,6 +6,11 @@ public class Point
 
     private int y;
 
+    public Point(double x, double y)
+    {
+        this((int) Math.round(x), (int) Math.round(y));
+    }
+
     public Point(int x, int y)
     {
         this.x = x;
@@ -19,8 +24,101 @@ public class Point
 
     public Point()
     {
-        x = 0;
-        y = 0;
+        this(0, 0);
+    }
+
+    public void set(double x, double y)
+    {
+        this.x = (int) Math.round(x);
+        this.y = (int) Math.round(y);
+    }
+
+    public void set(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void set(Point point)
+    {
+        x = point.x;
+        y = point.y;
+    }
+
+    public void setX(double x)
+    {
+        this.x = (int) Math.round(x);
+    }
+
+    public void setX(int x)
+    {
+        this.x = x;
+    }
+
+    public void setY(double y)
+    {
+        this.y = (int) Math.round(y);
+    }
+
+    public void setY(int y)
+    {
+        this.y = y;
+    }
+
+    public void add(double x, double y)
+    {
+        this.x = (int) Math.round(this.x + x);
+        this.y = (int) Math.round(this.y + y);
+    }
+
+    public void add(int x, int y)
+    {
+        this.x += x;
+        this.y += y;
+    }
+
+    public void add(Point point, double scalar)
+    {
+        add(point.x * scalar, point.y * scalar);
+    }
+
+    public void add(Point point, int scalar)
+    {
+        add(point.x * scalar, point.y * scalar);
+    }
+
+    public void add(Point point)
+    {
+        x += point.x;
+        y += point.y;
+    }
+
+    public void subtract(Point point, double scalar)
+    {
+        add(point, -scalar);
+    }
+
+    public void subtract(Point point, int scalar)
+    {
+        add(point, -scalar);
+    }
+
+    public void subtract(Point point)
+    {
+        x -= point.x;
+        y -= point.y;
+    }
+
+    public void multiplicate(double scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+    }
+
+    public void multiplicate(int scalar)
+    {
+        x *= scalar;
+        y *= scalar;
     }
 
     public int getX()
@@ -33,26 +131,14 @@ public class Point
         return y;
     }
 
-    public void set(int x, int y)
+    public Point plus(Point point, double scalar)
     {
-        this.x = x;
-        this.y = y;
+        return new Point(x + point.x * scalar, y + point.y * scalar);
     }
 
-    public void setX(int x)
+    public Point plus(Point point, int scalar)
     {
-        this.x = x;
-    }
-
-    public void setY(int y)
-    {
-        this.y = y;
-    }
-
-    public void add(Point point)
-    {
-        x += point.x;
-        y += point.y;
+        return new Point(x + point.x * scalar, y + point.y * scalar);
     }
 
     public Point plus(Point point)
@@ -60,9 +146,24 @@ public class Point
         return new Point(x + point.x, y + point.y);
     }
 
+    public Point minus(Point point, double scalar)
+    {
+        return plus(point, -scalar);
+    }
+
+    public Point minus(Point point, int scalar)
+    {
+        return plus(point, -scalar);
+    }
+
+    public Point minus(Point point)
+    {
+        return new Point(x - point.x, y - point.y);
+    }
+
     public Point times(double scalar)
     {
-        return new Point((int) Math.round(x * scalar), (int) Math.round(y * scalar));
+        return new Point(x * scalar, y * scalar);
     }
 
     public Point times(int scalar)
@@ -73,17 +174,6 @@ public class Point
     public Point negative()
     {
         return new Point(-x, -y);
-    }
-
-    public Point minus(Point point)
-    {
-        return plus(point.negative());
-    }
-
-    public void multiplicate(int scalar)
-    {
-        x *= scalar;
-        y *= scalar;
     }
 
     public double norm()
