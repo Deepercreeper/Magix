@@ -3,8 +3,9 @@ package org.deepercreeper.engine.physics;
 import org.deepercreeper.engine.util.Box;
 import org.deepercreeper.engine.util.Vector;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class EntityCollider
 {
@@ -14,8 +15,6 @@ public class EntityCollider
 
     private final Set<Set<Entity>> collisions = new HashSet<>();
 
-    private final Map<Entity, Set<Entity>> connectedEntities = new HashMap<>();
-
     private double delta;
 
     public void collide(Set<Entity> entities, double delta)
@@ -24,37 +23,42 @@ public class EntityCollider
         this.entities.clear();
         this.entities.addAll(entities);
         collisions.clear();
-        computeConnectedEntities();
         checkCollisions();
         collide();
     }
 
-    private void computeConnectedEntities()
+    private void checkCollisions()
     {
-        connectedEntities.clear();
-        for (Entity entity : entities)
+        Iterator<Entity> iterator = entities.iterator();
+        while (iterator.hasNext())
         {
-            Set<Entity> connectedEntities = entities.stream().filter(connectedEntity -> !entity.equals(connectedEntity) && entity.isDeltaTouching(connectedEntity, delta))
-                                                    .collect(Collectors.toSet());
-            this.connectedEntities.put(entity, connectedEntities);
+            Entity entity = iterator.next();
+            iterator.remove();
+            if (iterator.hasNext())
+            {
+                checkCollisions(entity);
+            }
         }
     }
 
-    private void checkCollisions()
-    {
-        entities.forEach(this::checkCollisionsOf);
-    }
-
-    private void checkCollisionsOf(Entity entity)
+    private void checkCollisions(Entity entity)
     {
         Box box = entity.getDeltaBox(delta);
-        connectedEntities.get(entity).stream().filter(collisionEntity -> box.isTouching(collisionEntity.getDeltaBox(delta))).forEach(collisionEntity ->
+        for (Entity collisionEntity : entities)
+        {
+            checkCollision(entity, box, collisionEntity);
+        }
+    }
+
+    private void checkCollision(Entity firstEntity, Box box, Entity secondEntity)
+    {
+        if (box.isTouching(secondEntity.getDeltaBox(delta)))
         {
             Set<Entity> collision = new HashSet<>();
-            collision.add(entity);
-            collision.add(collisionEntity);
+            collision.add(firstEntity);
+            collision.add(secondEntity);
             collisions.add(collision);
-        });
+        }
     }
 
     private void collide()

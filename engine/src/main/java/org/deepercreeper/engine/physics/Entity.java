@@ -5,7 +5,7 @@ import org.deepercreeper.engine.util.Box;
 import org.deepercreeper.engine.util.Vector;
 import org.deepercreeper.engine.util.VelocityBox;
 
-public abstract class Entity extends VelocityBox
+public class Entity extends VelocityBox
 {
     private static int ID_COUNTER = 0;
 

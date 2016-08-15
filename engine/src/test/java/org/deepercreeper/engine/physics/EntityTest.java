@@ -1,6 +1,5 @@
 package org.deepercreeper.engine.physics;
 
-import org.deepercreeper.engine.util.Vector;
 import org.junit.Assert;
 import org.junit.Test;
 

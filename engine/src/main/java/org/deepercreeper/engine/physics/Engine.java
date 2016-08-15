@@ -165,8 +165,7 @@ public class Engine
         Set<Entity> solidEntities = entities.stream().filter(Entity::isSolid).collect(Collectors.toSet());
         Set<Set<Entity>> connectedEntities = entityDivider.divide(solidEntities, delta);
 
-        entityMover.setDelta(delta);
-        connectedEntities.forEach(entityMover::move);
+        connectedEntities.forEach(entity -> entityMover.move(entity, delta));
 
         entities.stream().filter(entity -> !entity.isSolid()).forEach(entity -> entity.move(delta));
     }

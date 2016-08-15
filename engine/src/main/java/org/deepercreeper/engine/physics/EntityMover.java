@@ -21,15 +21,11 @@ public class EntityMover
 
     private int steps;
 
-    public void setDelta(double delta)
-    {
-        this.delta = delta;
-    }
-
-    public void move(Set<Entity> entities)
+    public void move(Set<Entity> entities, double delta)
     {
         this.entities.clear();
         this.entities.addAll(entities);
+        this.delta = delta;
         move();
     }
 
