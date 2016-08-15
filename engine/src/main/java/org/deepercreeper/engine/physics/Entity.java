@@ -105,7 +105,7 @@ public abstract class Entity extends VelocityBox
 
     public final void update(double delta)
     {
-        updateVelocity(delta);
+        updateVelocity(getSpeed() * delta);
         update();
         onGround = false;
     }

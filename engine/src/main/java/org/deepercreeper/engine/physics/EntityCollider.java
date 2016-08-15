@@ -203,12 +203,27 @@ public class EntityCollider
 
     private void setHorizontalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity)
     {
-        double collisionVelocity = Math.signum(secondEntity.getCenterX() - firstEntity.getCenterX()) * (firstEntity.getXVelocity() - secondEntity.getXVelocity());
+        double positionSignum = Math.signum(secondEntity.getCenterX() - firstEntity.getCenterX());
+        double collisionVelocity = positionSignum * (firstEntity.getXVelocity() - secondEntity.getXVelocity());
         if (0 < collisionVelocity && collisionVelocity < DEFAULT_DAMPING_LIMIT)
         {
             double scale = firstEntity.getMassScaleTo(secondEntity);
 
-            firstVelocity = secondVelocity = scale * firstEntity.getXVelocity() + (1 - scale) * secondEntity.getXVelocity();
+            if (Math.signum(firstEntity.getXVelocity() * secondEntity.getXVelocity()) > -1)
+            {
+                firstVelocity = secondVelocity = scale * firstEntity.getXVelocity() + (1 - scale) * secondEntity.getXVelocity();
+            }
+            else
+            {
+                if (firstEntity.getVelocity().getAbsX() < collisionVelocity)
+                {
+                    firstVelocity = secondVelocity;
+                }
+                else
+                {
+                    secondVelocity = firstVelocity;
+                }
+            }
 
             double differenceLength = Math.min(Math.abs(secondEntity.getX() - firstEntity.getMaxX()), Math.abs(firstEntity.getX() - secondEntity.getMaxX()));
             double difference = Math.signum(secondEntity.getCenterX() - firstEntity.getCenterX()) * differenceLength;
