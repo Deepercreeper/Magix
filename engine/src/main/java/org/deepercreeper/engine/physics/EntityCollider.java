@@ -2,15 +2,13 @@ package org.deepercreeper.engine.physics;
 
 import org.deepercreeper.engine.util.Box;
 import org.deepercreeper.engine.util.Vector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class EntityCollider
 {
-    private static final double DEFAULT_DAMPING_LIMIT = 1;
+    private static final double DEFAULT_DAMPING_LIMIT = 2;
 
     private final Set<Entity> entities = new HashSet<>();
 
@@ -36,7 +34,7 @@ public class EntityCollider
         connectedEntities.clear();
         for (Entity entity : entities)
         {
-            Set<Entity> connectedEntities = entities.stream().filter(connectedEntity -> !entity.equals(connectedEntity) && entity.isVelocityTouching(connectedEntity, delta))
+            Set<Entity> connectedEntities = entities.stream().filter(connectedEntity -> !entity.equals(connectedEntity) && entity.isDeltaTouching(connectedEntity, delta))
                                                     .collect(Collectors.toSet());
             this.connectedEntities.put(entity, connectedEntities);
         }
@@ -49,8 +47,8 @@ public class EntityCollider
 
     private void checkCollisionsOf(Entity entity)
     {
-        Box box = entity.getVelocityBox(delta);
-        connectedEntities.get(entity).stream().filter(collisionEntity -> box.isTouching(collisionEntity.getVelocityBox(delta))).forEach(collisionEntity ->
+        Box box = entity.getDeltaBox(delta);
+        connectedEntities.get(entity).stream().filter(collisionEntity -> box.isTouching(collisionEntity.getDeltaBox(delta))).forEach(collisionEntity ->
         {
             Set<Entity> collision = new HashSet<>();
             collision.add(entity);
@@ -138,14 +136,30 @@ public class EntityCollider
 
     private void setVerticalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity)
     {
-        double differenceLength = Math.min(Math.abs(secondEntity.getY() - firstEntity.getMaxY()), Math.abs(firstEntity.getY() - secondEntity.getMaxY()));
-        double difference = Math.signum(secondEntity.getY() - firstEntity.getY()) * differenceLength;
-        if (Math.abs(firstVelocity) < DEFAULT_DAMPING_LIMIT * firstEntity.getSpeed() || Math.abs(secondVelocity) < DEFAULT_DAMPING_LIMIT * secondEntity.getSpeed())
+        double positionSignum = Math.signum(secondEntity.getCenterY() - firstEntity.getCenterY());
+        double collisionVelocity = positionSignum * (firstEntity.getYVelocity() - secondEntity.getYVelocity());
+        if (0 < collisionVelocity && collisionVelocity < DEFAULT_DAMPING_LIMIT)
         {
-            firstVelocity = Math.abs(firstVelocity) < DEFAULT_DAMPING_LIMIT * firstEntity.getSpeed() ? 0 : firstVelocity;
-            secondVelocity = Math.abs(secondVelocity) < DEFAULT_DAMPING_LIMIT * secondEntity.getSpeed() ? 0 : secondVelocity;
-
             double scale = firstEntity.getMassScaleTo(secondEntity);
+
+            if (Math.signum(firstEntity.getYVelocity() * secondEntity.getYVelocity()) > -1)
+            {
+                firstVelocity = secondVelocity = scale * firstEntity.getYVelocity() + (1 - scale) * secondEntity.getYVelocity();
+            }
+            else
+            {
+                if (firstEntity.getVelocity().getAbsY() < collisionVelocity)
+                {
+                    firstVelocity = secondVelocity;
+                }
+                else
+                {
+                    secondVelocity = firstVelocity;
+                }
+            }
+
+            double differenceLength = Math.min(Math.abs(secondEntity.getY() - firstEntity.getMaxY()), Math.abs(firstEntity.getY() - secondEntity.getMaxY()));
+            double difference = Math.signum(secondEntity.getCenterY() - firstEntity.getCenterY()) * differenceLength;
 
             firstEntity.moveBy(0, (1 - scale) * difference);
             secondEntity.moveBy(0, scale * -difference);
@@ -189,17 +203,33 @@ public class EntityCollider
 
     private void setHorizontalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity)
     {
-        double differenceLength = Math.min(Math.abs(secondEntity.getX() - firstEntity.getMaxX()), Math.abs(firstEntity.getX() - secondEntity.getMaxX()));
-        double difference = Math.signum(secondEntity.getX() - firstEntity.getX()) * differenceLength;
-        if (Math.abs(firstVelocity) < DEFAULT_DAMPING_LIMIT * firstEntity.getSpeed() || Math.abs(secondVelocity) < DEFAULT_DAMPING_LIMIT * secondEntity.getSpeed())
+        double positionSignum = Math.signum(secondEntity.getCenterX() - firstEntity.getCenterX());
+        double collisionVelocity = positionSignum * (firstEntity.getXVelocity() - secondEntity.getXVelocity());
+        if (0 < collisionVelocity && collisionVelocity < DEFAULT_DAMPING_LIMIT)
         {
-            firstVelocity = Math.abs(firstVelocity) < DEFAULT_DAMPING_LIMIT * firstEntity.getSpeed() ? 0 : firstVelocity;
-            secondVelocity = Math.abs(secondVelocity) < DEFAULT_DAMPING_LIMIT * secondEntity.getSpeed() ? 0 : secondVelocity;
-
             double scale = firstEntity.getMassScaleTo(secondEntity);
 
-            firstEntity.moveBy((1 - scale) * difference, 0);
-            secondEntity.moveBy(scale * -difference, 0);
+            if (Math.signum(firstEntity.getXVelocity() * secondEntity.getXVelocity()) > -1)
+            {
+                firstVelocity = secondVelocity = scale * firstEntity.getXVelocity() + (1 - scale) * secondEntity.getXVelocity();
+            }
+            else
+            {
+                if (firstEntity.getVelocity().getAbsX() < collisionVelocity)
+                {
+                    firstVelocity = secondVelocity;
+                }
+                else
+                {
+                    secondVelocity = firstVelocity;
+                }
+            }
+
+            double differenceLength = Math.min(Math.abs(secondEntity.getX() - firstEntity.getMaxX()), Math.abs(firstEntity.getX() - secondEntity.getMaxX()));
+            double difference = Math.signum(secondEntity.getCenterX() - firstEntity.getCenterX()) * differenceLength;
+
+            firstEntity.moveBy(0, (1 - scale) * difference);
+            secondEntity.moveBy(0, scale * -difference);
         }
 
         firstEntity.setXVelocity(firstVelocity);

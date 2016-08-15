@@ -88,6 +88,26 @@ public class Vector
         return y;
     }
 
+    public double getAbsX()
+    {
+        return Math.abs(x);
+    }
+
+    public double getAbsY()
+    {
+        return Math.abs(y);
+    }
+
+    public Vector absolute(double scalar)
+    {
+        return new Vector(getAbsX() * Math.abs(scalar), getAbsY() * Math.abs(scalar));
+    }
+
+    public Vector absolute()
+    {
+        return new Vector(getAbsX(), getAbsY());
+    }
+
     public Vector plus(Vector vector, double scalar)
     {
         return new Vector(x + vector.x * scalar, y + vector.y * scalar);
