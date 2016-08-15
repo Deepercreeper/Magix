@@ -131,6 +131,16 @@ public class Point
         return y;
     }
 
+    public int getAbsX()
+    {
+        return Math.abs(x);
+    }
+
+    public int getAbsY()
+    {
+        return Math.abs(y);
+    }
+
     public Point plus(Point point, double scalar)
     {
         return new Point(x + point.x * scalar, y + point.y * scalar);

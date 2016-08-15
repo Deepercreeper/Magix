@@ -212,6 +212,16 @@ public class Box
         return box.getX() <= getMaxX() && getX() <= box.getMaxX() && box.getY() <= getMaxY() && getY() <= box.getMaxY();
     }
 
+    public final Box shiftX(double x)
+    {
+        return new Box(getX() + x, getY(), size.getX(), size.getY());
+    }
+
+    public final Box shiftY(double y)
+    {
+        return new Box(getX(), getY() + y, size.getX(), size.getY());
+    }
+
     public final Box shift(Vector vector)
     {
         return new Box(getX() + vector.getX(), getY() + vector.getY(), size.getX(), size.getY());
@@ -224,6 +234,16 @@ public class Box
         double width = Math.max(getMaxX(), box.getMaxX()) - x;
         double height = Math.max(getMaxY(), box.getMaxY()) - y;
         return new Box(x, y, width, height);
+    }
+
+    public final Box getContainment(Box... boxes)
+    {
+        Box containmentBox = this;
+        for (Box box : boxes)
+        {
+            containmentBox = containmentBox.getContainment(box);
+        }
+        return containmentBox;
     }
 
     public final Rectangle asScaledRectangle(double scale)

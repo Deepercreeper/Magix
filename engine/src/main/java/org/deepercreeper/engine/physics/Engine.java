@@ -7,7 +7,11 @@ import org.deepercreeper.engine.util.Box;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Engine
 {
@@ -20,6 +24,8 @@ public class Engine
     private final List<Entity> addedEntities = new ArrayList<>();
 
     private final EntityMover entityMover = new EntityMover();
+
+    private final EntityDivider entityDivider = new EntityDivider();
 
     private final Display display;
 
@@ -122,7 +128,7 @@ public class Engine
     {
         for (Entity entity : entities)
         {
-            if (entity.getVelocityBoxContainment(delta).isTouching(box))
+            if (entity.getDeltaBox(delta).isTouching(box))
             {
                 return false;
             }
@@ -156,38 +162,13 @@ public class Engine
 
     private void moveEntities(double delta)
     {
-        Set<Set<Entity>> connectedEntities = findConnectedEntities(delta);
+        Set<Entity> solidEntities = entities.stream().filter(Entity::isSolid).collect(Collectors.toSet());
+        Set<Set<Entity>> connectedEntities = entityDivider.divide(solidEntities, delta);
+
         entityMover.setDelta(delta);
         connectedEntities.forEach(entityMover::move);
+
         entities.stream().filter(entity -> !entity.isSolid()).forEach(entity -> entity.move(delta));
-    }
-
-    private Set<Set<Entity>> findConnectedEntities(double delta)
-    {
-        Set<Set<Entity>> connectionComponents = new HashSet<>();
-        entities.stream().filter(Entity::isSolid).forEach(entity -> addToConnectionComponents(entity, connectionComponents, delta));
-        return connectionComponents;
-    }
-
-    private void addToConnectionComponents(Entity entity, Set<Set<Entity>> connectionComponents, double delta)
-    {
-        Set<Entity> connectedEntities = new HashSet<>();
-        Iterator<Set<Entity>> iterator = connectionComponents.iterator();
-        while (iterator.hasNext())
-        {
-            Set<Entity> connectionComponent = iterator.next();
-            for (Entity connectedEntity : connectionComponent)
-            {
-                if (entity.isVelocityTouching(connectedEntity, delta))
-                {
-                    connectedEntities.addAll(connectionComponent);
-                    iterator.remove();
-                    break;
-                }
-            }
-        }
-        connectedEntities.add(entity);
-        connectionComponents.add(connectedEntities);
     }
 
     private void addNewEntities()

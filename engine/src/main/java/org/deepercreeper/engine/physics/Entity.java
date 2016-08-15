@@ -53,19 +53,34 @@ public abstract class Entity extends VelocityBox
         return lastBox;
     }
 
-    public final Box getVelocityBox(double delta)
+    public final Box getDeltaBox(double delta)
     {
         return shift(getVelocity().times(getSpeed() * delta));
     }
 
-    public final Box getVelocityBoxContainment(double delta)
+    public final boolean isDeltaTouching(Entity entity, double delta)
     {
-        return getContainment(getVelocityBox(delta));
+        return getDeltaBox(delta).isTouching(entity.getDeltaBox(delta));
     }
 
-    public final boolean isVelocityTouching(Entity entity, double delta)
+    public final Box getDistanceBox(Vector velocity, double delta)
     {
-        return getVelocityBoxContainment(delta).isTouching(entity.getVelocityBoxContainment(delta));
+        Vector distance = velocity.times(getSpeed() * delta);
+        Box minXBox = shiftX(-distance.getAbsX());
+        Box minYBox = shiftY(-distance.getAbsY());
+        Box maxXBox = shiftX(distance.getAbsX());
+        Box maxYBox = shiftY(distance.getAbsY());
+        return getContainment(minXBox, minYBox, maxXBox, maxYBox);
+    }
+
+    public final Box getDistanceBox(double delta)
+    {
+        return getDistanceBox(getVelocity(), delta);
+    }
+
+    public final boolean isDistanceTouching(Vector distance, Entity entity, Vector entityVelocity, double delta)
+    {
+        return getDistanceBox(distance, delta).isTouching(entity.getDistanceBox(entityVelocity, delta));
     }
 
     public final void remove()
@@ -90,7 +105,7 @@ public abstract class Entity extends VelocityBox
 
     public final void update(double delta)
     {
-        updateVelocity(getSpeed() * delta);
+        updateVelocity(delta);
         update();
         onGround = false;
     }

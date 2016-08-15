@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class EntityMover
 {
-    private static final double MAX_STEP_VELOCITY = 1;
+    private static final double MAX_STEP_DISTANCE = 1;
 
     private final EntityCollider collider = new EntityCollider();
 
@@ -24,7 +24,6 @@ public class EntityMover
     public void setDelta(double delta)
     {
         this.delta = delta;
-        leftDelta = delta;
     }
 
     public void move(Set<Entity> entities)
@@ -41,6 +40,7 @@ public class EntityMover
             moveSingleEntity();
             return;
         }
+        leftDelta = delta;
         initDelta();
         while (steps > 0)
         {
@@ -78,14 +78,14 @@ public class EntityMover
 
     private void initDelta()
     {
-        double maxVelocity = entities.stream().map(entity -> entity.getVelocity().times(entity.getSpeed() * delta).norm()).max(Double::compare).orElse(.0);
-        if (maxVelocity < MAX_STEP_VELOCITY)
+        double maxDistance = entities.stream().map(entity -> entity.getVelocity().times(entity.getSpeed() * delta).norm()).max(Double::compare).orElse(.0);
+        if (maxDistance < MAX_STEP_DISTANCE)
         {
             stepDelta = leftDelta;
             steps = 1;
             return;
         }
-        stepDelta = leftDelta * MAX_STEP_VELOCITY / maxVelocity;
+        stepDelta = leftDelta * MAX_STEP_DISTANCE / maxDistance;
         steps = (int) Math.ceil(leftDelta / stepDelta);
     }
 }
