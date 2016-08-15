@@ -22,16 +22,6 @@ public class Vector
         this(0, 0);
     }
 
-    public double getX()
-    {
-        return x;
-    }
-
-    public double getY()
-    {
-        return y;
-    }
-
     public void set(double x, double y)
     {
         this.x = x;
@@ -54,15 +44,68 @@ public class Vector
         this.y = y;
     }
 
+    public void add(Vector vector, double scalar)
+    {
+        x += vector.x * scalar;
+        y += vector.y * scalar;
+    }
+
+    public void add(double x, double y)
+    {
+        this.x += x;
+        this.y += y;
+    }
+
     public void add(Vector vector)
     {
-        x += vector.x;
-        y += vector.y;
+        add(vector.x, vector.y);
+    }
+
+    public void subtract(Vector vector, double scalar)
+    {
+        add(vector, -scalar);
+    }
+
+    public void subtract(Vector vector)
+    {
+        x -= vector.x;
+        y -= vector.y;
+    }
+
+    public void multiplicate(double scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+    }
+
+    public double getX()
+    {
+        return x;
+    }
+
+    public double getY()
+    {
+        return y;
+    }
+
+    public Vector plus(Vector vector, double scalar)
+    {
+        return new Vector(x + vector.x * scalar, y + vector.y * scalar);
     }
 
     public Vector plus(Vector vector)
     {
         return new Vector(x + vector.x, y + vector.y);
+    }
+
+    public Vector minus(Vector vector, double scalar)
+    {
+        return plus(vector, -scalar);
+    }
+
+    public Vector minus(Vector vector)
+    {
+        return new Vector(x - vector.x, y - vector.y);
     }
 
     public Vector times(double scalar)
@@ -73,17 +116,6 @@ public class Vector
     public Vector negative()
     {
         return new Vector(-x, -y);
-    }
-
-    public Vector minus(Vector vector)
-    {
-        return new Vector(plus(vector.negative()));
-    }
-
-    public void multiplicate(double scalar)
-    {
-        x *= scalar;
-        y += scalar;
     }
 
     public double norm()
@@ -98,7 +130,7 @@ public class Vector
 
     public Point asPoint()
     {
-        return new Point((int) Math.round(x), (int) Math.round(y));
+        return new Point(x, y);
     }
 
     @Override

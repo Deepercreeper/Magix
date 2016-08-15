@@ -31,18 +31,18 @@ public class FrameTest
                     private final double elasticity = Math.random();
 
                     @Override
-                    public void accelerate(double delta)
+                    public void updateVelocity(double delta)
                     {
                         if (!movable)
                         {
                             return;
-                        } //10 = 2x
+                        }
                         double accelerationCoefficient = isOnGround() ? 20 : 12;
                         double rightAcceleration = getEngine().getInput().isActive(Key.RIGHT) ? accelerationCoefficient : 0;
                         double leftAcceleration = getEngine().getInput().isActive(Key.LEFT) ? -accelerationCoefficient : 0;
-                        Vector friction = isOnGround() ? getVelocity().times(-5) : getVelocity().times(-3);
-                        Vector acceleration = new Vector(rightAcceleration + leftAcceleration, 40).plus(friction);
-                        getVelocity().add(acceleration.times(delta));
+                        Vector friction = isOnGround() ? getVelocity().times(5) : getVelocity().times(3);
+                        Vector acceleration = new Vector(rightAcceleration + leftAcceleration, 40).minus(friction);
+                        getVelocity().add(acceleration, delta);
                     }
 
                     @Override
@@ -50,22 +50,22 @@ public class FrameTest
                     {
                         if (movable && isOnGround() && getEngine().getInput().isActive(Key.JUMP))
                         {
-                            getVelocity().add(new Vector(0, -20));
+                            getVelocity().add(0, -20);
                         }
                         if (movable)
                         {
-                            if (getEngine().getInput().isActive(Key.CROUCH) && getBox().getHeight() == height)
+                            if (getEngine().getInput().isActive(Key.CROUCH) && getHeight() == height)
                             {
-                                getEngine().getDisplay().clear(getBox().asScaledRectangle(getEngine().getScale()));
-                                getBox().move(new Vector(0, height / 2));
+                                getEngine().getDisplay().clear(asScaledRectangle(getEngine().getScale()));
+                                moveBy(0, height / 2);
                             }
-                            if (!getEngine().getInput().isActive(Key.CROUCH) && getBox().getHeight() == height / 2)
+                            if (!getEngine().getInput().isActive(Key.CROUCH) && getHeight() == height / 2)
                             {
-                                getBox().move(new Vector(0, -height / 2));
+                                moveBy(0, -height / 2);
                             }
-                            getBox().setSize(getBox().getWidth(), getEngine().getInput().isActive(Key.CROUCH) ? height / 2 : height);
+                            setHeight(getEngine().getInput().isActive(Key.CROUCH) ? height / 2 : height);
                         }
-                        if (getBox().asScaledRectangle(getEngine().getScale()).getCut(getEngine().getDisplay().getRectangle()).isEmpty())
+                        if (asScaledRectangle(getEngine().getScale()).getCut(getEngine().getDisplay().getRectangle()).isEmpty())
                         {
                             remove();
                         }
@@ -74,7 +74,7 @@ public class FrameTest
                     @Override
                     public double getElasticity()
                     {
-                        return .75;
+                        return elasticity;
                     }
 
                     @Override

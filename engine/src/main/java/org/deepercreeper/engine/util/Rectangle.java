@@ -6,14 +6,19 @@ import java.util.Set;
 
 public class Rectangle
 {
+    private final Point center = new Point();
+
     private final Point position;
 
     private final Point size;
+
+    private int hashCode;
 
     public Rectangle(int x, int y, int width, int height)
     {
         position = new Point(Math.min(x, x + width), Math.min(y, y + height));
         size = new Point(Math.abs(width), Math.abs(height));
+        updateCenterAndHashCode();
     }
 
     public Rectangle(int x, int y)
@@ -41,19 +46,195 @@ public class Rectangle
         this(rectangle.position, rectangle.size);
     }
 
+    public void set(Rectangle rectangle)
+    {
+        position.set(rectangle.position);
+        size.set(rectangle.size);
+        center.set(rectangle.center);
+        hashCode = rectangle.hashCode;
+    }
+
+    public void setPosition(double x, double y)
+    {
+        position.set(x, y);
+        updateCenterAndHashCode();
+    }
+
+    public void setPosition(int x, int y)
+    {
+        position.set(x, y);
+        updateCenterAndHashCode();
+    }
+
+    public void setPosition(Point position)
+    {
+        this.position.set(position);
+        updateCenterAndHashCode();
+    }
+
+    public void setSize(double width, double height)
+    {
+        size.set(width, height);
+        updateCenterAndHashCode();
+    }
+
+    public void setSize(int width, int height)
+    {
+        size.set(width, height);
+        updateCenterAndHashCode();
+    }
+
+    public void setSize(Point size)
+    {
+        this.size.set(size);
+        updateCenterAndHashCode();
+    }
+
+    public void setCenter(double x, double y)
+    {
+        position.set(x - getWidth() * .5, y - getHeight() * .5);
+        center.set(x, y);
+        updateHashCode();
+    }
+
+    public void setCenter(int x, int y)
+    {
+        position.set(x - getWidth() * .5, y - getHeight() * .5);
+        center.set(x, y);
+        updateHashCode();
+    }
+
+    public void setCenter(Point center)
+    {
+        position.set(center.getX() - getWidth() * .5, center.getY() - getHeight() * .5);
+        this.center.set(center);
+        updateHashCode();
+    }
+
+    public void setX(double x)
+    {
+        position.setX(x);
+        updateCenterAndHashCode();
+    }
+
+    public void setX(int x)
+    {
+        position.setX(x);
+        updateCenterAndHashCode();
+    }
+
+    public void setY(double y)
+    {
+        position.setY(y);
+        updateCenterAndHashCode();
+    }
+
+    public void setY(int y)
+    {
+        position.setY(y);
+        updateCenterAndHashCode();
+    }
+
+    public void setMaxX(double x)
+    {
+        position.setX(x - getWidth());
+        updateCenterAndHashCode();
+    }
+
+    public void setMaxX(int x)
+    {
+        position.setX(x - getWidth());
+        updateCenterAndHashCode();
+    }
+
+    public void setMaxY(double y)
+    {
+        position.setY(y - getHeight());
+        updateCenterAndHashCode();
+    }
+
+    public void setMaxY(int y)
+    {
+        position.setY(y - getHeight());
+        updateCenterAndHashCode();
+    }
+
+    public void setCenterX(double x)
+    {
+        center.setX(x);
+        position.setX(x - getWidth() * .5);
+        updateHashCode();
+    }
+
+    public void setCenterX(int x)
+    {
+        center.setX(x);
+        position.setX(x - getWidth() * .5);
+        updateHashCode();
+    }
+
+    public void setCenterY(double y)
+    {
+        center.setY(y);
+        position.setY(y - getHeight() * .5);
+        updateHashCode();
+    }
+
+    public void setCenterY(int y)
+    {
+        center.setY(y);
+        position.setY(y - getHeight() * .5);
+        updateHashCode();
+    }
+
+    public void setWidth(double width)
+    {
+        size.setX(width);
+        updateCenterAndHashCode();
+    }
+
+    public void setWidth(int width)
+    {
+        size.setX(width);
+        updateCenterAndHashCode();
+    }
+
+    public void setHeight(double height)
+    {
+        size.setY(height);
+        updateCenterAndHashCode();
+    }
+
+    public void setHeight(int height)
+    {
+        size.setY(height);
+        updateCenterAndHashCode();
+    }
+
+    public void moveBy(Point point)
+    {
+        position.add(point);
+        updateCenterAndHashCode();
+    }
+
     public Point getPosition()
     {
-        return new Point(position);
+        return position;
     }
 
     public Point getCenter()
     {
-        return position.plus(size.times(0.5));
+        return center;
     }
 
     public Point getSize()
     {
-        return new Point(size);
+        return size;
+    }
+
+    public Rectangle shift(Point point)
+    {
+        return new Rectangle(getX() + point.getX(), getY() + point.getY(), size.getX(), size.getY());
     }
 
     public int getX()
@@ -86,14 +267,19 @@ public class Rectangle
         return getY() + getHeight() - 1;
     }
 
-    public void move(Point point)
+    public int getCenterX()
     {
-        position.add(point);
+        return center.getX();
     }
 
-    public Rectangle shift(Point point)
+    public int getCenterY()
     {
-        return new Rectangle(position.plus(point), size);
+        return center.getY();
+    }
+
+    public boolean isEmpty()
+    {
+        return getWidth() == 0 || getHeight() == 0;
     }
 
     public boolean isTouching(Rectangle rectangle)
@@ -163,9 +349,10 @@ public class Rectangle
         return getX() <= rectangle.getX() && getY() <= rectangle.getY() && getMaxX() >= rectangle.getMaxX() && getMaxY() >= rectangle.getMaxY();
     }
 
-    public boolean isEmpty()
+    private void updateCenterAndHashCode()
     {
-        return getWidth() == 0 || getHeight() == 0;
+        center.set(getX() + getWidth() * .5, getY() + getHeight() * .5);
+        updateHashCode();
     }
 
     @Override
@@ -182,7 +369,16 @@ public class Rectangle
     @Override
     public int hashCode()
     {
-        return position.hashCode() * 17 + size.hashCode();
+        return hashCode;
+    }
+
+    private void updateHashCode()
+    {
+        int hashCode = getX();
+        hashCode = hashCode * 13 + getY();
+        hashCode = hashCode * 13 + getWidth();
+        hashCode = hashCode * 13 + getHeight();
+        this.hashCode = hashCode;
     }
 
     @Override

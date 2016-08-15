@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 public class EntityCollider
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EntityCollider.class);
-
     private static final double DEFAULT_DAMPING_LIMIT = 1;
 
     private final Set<Entity> entities = new HashSet<>();
@@ -51,18 +49,14 @@ public class EntityCollider
 
     private void checkCollisionsOf(Entity entity)
     {
-        Box box = entity.getBox().shift(entity.getVelocity().times(entity.getSpeed() * delta));
-        for (Entity collisionEntity : connectedEntities.get(entity))
+        Box box = entity.getVelocityBox(delta);
+        connectedEntities.get(entity).stream().filter(collisionEntity -> box.isTouching(collisionEntity.getVelocityBox(delta))).forEach(collisionEntity ->
         {
-            Box entityBox = collisionEntity.getBox().shift(collisionEntity.getVelocity().times(entity.getSpeed() * delta));
-            if (box.isTouching(entityBox))
-            {
-                Set<Entity> collision = new HashSet<>();
-                collision.add(entity);
-                collision.add(collisionEntity);
-                collisions.add(collision);
-            }
-        }
+            Set<Entity> collision = new HashSet<>();
+            collision.add(entity);
+            collision.add(collisionEntity);
+            collisions.add(collision);
+        });
     }
 
     private void collide()
@@ -83,12 +77,12 @@ public class EntityCollider
 
         Vector difference = secondEntity.getCenter().minus(firstEntity.getCenter());
 
-        double xFirstCorner = difference.getX() > 0 ? firstEntity.getBox().getMaxX() : firstEntity.getBox().getX();
-        double yFirstCorner = difference.getY() > 0 ? firstEntity.getBox().getMaxY() : firstEntity.getBox().getY();
+        double xFirstCorner = difference.getX() > 0 ? firstEntity.getMaxX() : firstEntity.getX();
+        double yFirstCorner = difference.getY() > 0 ? firstEntity.getMaxY() : firstEntity.getY();
         Vector firstCorner = new Vector(xFirstCorner, yFirstCorner);
 
-        double xSecondCorner = difference.getX() > 0 ? secondEntity.getBox().getX() : secondEntity.getBox().getMaxX();
-        double ySecondCorner = difference.getY() > 0 ? secondEntity.getBox().getY() : secondEntity.getBox().getMaxY();
+        double xSecondCorner = difference.getX() > 0 ? secondEntity.getX() : secondEntity.getMaxX();
+        double ySecondCorner = difference.getY() > 0 ? secondEntity.getY() : secondEntity.getMaxY();
         Vector secondCorner = new Vector(xSecondCorner, ySecondCorner);
 
         if (Math.abs(firstCorner.getX() - secondCorner.getX()) > Math.abs(firstCorner.getY() - secondCorner.getY()))
@@ -108,60 +102,57 @@ public class EntityCollider
         double secondVelocity;
         if (Double.isInfinite(secondEntity.getMass()) && Double.isInfinite(firstEntity.getMass()))
         {
-            double average = (firstEntity.getVelocity().getY() + secondEntity.getVelocity().getY()) / 2;
-            firstVelocity = average - (firstEntity.getVelocity().getY() - secondEntity.getVelocity().getY()) * elasticity / 2;
-            secondVelocity = average - (secondEntity.getVelocity().getY() - firstEntity.getVelocity().getY()) * elasticity / 2;
+            double average = (firstEntity.getYVelocity() + secondEntity.getYVelocity()) / 2;
+            firstVelocity = average - (firstEntity.getYVelocity() - secondEntity.getYVelocity()) * elasticity / 2;
+            secondVelocity = average - (secondEntity.getYVelocity() - firstEntity.getYVelocity()) * elasticity / 2;
         }
         else if (Double.isInfinite(secondEntity.getMass()))
         {
-            firstVelocity = secondEntity.getVelocity().getY() - (firstEntity.getVelocity().getY() - secondEntity.getVelocity().getY()) * elasticity;
-            secondVelocity = secondEntity.getVelocity().getY();
+            firstVelocity = secondEntity.getYVelocity() - (firstEntity.getYVelocity() - secondEntity.getYVelocity()) * elasticity;
+            secondVelocity = secondEntity.getYVelocity();
         }
         else if (Double.isInfinite(firstEntity.getMass()))
         {
-            firstVelocity = firstEntity.getVelocity().getY();
-            secondVelocity = firstEntity.getVelocity().getY() - (secondEntity.getVelocity().getY() - firstEntity.getVelocity().getY()) * elasticity;
+            firstVelocity = firstEntity.getYVelocity();
+            secondVelocity = firstEntity.getYVelocity() - (secondEntity.getYVelocity() - firstEntity.getYVelocity()) * elasticity;
         }
         else
         {
             double mass = firstEntity.getMass() + secondEntity.getMass();
-            double massPoint = (firstEntity.getMass() * firstEntity.getVelocity().getY() + secondEntity.getMass() * secondEntity.getVelocity().getY()) / mass;
-            firstVelocity = massPoint - (secondEntity.getMass() * (firstEntity.getVelocity().getY() - secondEntity.getVelocity().getY()) * elasticity) / mass;
-            secondVelocity = massPoint - (firstEntity.getMass() * (secondEntity.getVelocity().getY() - firstEntity.getVelocity().getY()) * elasticity) / mass;
+            double massPoint = (firstEntity.getMass() * firstEntity.getYVelocity() + secondEntity.getMass() * secondEntity.getYVelocity()) / mass;
+            firstVelocity = massPoint - (secondEntity.getMass() * (firstEntity.getYVelocity() - secondEntity.getYVelocity()) * elasticity) / mass;
+            secondVelocity = massPoint - (firstEntity.getMass() * (secondEntity.getYVelocity() - firstEntity.getYVelocity()) * elasticity) / mass;
         }
 
-        setVerticalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity, elasticity);
+        setVerticalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity);
 
-        if (firstEntity.getBox().getY() < secondEntity.getBox().getY())
+        if (firstEntity.getCenterY() < secondEntity.getCenterY())
         {
-            firstEntity.onGround();
+            firstEntity.hitGround();
         }
         else
         {
-            secondEntity.onGround();
+            secondEntity.hitGround();
         }
     }
 
-    private void setVerticalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity, double elasticity)
+    private void setVerticalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity)
     {
-        double dampingLimit = computeDampingLimit(elasticity);
-        double differenceLength = Math
-                .min(Math.abs(secondEntity.getBox().getY() - firstEntity.getBox().getMaxY()), Math.abs(firstEntity.getBox().getY() - secondEntity.getBox().getMaxY()));
-        double difference = Math.signum(secondEntity.getCenter().getY() - firstEntity.getCenter().getY()) * differenceLength;
-        LOGGER.info("Stopping entities: {}, {}, Elasticity: {}, Damping limit: {}", firstVelocity, secondVelocity, elasticity, dampingLimit);
-        if (Math.abs(firstVelocity) < dampingLimit * firstEntity.getSpeed() || Math.abs(secondVelocity) < dampingLimit * secondEntity.getSpeed())
+        double differenceLength = Math.min(Math.abs(secondEntity.getY() - firstEntity.getMaxY()), Math.abs(firstEntity.getY() - secondEntity.getMaxY()));
+        double difference = Math.signum(secondEntity.getY() - firstEntity.getY()) * differenceLength;
+        if (Math.abs(firstVelocity) < DEFAULT_DAMPING_LIMIT * firstEntity.getSpeed() || Math.abs(secondVelocity) < DEFAULT_DAMPING_LIMIT * secondEntity.getSpeed())
         {
-            firstVelocity = Math.abs(firstVelocity) < dampingLimit * firstEntity.getSpeed() ? 0 : firstVelocity;
-            secondVelocity = Math.abs(secondVelocity) < dampingLimit * secondEntity.getSpeed() ? 0 : secondVelocity;
+            firstVelocity = Math.abs(firstVelocity) < DEFAULT_DAMPING_LIMIT * firstEntity.getSpeed() ? 0 : firstVelocity;
+            secondVelocity = Math.abs(secondVelocity) < DEFAULT_DAMPING_LIMIT * secondEntity.getSpeed() ? 0 : secondVelocity;
 
             double scale = firstEntity.getMassScaleTo(secondEntity);
 
-            firstEntity.getBox().move(new Vector(0, (1 - scale) * difference));
-            secondEntity.getBox().move(new Vector(0, scale * -difference));
+            firstEntity.moveBy(0, (1 - scale) * difference);
+            secondEntity.moveBy(0, scale * -difference);
         }
 
-        firstEntity.setVelocity(new Vector(firstEntity.getVelocity().getX(), firstVelocity));
-        secondEntity.setVelocity(new Vector(secondEntity.getVelocity().getX(), secondVelocity));
+        firstEntity.setYVelocity(firstVelocity);
+        secondEntity.setYVelocity(secondVelocity);
     }
 
     private void collideHorizontal(Entity firstEntity, Entity secondEntity)
@@ -171,96 +162,48 @@ public class EntityCollider
         double secondVelocity;
         if (Double.isInfinite(secondEntity.getMass()) && Double.isInfinite(firstEntity.getMass()))
         {
-            double average = (firstEntity.getVelocity().getX() + secondEntity.getVelocity().getX()) / 2;
-            firstVelocity = average - (firstEntity.getVelocity().getX() - secondEntity.getVelocity().getX()) * elasticity / 2;
-            secondVelocity = average - (secondEntity.getVelocity().getX() - firstEntity.getVelocity().getX()) * elasticity / 2;
+            double average = (firstEntity.getXVelocity() + secondEntity.getXVelocity()) / 2;
+            firstVelocity = average - (firstEntity.getXVelocity() - secondEntity.getXVelocity()) * elasticity / 2;
+            secondVelocity = average - (secondEntity.getXVelocity() - firstEntity.getXVelocity()) * elasticity / 2;
         }
         else if (Double.isInfinite(secondEntity.getMass()))
         {
-            firstVelocity = secondEntity.getVelocity().getX() - (firstEntity.getVelocity().getX() - secondEntity.getVelocity().getX()) * elasticity;
-            secondVelocity = secondEntity.getVelocity().getX();
+            firstVelocity = secondEntity.getXVelocity() - (firstEntity.getXVelocity() - secondEntity.getXVelocity()) * elasticity;
+            secondVelocity = secondEntity.getXVelocity();
         }
         else if (Double.isInfinite(firstEntity.getMass()))
         {
-            firstVelocity = firstEntity.getVelocity().getX();
-            secondVelocity = firstEntity.getVelocity().getX() - (secondEntity.getVelocity().getX() - firstEntity.getVelocity().getX()) * elasticity;
+            firstVelocity = firstEntity.getXVelocity();
+            secondVelocity = firstEntity.getXVelocity() - (secondEntity.getXVelocity() - firstEntity.getXVelocity()) * elasticity;
         }
         else
         {
             double mass = firstEntity.getMass() + secondEntity.getMass();
-            double massPoint = (firstEntity.getMass() * firstEntity.getVelocity().getX() + secondEntity.getMass() * secondEntity.getVelocity().getX()) / mass;
-            firstVelocity = massPoint - (secondEntity.getMass() * (firstEntity.getVelocity().getX() - secondEntity.getVelocity().getX()) * elasticity) / mass;
-            secondVelocity = massPoint - (firstEntity.getMass() * (secondEntity.getVelocity().getX() - firstEntity.getVelocity().getX()) * elasticity) / mass;
+            double massPoint = (firstEntity.getMass() * firstEntity.getXVelocity() + secondEntity.getMass() * secondEntity.getXVelocity()) / mass;
+            firstVelocity = massPoint - (secondEntity.getMass() * (firstEntity.getXVelocity() - secondEntity.getXVelocity()) * elasticity) / mass;
+            secondVelocity = massPoint - (firstEntity.getMass() * (secondEntity.getXVelocity() - firstEntity.getXVelocity()) * elasticity) / mass;
         }
 
-        setHorizontalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity, elasticity);
+        setHorizontalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity);
     }
 
-    private void setHorizontalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity, double elasticity)
+    private void setHorizontalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity)
     {
-        double dampingLimit = computeDampingLimit(elasticity);
-        double differenceLength = Math
-                .min(Math.abs(secondEntity.getBox().getX() - firstEntity.getBox().getMaxX()), Math.abs(firstEntity.getBox().getX() - secondEntity.getBox().getMaxX()));
-        double difference = Math.signum(secondEntity.getCenter().getX() - firstEntity.getCenter().getX()) * differenceLength;
-        if (Math.abs(firstVelocity) < dampingLimit * firstEntity.getSpeed() || Math.abs(secondVelocity) < dampingLimit * secondEntity.getSpeed())
+        double differenceLength = Math.min(Math.abs(secondEntity.getX() - firstEntity.getMaxX()), Math.abs(firstEntity.getX() - secondEntity.getMaxX()));
+        double difference = Math.signum(secondEntity.getX() - firstEntity.getX()) * differenceLength;
+        if (Math.abs(firstVelocity) < DEFAULT_DAMPING_LIMIT * firstEntity.getSpeed() || Math.abs(secondVelocity) < DEFAULT_DAMPING_LIMIT * secondEntity.getSpeed())
         {
-            firstVelocity = Math.abs(firstVelocity) < dampingLimit * firstEntity.getSpeed() ? 0 : firstVelocity;
-            secondVelocity = Math.abs(secondVelocity) < dampingLimit * secondEntity.getSpeed() ? 0 : secondVelocity;
+            firstVelocity = Math.abs(firstVelocity) < DEFAULT_DAMPING_LIMIT * firstEntity.getSpeed() ? 0 : firstVelocity;
+            secondVelocity = Math.abs(secondVelocity) < DEFAULT_DAMPING_LIMIT * secondEntity.getSpeed() ? 0 : secondVelocity;
 
             double scale = firstEntity.getMassScaleTo(secondEntity);
 
-            firstEntity.getBox().move(new Vector((1 - scale) * difference, 0));
-            secondEntity.getBox().move(new Vector(scale * -difference, 0));
+            firstEntity.moveBy((1 - scale) * difference, 0);
+            secondEntity.moveBy(scale * -difference, 0);
         }
 
-        firstEntity.setVelocity(new Vector(firstVelocity, firstEntity.getVelocity().getY()));
-        secondEntity.setVelocity(new Vector(secondVelocity, secondEntity.getVelocity().getY()));
-    }
-
-    private double computeDampingLimit(double elasticity)
-    {
-        if (Double.isFinite(elasticity))
-        {
-            return DEFAULT_DAMPING_LIMIT;
-        }
-        if (0.0 <= elasticity && elasticity <= 0.5)
-        {
-            return 4;
-        }
-        else if (0.5 < elasticity && elasticity <= 0.55)
-        {
-            return 60 * elasticity - 26;
-        }
-        else if (0.55 < elasticity && elasticity < 0.6)
-        {
-            return 160 * elasticity - 81;
-        }
-        else if (0.6 <= elasticity && elasticity <= 1)
-        {
-            double epsilon = -95333 * Math.pow(elasticity, 5) + 364333 * Math.pow(elasticity, 4) - 546415 * Math.pow(elasticity, 3) + 402705 * Math
-                    .pow(elasticity, 2) - 145756 * elasticity + 20716;
-            if (0.65 <= elasticity && elasticity <= 0.75)
-            {
-                epsilon += -1600 * Math.pow(elasticity, 2) + 2240 * elasticity - 780;
-            }
-            return epsilon;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    public boolean isCollided(Entity entity)
-    {
-        for (Set<Entity> collision : collisions)
-        {
-            if (collision.contains(entity))
-            {
-                return true;
-            }
-        }
-        return false;
+        firstEntity.setXVelocity(firstVelocity);
+        secondEntity.setXVelocity(secondVelocity);
     }
 
     public boolean hasCollisions()

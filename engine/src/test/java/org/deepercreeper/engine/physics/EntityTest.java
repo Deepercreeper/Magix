@@ -25,7 +25,7 @@ public class EntityTest
     public void testMassScale()
     {
         double[] massesAndScale = new double[3];
-        Entity firstEntity = new Entity(new Vector())
+        Entity firstEntity = new Entity(0, 0)
         {
             @Override
             public double getMass()
@@ -33,7 +33,7 @@ public class EntityTest
                 return massesAndScale[0];
             }
         };
-        Entity secondEntity = new Entity(new Vector())
+        Entity secondEntity = new Entity(0, 0)
         {
             @Override
             public double getMass()

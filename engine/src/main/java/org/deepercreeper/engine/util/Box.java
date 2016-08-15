@@ -2,14 +2,21 @@ package org.deepercreeper.engine.util;
 
 public class Box
 {
+    private final Vector center = new Vector();
+
     private final Vector position;
 
     private final Vector size;
+
+    private int hashCode;
+
+    private boolean hashCodeComputed = false;
 
     public Box(double x, double y, double width, double height)
     {
         position = new Vector(x, y);
         size = new Vector(width, height);
+        updateCenterAndHashCode();
     }
 
     public Box(double x, double y)
@@ -19,8 +26,7 @@ public class Box
 
     public Box(Vector position, Vector size)
     {
-        this.position = new Vector(position);
-        this.size = new Vector(size);
+        this(position.getX(), position.getY(), size.getX(), size.getY());
     }
 
     public Box(Vector position)
@@ -33,83 +39,185 @@ public class Box
         this(box.position, box.size);
     }
 
-    public Vector getPosition()
+    public final void set(Box box)
     {
-        return new Vector(position);
+        position.set(box.position);
+        size.set(box.size);
+        center.set(box.center);
+        hashCode = box.hashCode;
     }
 
-    public Vector getCenter()
+    public final void setPosition(double x, double y)
     {
-        return position.plus(size.times(0.5));
+        position.set(x, y);
+        updateCenterAndHashCode();
     }
 
-    public Vector getSize()
+    public final void setPosition(Vector position)
     {
-        return new Vector(size);
+        this.position.set(position);
+        updateCenterAndHashCode();
     }
 
-    public void setSize(double width, double height)
+    public final void setSize(double width, double height)
     {
         size.set(width, height);
+        updateCenterAndHashCode();
     }
 
-    public double getX()
+    public final void setSize(Vector size)
+    {
+        this.size.set(size);
+        updateCenterAndHashCode();
+    }
+
+    public final void setCenter(double x, double y)
+    {
+        center.set(x, y);
+        position.set(x - getWidth() * .5, y - getHeight() * .5);
+        updateHashCode();
+    }
+
+    public final void setCenter(Vector center)
+    {
+        this.center.set(center);
+        position.set(center.getX() - getWidth() * .5, center.getY() - getHeight() * .5);
+        updateHashCode();
+    }
+
+    public final void setX(double x)
+    {
+        position.setX(x);
+        updateCenterAndHashCode();
+    }
+
+    public final void setY(double y)
+    {
+        position.setY(y);
+        updateCenterAndHashCode();
+    }
+
+    public final void setMaxX(double x)
+    {
+        position.setX(x - getWidth());
+        updateCenterAndHashCode();
+    }
+
+    public final void setMaxY(double y)
+    {
+        position.setY(y - getHeight());
+        updateCenterAndHashCode();
+    }
+
+    public final void setCenterX(double x)
+    {
+        center.setX(x);
+        position.setX(x - getWidth() * .5);
+        updateHashCode();
+    }
+
+    public final void setCenterY(double y)
+    {
+        center.setY(y);
+        position.setY(y - getHeight() * .5);
+        updateHashCode();
+    }
+
+    public final void setWidth(double width)
+    {
+        size.setX(width);
+        updateCenterAndHashCode();
+    }
+
+    public final void setHeight(double height)
+    {
+        size.setY(height);
+        updateCenterAndHashCode();
+    }
+
+    public final void moveBy(double x, double y)
+    {
+        position.add(x, y);
+        updateCenterAndHashCode();
+    }
+
+    public final void moveBy(Vector vector)
+    {
+        position.add(vector);
+        updateCenterAndHashCode();
+    }
+
+    public final Vector getPosition()
+    {
+        return position;
+    }
+
+    public final Vector getCenter()
+    {
+        return center;
+    }
+
+    public final Vector getSize()
+    {
+        return size;
+    }
+
+    public final double getX()
     {
         return position.getX();
     }
 
-    public double getY()
+    public final double getY()
     {
         return position.getY();
     }
 
-    public double getWidth()
+    public final double getWidth()
     {
         return size.getX();
     }
 
-    public double getHeight()
+    public final double getHeight()
     {
         return size.getY();
     }
 
-    public double getMaxX()
+    public final double getMaxX()
     {
         return getX() + getWidth();
     }
 
-    public double getMaxY()
+    public final double getMaxY()
     {
         return getY() + getHeight();
     }
 
-    public void moveTo(Vector position)
+    public final double getCenterX()
     {
-        this.position.set(position);
+        return center.getX();
     }
 
-    public void set(Box box)
+    public final double getCenterY()
     {
-        position.set(box.getPosition());
-        size.set(box.getSize());
+        return center.getY();
     }
 
-    public void move(Vector vector)
+    public final boolean isEmpty()
     {
-        position.add(vector);
+        return getWidth() == 0 || getHeight() == 0;
     }
 
-    public Box shift(Vector vector)
+    public final boolean isTouching(Box box)
     {
-        return new Box(position.plus(vector), size);
+        return box.getX() <= getMaxX() && getX() <= box.getMaxX() && box.getY() <= getMaxY() && getY() <= box.getMaxY();
     }
 
-    public boolean isTouching(Box box)
+    public final Box shift(Vector vector)
     {
-        return !(getMaxX() < box.getX() || box.getMaxX() < getX() || getMaxY() < box.getY() || box.getMaxY() < getY());
+        return new Box(getX() + vector.getX(), getY() + vector.getY(), size.getX(), size.getY());
     }
 
-    public Box getContainment(Box box)
+    public final Box getContainment(Box box)
     {
         double x = Math.min(getX(), box.getX());
         double y = Math.min(getY(), box.getY());
@@ -118,9 +226,15 @@ public class Box
         return new Box(x, y, width, height);
     }
 
-    public Rectangle asScaledRectangle(double scale)
+    public final Rectangle asScaledRectangle(double scale)
     {
         return new Rectangle(position.times(scale).asPoint(), size.times(scale).asPoint());
+    }
+
+    private void updateCenterAndHashCode()
+    {
+        center.set(getX() + getWidth() * .5, getY() * getHeight() * .5);
+        updateHashCode();
     }
 
     @Override
@@ -135,9 +249,32 @@ public class Box
     }
 
     @Override
-    public int hashCode()
+    public final int hashCode()
     {
-        return position.hashCode() * 17 + size.hashCode();
+        return hashCode;
+    }
+
+    protected final void updateHashCode()
+    {
+        if (!hashCodeComputed || !isHashCodeFinal())
+        {
+            hashCode = computeHashCode();
+            hashCodeComputed = true;
+        }
+    }
+
+    protected boolean isHashCodeFinal()
+    {
+        return false;
+    }
+
+    protected int computeHashCode()
+    {
+        int hashCode = Double.hashCode(getX());
+        hashCode = hashCode * 13 + Double.hashCode(getY());
+        hashCode = hashCode * 13 + Double.hashCode(getWidth());
+        hashCode = hashCode * 13 + Double.hashCode(getHeight());
+        return hashCode;
     }
 
     @Override
