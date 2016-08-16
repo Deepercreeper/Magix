@@ -99,7 +99,7 @@ public class Entity extends AcceleratedBox
 
     public final void saveBox()
     {
-        lastBox.set(this);
+        lastBox.set(computeRenderingBox());
     }
 
     public final Engine getEngine()
@@ -140,7 +140,7 @@ public class Entity extends AcceleratedBox
     public final void clearLastBox()
     {
         Display display = getEngine().getDisplay();
-        getLastBox().asScaledRectangle(getEngine().getScale()).getSubtraction(asScaledRectangle(getEngine().getScale())).forEach(display::clear);
+        getLastBox().asScaledRectangle(getEngine().getScale()).getSubtraction(computeRenderingBox().asScaledRectangle(getEngine().getScale())).forEach(display::clear);
     }
 
     final void setEngine(Engine engine)
@@ -155,6 +155,11 @@ public class Entity extends AcceleratedBox
 
     public void collideWith(Entity entity)
     {
+    }
+
+    protected Box computeRenderingBox()
+    {
+        return this;
     }
 
     public double getSpeed()

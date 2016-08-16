@@ -25,6 +25,20 @@ public interface Display
     static int[] createRectangle(int width, int height, int color)
     {
         int[] image = new int[width * height];
+        for (int y = 0; y < height; y++)
+        {
+            image[y * width] = image[y * width + width - 1] = color;
+        }
+        for (int x = 0; x < width; x++)
+        {
+            image[x] = image[height * width - width + x] = color;
+        }
+        return image;
+    }
+
+    static int[] createFilledRectangle(int width, int height, int color)
+    {
+        int[] image = new int[width * height];
         Arrays.fill(image, color);
         return image;
     }
