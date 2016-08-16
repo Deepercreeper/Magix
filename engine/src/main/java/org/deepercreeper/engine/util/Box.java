@@ -12,31 +12,11 @@ public class Box
 
     private boolean hashCodeComputed = false;
 
-    public Box(double x, double y, double width, double height)
+    protected Box(GenericBoxBuilder builder)
     {
-        position = new Vector(x, y);
-        size = new Vector(width, height);
+        position = new Vector(builder.x, builder.y);
+        size = new Vector(builder.width, builder.height);
         updateCenterAndHashCode();
-    }
-
-    public Box(double x, double y)
-    {
-        this(x, y, 0, 0);
-    }
-
-    public Box(Vector position, Vector size)
-    {
-        this(position.getX(), position.getY(), size.getX(), size.getY());
-    }
-
-    public Box(Vector position)
-    {
-        this(position, new Vector());
-    }
-
-    public Box(Box box)
-    {
-        this(box.position, box.size);
     }
 
     public final void set(Box box)
@@ -214,26 +194,27 @@ public class Box
 
     public final Box shiftX(double x)
     {
-        return new Box(getX() + x, getY(), size.getX(), size.getY());
+        return new BoxBuilder().set(this).setX(getX() + x).build();
     }
 
     public final Box shiftY(double y)
     {
-        return new Box(getX(), getY() + y, size.getX(), size.getY());
+        return new BoxBuilder().set(this).setY(getY() + y).build();
     }
 
     public final Box shift(Vector vector)
     {
-        return new Box(getX() + vector.getX(), getY() + vector.getY(), size.getX(), size.getY());
+        return new BoxBuilder().setX(getX() + vector.getX()).setY(getY() + vector.getY()).setSize(size).build();
     }
 
     public final Box getContainment(Box box)
     {
-        double x = Math.min(getX(), box.getX());
-        double y = Math.min(getY(), box.getY());
-        double width = Math.max(getMaxX(), box.getMaxX()) - x;
-        double height = Math.max(getMaxY(), box.getMaxY()) - y;
-        return new Box(x, y, width, height);
+        BoxBuilder builder = new BoxBuilder();
+        builder.setX(Math.min(getX(), box.getX()));
+        builder.setY(Math.min(getY(), box.getY()));
+        builder.setWidth(Math.max(getMaxX(), box.getMaxX()) - builder.x);
+        builder.setHeight(Math.max(getMaxY(), box.getMaxY()) - builder.y);
+        return builder.build();
     }
 
     public final Box getContainment(Box... boxes)
@@ -301,5 +282,77 @@ public class Box
     public String toString()
     {
         return "(" + position + ", " + size + ")";
+    }
+
+    public static abstract class GenericBoxBuilder<T extends GenericBoxBuilder<T>> extends GenericBuilder<T>
+    {
+        protected double x = 0;
+
+        protected double y = 0;
+
+        protected double width = 0;
+
+        protected double height = 0;
+
+        public T setX(double x)
+        {
+            this.x = x;
+            return getThis();
+        }
+
+        public T setY(double y)
+        {
+            this.y = y;
+            return getThis();
+        }
+
+        public T setWidth(double width)
+        {
+            this.width = width;
+            return getThis();
+        }
+
+        public T setHeight(double height)
+        {
+            this.height = height;
+            return getThis();
+        }
+
+        public T setPosition(Vector position)
+        {
+            x = position.getX();
+            y = position.getY();
+            return getThis();
+        }
+
+        public T setSize(Vector size)
+        {
+            width = size.getX();
+            height = size.getY();
+            return getThis();
+        }
+
+        public T set(Box box)
+        {
+            x = box.getX();
+            y = box.getY();
+            width = box.getWidth();
+            height = box.getHeight();
+            return getThis();
+        }
+
+        public Box build()
+        {
+            return new Box(this);
+        }
+    }
+
+    public static final class BoxBuilder extends GenericBoxBuilder<BoxBuilder>
+    {
+        @Override
+        protected BoxBuilder getThis()
+        {
+            return this;
+        }
     }
 }
