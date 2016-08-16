@@ -30,7 +30,7 @@ public class FrameDisplay extends AbstractDisplay
     {
         try
         {
-            frame.getImage().setRGB(x, y, width, height, Display.createRectangle(width, height, 0xff000000), 0, width);
+            frame.getImage().setRGB(x, y, width, height, Display.createFilledRectangle(width, height, 0xff000000), 0, width);
         }
         catch (ArrayIndexOutOfBoundsException ignored)
         {
