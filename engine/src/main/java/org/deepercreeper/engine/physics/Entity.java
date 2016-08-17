@@ -1,11 +1,11 @@
 package org.deepercreeper.engine.physics;
 
 import org.deepercreeper.engine.display.Display;
+import org.deepercreeper.engine.util.AcceleratedBox;
 import org.deepercreeper.engine.util.Box;
 import org.deepercreeper.engine.util.Vector;
-import org.deepercreeper.engine.util.VelocityBox;
 
-public class Entity extends VelocityBox
+public class Entity extends AcceleratedBox
 {
     private static int ID_COUNTER = 0;
 
@@ -13,39 +13,43 @@ public class Entity extends VelocityBox
 
     private final Box lastBox;
 
+    private double mass;
+
+    private double elasticity;
+
     private Engine engine;
 
     private boolean removed = false;
 
     private boolean onGround = false;
 
-    public Entity(double x, double y, double width, double height, double xVelocity, double yVelocity)
+    protected Entity(GenericEntityBuilder builder)
     {
-        super(x, y, width, height, xVelocity, yVelocity);
-        lastBox = new Box(x, y, width, height);
+        super(builder);
+        mass = builder.mass;
+        elasticity = builder.elasticity;
+        lastBox = new BoxBuilder().set(this).build();
         id = ID_COUNTER++;
     }
 
-    public Entity(Box box, double xVelocity, double yVelocity)
+    public final void setMass(double mass)
     {
-        super(box, xVelocity, yVelocity);
-        lastBox = new Box(box);
-        id = ID_COUNTER++;
+        this.mass = mass;
     }
 
-    public Entity(double x, double y, double width, double height)
+    public final void setElasticity(double elasticity)
     {
-        this(x, y, width, height, 0, 0);
+        this.elasticity = elasticity;
     }
 
-    public Entity(Box box, Vector velocity)
+    public final double getMass()
     {
-        this(box, velocity.getX(), velocity.getY());
+        return mass;
     }
 
-    public Entity(double x, double y)
+    public final double getElasticity()
     {
-        this(x, y, 0, 0);
+        return elasticity;
     }
 
     public final Box getLastBox()
@@ -167,16 +171,6 @@ public class Entity extends VelocityBox
     {
     }
 
-    public double getElasticity()
-    {
-        return .75;
-    }
-
-    public double getMass()
-    {
-        return 1;
-    }
-
     public void updateVelocity(double delta)
     {
     }
@@ -213,5 +207,46 @@ public class Entity extends VelocityBox
     public String toString()
     {
         return "Entity-" + id;
+    }
+
+    public static abstract class GenericEntityBuilder<T extends GenericEntityBuilder<T>> extends GenericAcceleratedBoxBuilder<T>
+    {
+        protected double mass = 1;
+
+        protected double elasticity = .75;
+
+        public T setMass(double mass)
+        {
+            this.mass = mass;
+            return getThis();
+        }
+
+        public T setElasticity(double elasticity)
+        {
+            this.elasticity = elasticity;
+            return getThis();
+        }
+
+        public T set(Entity entity)
+        {
+            set((AcceleratedBox) entity);
+            mass = entity.getMass();
+            return getThis();
+        }
+
+        @Override
+        public Entity build()
+        {
+            return new Entity(this);
+        }
+    }
+
+    public static final class EntityBuilder extends GenericEntityBuilder<EntityBuilder>
+    {
+        @Override
+        protected EntityBuilder getThis()
+        {
+            return this;
+        }
     }
 }

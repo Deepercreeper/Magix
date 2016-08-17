@@ -4,59 +4,10 @@ public class VelocityBox extends Box
 {
     private final Vector velocity = new Vector();
 
-    public VelocityBox(double x, double y, double width, double height, double xVelocity, double yVelocity)
+    protected VelocityBox(GenericVelocityBoxBuilder builder)
     {
-        super(x, y, width, height);
-        setVelocity(xVelocity, yVelocity);
-    }
-
-    public VelocityBox(double x, double y, double width, double height)
-    {
-        super(x, y, width, height);
-    }
-
-    public VelocityBox(double x, double y)
-    {
-        super(x, y);
-    }
-
-    public VelocityBox(Vector position, Vector size, Vector velocity)
-    {
-        super(position, size);
-        setVelocity(velocity);
-    }
-
-    public VelocityBox(Vector position, Vector size)
-    {
-        super(position, size);
-    }
-
-    public VelocityBox(Vector position)
-    {
-        super(position);
-    }
-
-    public VelocityBox(Box box, double xVelocity, double yVelocity)
-    {
-        super(box);
-        setVelocity(xVelocity, yVelocity);
-    }
-
-    public VelocityBox(Box box, Vector velocity)
-    {
-        super(box);
-        setVelocity(velocity);
-    }
-
-    public VelocityBox(Box box)
-    {
-        super(box);
-    }
-
-    public VelocityBox(VelocityBox velocityBox)
-    {
-        super(velocityBox);
-        setVelocity(velocityBox.velocity);
+        super(builder);
+        setVelocity(builder.xVelocity, builder.yVelocity);
     }
 
     public final void setVelocity(double xVelocity, double yVelocity)
@@ -105,5 +56,47 @@ public class VelocityBox extends Box
         hashCode = hashCode * 13 + Double.hashCode(getXVelocity());
         hashCode = hashCode * 13 + Double.hashCode(getYVelocity());
         return hashCode;
+    }
+
+    public static abstract class GenericVelocityBoxBuilder<T extends GenericBoxBuilder<T>> extends GenericBoxBuilder<T>
+    {
+        protected double xVelocity;
+
+        protected double yVelocity;
+
+        public T setXVelocity(double xVelocity)
+        {
+            this.xVelocity = xVelocity;
+            return getThis();
+        }
+
+        public T setYVelocity(double yVelocity)
+        {
+            this.yVelocity = yVelocity;
+            return getThis();
+        }
+
+        public T set(VelocityBox velocityBox)
+        {
+            set((Box) velocityBox);
+            xVelocity = velocityBox.getXVelocity();
+            yVelocity = velocityBox.getYVelocity();
+            return getThis();
+        }
+
+        @Override
+        public VelocityBox build()
+        {
+            return new VelocityBox(this);
+        }
+    }
+
+    public static final class VelocityBoxBuilder extends GenericVelocityBoxBuilder<VelocityBoxBuilder>
+    {
+        @Override
+        protected VelocityBoxBuilder getThis()
+        {
+            return this;
+        }
     }
 }
