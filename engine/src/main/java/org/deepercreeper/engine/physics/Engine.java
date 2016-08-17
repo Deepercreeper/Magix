@@ -124,7 +124,7 @@ public class Engine
         return true;
     }
 
-    public boolean isVelocityFree(Box box, double delta)
+    public boolean isDeltaFree(Box box, double delta)
     {
         for (Entity entity : entities)
         {

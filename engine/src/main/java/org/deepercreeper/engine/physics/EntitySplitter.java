@@ -6,12 +6,13 @@ public class EntitySplitter
 {
     private static final double EPSILON = 10E-10;
 
-    private final Set<Entity> entities = new HashSet<>();
+    private final List<Entity> entities = new ArrayList<>();
 
     public void split(Set<Entity> entities)
     {
         this.entities.clear();
         this.entities.addAll(entities);
+        Collections.sort(this.entities, (e1, e2) -> Double.compare(e1.getMass(), e2.getMass()));
         split();
     }
 

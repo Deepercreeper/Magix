@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class Collision
 {
-    private static final double DEFAULT_DAMPING_LIMIT = 2;
+    private static final double DEFAULT_DAMPING_LIMIT = 0;
 
     private final Entity firstEntity;
 
@@ -27,12 +27,16 @@ public class Collision
 
     private double computeDelta()
     {
+        if (firstEntity.isTouching(secondEntity))
+        {
+            return 0;
+        }
         double delta = Double.POSITIVE_INFINITY;
         Set<Double> deltas = new HashSet<>();
-        deltas.add((secondEntity.getMaxX() - firstEntity.getX()) / (firstEntity.getXVelocity() - secondEntity.getXVelocity()));
-        deltas.add((secondEntity.getX() - firstEntity.getMaxX()) / (firstEntity.getXVelocity() - secondEntity.getXVelocity()));
-        deltas.add((secondEntity.getMaxY() - firstEntity.getY()) / (firstEntity.getYVelocity() - secondEntity.getYVelocity()));
-        deltas.add((secondEntity.getY() - firstEntity.getMaxY()) / (firstEntity.getYVelocity() - secondEntity.getYVelocity()));
+        deltas.add((secondEntity.getMaxX() - firstEntity.getX()) / (firstEntity.getXVelocity() * firstEntity.getSpeed() - secondEntity.getXVelocity() * secondEntity.getSpeed()));
+        deltas.add((secondEntity.getX() - firstEntity.getMaxX()) / (firstEntity.getXVelocity() * firstEntity.getSpeed() - secondEntity.getXVelocity() * secondEntity.getSpeed()));
+        deltas.add((secondEntity.getMaxY() - firstEntity.getY()) / (firstEntity.getYVelocity() * firstEntity.getSpeed() - secondEntity.getYVelocity() * secondEntity.getSpeed()));
+        deltas.add((secondEntity.getY() - firstEntity.getMaxY()) / (firstEntity.getYVelocity() * firstEntity.getSpeed() - secondEntity.getYVelocity() * secondEntity.getSpeed()));
         for (double deltaCandidate : deltas)
         {
             if (Double.isFinite(deltaCandidate) && deltaCandidate >= 0 && deltaCandidate < delta)
@@ -46,6 +50,16 @@ public class Collision
     public double getDelta()
     {
         return delta;
+    }
+
+    public Entity getFirstEntity()
+    {
+        return firstEntity;
+    }
+
+    public Entity getSecondEntity()
+    {
+        return secondEntity;
     }
 
     public void collide()
