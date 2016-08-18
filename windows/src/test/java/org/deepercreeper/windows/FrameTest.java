@@ -26,10 +26,8 @@ public class FrameTest
                 double y = e.getY() / engine.getScale();
                 double width = movable ? .5 : 30;
                 double height = movable ? .5 : .5;
-                engine.addEntity(new TestEntity(x - width / 2, y - height / 2, width, height, mass)
+                engine.addEntity(new TestEntity(x - width / 2, y - height / 2, width, height, mass, Math.random())
                 {
-                    private final double elasticity = Math.random();
-
                     @Override
                     public void updateVelocity(double delta)
                     {
@@ -69,12 +67,6 @@ public class FrameTest
                         {
                             remove();
                         }
-                    }
-
-                    @Override
-                    public double getElasticity()
-                    {
-                        return elasticity;
                     }
 
                     @Override

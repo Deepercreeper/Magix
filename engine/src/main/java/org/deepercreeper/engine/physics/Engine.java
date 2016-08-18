@@ -124,7 +124,7 @@ public class Engine
         return true;
     }
 
-    public boolean isVelocityFree(Box box, double delta)
+    public boolean isDeltaFree(Box box, double delta)
     {
         for (Entity entity : entities)
         {
@@ -165,8 +165,7 @@ public class Engine
         Set<Entity> solidEntities = entities.stream().filter(Entity::isSolid).collect(Collectors.toSet());
         Set<Set<Entity>> connectedEntities = entityDivider.divide(solidEntities, delta);
 
-        entityMover.setDelta(delta);
-        connectedEntities.forEach(entityMover::move);
+        connectedEntities.forEach(entity -> entityMover.move(entity, delta));
 
         entities.stream().filter(entity -> !entity.isSolid()).forEach(entity -> entity.move(delta));
     }

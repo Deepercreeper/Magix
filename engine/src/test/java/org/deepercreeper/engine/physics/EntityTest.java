@@ -1,6 +1,5 @@
 package org.deepercreeper.engine.physics;
 
-import org.deepercreeper.engine.util.Vector;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,24 +24,12 @@ public class EntityTest
     public void testMassScale()
     {
         double[] massesAndScale = new double[3];
-        Entity firstEntity = new Entity(0, 0)
-        {
-            @Override
-            public double getMass()
-            {
-                return massesAndScale[0];
-            }
-        };
-        Entity secondEntity = new Entity(0, 0)
-        {
-            @Override
-            public double getMass()
-            {
-                return massesAndScale[1];
-            }
-        };
+        Entity firstEntity = new Entity.EntityBuilder().build();
+        Entity secondEntity = new Entity.EntityBuilder().build();
         for (double[] testData : TEST_DATA)
         {
+            firstEntity.setMass(testData[0]);
+            secondEntity.setMass(testData[1]);
             System.arraycopy(testData, 0, massesAndScale, 0, 3);
             Assert.assertEquals(massesAndScale[2], firstEntity.getMassScaleTo(secondEntity), .01);
         }

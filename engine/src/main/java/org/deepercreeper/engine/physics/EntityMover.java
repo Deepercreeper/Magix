@@ -21,15 +21,11 @@ public class EntityMover
 
     private int steps;
 
-    public void setDelta(double delta)
-    {
-        this.delta = delta;
-    }
-
-    public void move(Set<Entity> entities)
+    public void move(Set<Entity> entities, double delta)
     {
         this.entities.clear();
         this.entities.addAll(entities);
+        this.delta = delta;
         move();
     }
 
@@ -40,15 +36,14 @@ public class EntityMover
             moveSingleEntity();
             return;
         }
+        splitter.split(entities);
         leftDelta = delta;
         initDelta();
         while (steps > 0)
         {
-            splitter.split(entities);
             collider.collide(entities, stepDelta);
-            moveEntities();
             decreaseDelta();
-            if (collider.hasCollisions())
+            if (collider.hadCollisions())
             {
                 initDelta();
             }
@@ -58,11 +53,17 @@ public class EntityMover
     private void decreaseDelta()
     {
         leftDelta -= stepDelta;
-        steps--;
-        if (leftDelta < stepDelta)
+        if (leftDelta > 0)
         {
-            stepDelta = leftDelta;
-            steps = 1;
+            steps--;
+            if (leftDelta < stepDelta)
+            {
+                stepDelta = leftDelta;
+            }
+        }
+        else
+        {
+            steps = 0;
         }
     }
 
@@ -71,13 +72,12 @@ public class EntityMover
         entities.forEach(entity -> entity.move(delta));
     }
 
-    private void moveEntities()
-    {
-        entities.forEach(entity -> entity.move(stepDelta));
-    }
-
     private void initDelta()
     {
+        if (leftDelta <= 0)
+        {
+            return;
+        }
         double maxDistance = entities.stream().map(entity -> entity.getVelocity().times(entity.getSpeed() * delta).norm()).max(Double::compare).orElse(.0);
         if (maxDistance < MAX_STEP_DISTANCE)
         {
