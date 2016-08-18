@@ -1,26 +1,16 @@
 package org.deepercreeper.engine.display;
 
-import org.deepercreeper.engine.util.Rectangle;
-
 import java.util.Arrays;
 
 public interface Display
 {
-    void render(int x, int y, int width, int height, int[] image);
-
-    void render(Rectangle rectangle, int[] image);
-
-    void clear(int x, int y, int width, int height);
-
-    void clear(Rectangle rectangle);
-
-    void clear();
-
     int getWidth();
 
     int getHeight();
 
-    Rectangle getRectangle();
+    void render(int x, int y, int width, int height, int[] image);
+
+    void clear(int x, int y, int width, int height);
 
     static int[] createRectangle(int width, int height, int color)
     {

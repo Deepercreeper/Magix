@@ -1,9 +1,8 @@
 package org.deepercreeper.windows;
 
-import org.deepercreeper.engine.display.AbstractDisplay;
 import org.deepercreeper.engine.display.Display;
 
-public class FrameDisplay extends AbstractDisplay
+public class FrameDisplay implements Display
 {
     private final Frame frame;
 
@@ -13,7 +12,7 @@ public class FrameDisplay extends AbstractDisplay
     }
 
     @Override
-    protected void renderInternal(int x, int y, int width, int height, int[] image)
+    public void render(int x, int y, int width, int height, int[] image)
     {
         try
         {
@@ -26,7 +25,7 @@ public class FrameDisplay extends AbstractDisplay
     }
 
     @Override
-    protected void clearInternal(int x, int y, int width, int height)
+    public void clear(int x, int y, int width, int height)
     {
         try
         {
@@ -49,6 +48,4 @@ public class FrameDisplay extends AbstractDisplay
     {
         return frame.getHeight();
     }
-
-
 }

@@ -26,10 +26,12 @@ public class RectangleTest
     @Test
     public void testSubtraction()
     {
-        Rectangle subtrahend = new Rectangle(0, 0, 5, 5);
+        Rectangle subtrahend = new Rectangle.RectangleBuilder().setWidth(5).setHeight(5).build();
+        Rectangle minuend = new Rectangle.RectangleBuilder().build();
         for (int[] bounds : MINUEND_BOUNDS)
         {
-            Rectangle minuend = new Rectangle(bounds[0], bounds[1], bounds[2], bounds[3]);
+            minuend.setPosition(bounds[0], bounds[1]);
+            minuend.setSize(bounds[2], bounds[3]);
             Assert.assertTrue(isSubtraction(subtrahend, minuend, subtrahend.getSubtraction(minuend)));
         }
     }

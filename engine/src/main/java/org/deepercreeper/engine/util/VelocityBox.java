@@ -4,7 +4,7 @@ public class VelocityBox extends Box
 {
     private final Vector velocity = new Vector();
 
-    protected VelocityBox(GenericVelocityBoxBuilder builder)
+    protected VelocityBox(GenericVelocityBoxBuilder<?> builder)
     {
         super(builder);
         setVelocity(builder.xVelocity, builder.yVelocity);
