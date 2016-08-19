@@ -1,7 +1,8 @@
 package org.deepercreeper.windows;
 
 import org.deepercreeper.engine.input.Key;
-import org.deepercreeper.engine.physics.Engine;
+import org.deepercreeper.engine.physics.engine.Engine;
+import org.deepercreeper.engine.util.Util;
 import org.deepercreeper.engine.util.Vector;
 import org.junit.Test;
 
@@ -14,7 +15,7 @@ public class FrameTest
     public void testPhysicsEntity()
     {
         Frame frame = new Frame();
-        Engine engine = new Engine(100, 48, frame.getDisplay(), frame.getInput());
+        Engine engine = new Engine(frame.getInput(), frame.getDisplay());
         frame.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -22,48 +23,48 @@ public class FrameTest
             {
                 final boolean movable = e.getButton() != MouseEvent.BUTTON3;
                 double mass = movable ? 1 : Double.POSITIVE_INFINITY;
-                double x = e.getX() / engine.getScale();
-                double y = e.getY() / engine.getScale();
+                double scale = engine.getRenderingEngine().getScale();
+                double x = (e.getX() + engine.getRenderingEngine().getPosition().getX()) / scale;
+                double y = (e.getY() + engine.getRenderingEngine().getPosition().getY()) / scale;
                 double width = movable ? .5 : 30;
                 double height = movable ? .5 : .5;
-                engine.addEntity(new TestEntity(x - width / 2, y - height / 2, width, height, mass, Math.random())
+                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, Math.random())
                 {
                     @Override
-                    public void updateVelocity(double delta)
+                    public Vector computeAcceleration()
                     {
                         if (!movable)
                         {
-                            return;
+                            return new Vector();
                         }
                         double accelerationCoefficient = isOnGround() ? 20 : 12;
-                        double rightAcceleration = getEngine().getInput().isActive(Key.RIGHT) ? accelerationCoefficient : 0;
-                        double leftAcceleration = getEngine().getInput().isActive(Key.LEFT) ? -accelerationCoefficient : 0;
+                        double rightAcceleration = getEngine().getInputEngine().getInput().isActive(Key.RIGHT) ? accelerationCoefficient : 0;
+                        double leftAcceleration = getEngine().getInputEngine().getInput().isActive(Key.LEFT) ? -accelerationCoefficient : 0;
                         Vector friction = isOnGround() ? getVelocity().times(5) : getVelocity().times(3);
-                        Vector acceleration = new Vector(rightAcceleration + leftAcceleration, 40).minus(friction);
-                        getVelocity().add(acceleration, delta);
+                        return new Vector(rightAcceleration + leftAcceleration, 40).minus(friction);
                     }
 
                     @Override
                     public void update()
                     {
-                        if (movable && isOnGround() && getEngine().getInput().isActive(Key.JUMP))
+                        if (movable && isOnGround() && getEngine().getInputEngine().getInput().isActive(Key.JUMP))
                         {
                             getVelocity().add(0, -20);
                         }
                         if (movable)
                         {
-                            if (getEngine().getInput().isActive(Key.CROUCH) && getHeight() == height)
+                            if (getEngine().getInputEngine().getInput().isActive(Key.CROUCH) && getHeight() == height)
                             {
-                                getEngine().getDisplay().clear(asScaledRectangle(getEngine().getScale()));
+                                //                                getEngine().getDisplay().clear(asScaledRectangle(getEngine().getScale()));
                                 moveBy(0, height / 2);
                             }
-                            if (!getEngine().getInput().isActive(Key.CROUCH) && getHeight() == height / 2)
+                            if (!getEngine().getInputEngine().getInput().isActive(Key.CROUCH) && getHeight() == height / 2)
                             {
                                 moveBy(0, -height / 2);
                             }
-                            setHeight(getEngine().getInput().isActive(Key.CROUCH) ? height / 2 : height);
+                            setHeight(getEngine().getInputEngine().getInput().isActive(Key.CROUCH) ? height / 2 : height);
                         }
-                        if (asScaledRectangle(getEngine().getScale()).getCut(getEngine().getDisplay().getRectangle()).isEmpty())
+                        if (!getEngine().getRenderingEngine().isVisible(this))
                         {
                             remove();
                         }
@@ -78,20 +79,9 @@ public class FrameTest
             }
         });
 
-        sleep(10);
+        Util.sleep(10);
         engine.start();
         frame.waitUntilClosed();
         engine.shutDown();
-    }
-
-    private void sleep(long timeout)
-    {
-        try
-        {
-            Thread.sleep(timeout);
-        }
-        catch (InterruptedException ignored)
-        {
-        }
     }
 }

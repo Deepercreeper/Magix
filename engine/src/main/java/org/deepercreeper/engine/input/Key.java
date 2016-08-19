@@ -6,5 +6,9 @@ public enum Key
     RIGHT,
     LEFT,
     CROUCH,
-    PAUSE
+    PAUSE,
+    CAMERA_LEFT,
+    CAMERA_RIGHT,
+    CAMERA_UP,
+    CAMERA_DOWN
 }

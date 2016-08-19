@@ -4,7 +4,7 @@ public class AcceleratedBox extends VelocityBox
 {
     private final Vector acceleration = new Vector();
 
-    protected AcceleratedBox(GenericAcceleratedBoxBuilder builder)
+    protected AcceleratedBox(GenericAcceleratedBoxBuilder<?> builder)
     {
         super(builder);
         setAcceleration(builder.xAcceleration, builder.yAcceleration);

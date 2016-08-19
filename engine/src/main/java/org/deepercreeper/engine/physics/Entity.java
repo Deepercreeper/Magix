@@ -1,17 +1,13 @@
 package org.deepercreeper.engine.physics;
 
 import org.deepercreeper.engine.display.Display;
-import org.deepercreeper.engine.util.AcceleratedBox;
-import org.deepercreeper.engine.util.Box;
-import org.deepercreeper.engine.util.Vector;
+import org.deepercreeper.engine.display.Renderable;
+import org.deepercreeper.engine.physics.engine.Engine;
+import org.deepercreeper.engine.util.*;
 
-public class Entity extends AcceleratedBox
+public class Entity extends AcceleratedBox implements Updatable, Renderable
 {
-    private static int ID_COUNTER = 0;
-
-    private final int id;
-
-    private final Box lastBox;
+    private int id;
 
     private double mass;
 
@@ -23,13 +19,11 @@ public class Entity extends AcceleratedBox
 
     private boolean onGround = false;
 
-    protected Entity(GenericEntityBuilder builder)
+    protected Entity(GenericEntityBuilder<?> builder)
     {
         super(builder);
         mass = builder.mass;
         elasticity = builder.elasticity;
-        lastBox = new BoxBuilder().set(this).build();
-        id = ID_COUNTER++;
     }
 
     public final void setMass(double mass)
@@ -52,9 +46,9 @@ public class Entity extends AcceleratedBox
         return elasticity;
     }
 
-    public final Box getLastBox()
+    public final int getId()
     {
-        return lastBox;
+        return id;
     }
 
     public final Box getDeltaBox(double delta)
@@ -97,19 +91,15 @@ public class Entity extends AcceleratedBox
         moveBy(getVelocity().times(getSpeed() * delta));
     }
 
-    public final void saveBox()
-    {
-        lastBox.set(computeRenderingBox());
-    }
-
     public final Engine getEngine()
     {
         return engine;
     }
 
+    @Override
     public final void update(double delta)
     {
-        updateVelocity(getSpeed() * delta);
+        setAcceleration(computeAcceleration().times(getSpeed() * delta));
         update();
         onGround = false;
     }
@@ -137,29 +127,19 @@ public class Entity extends AcceleratedBox
         return getMass() / (getMass() + entity.getMass());
     }
 
-    public final void clearLastBox()
+    public final void init(int id, Engine engine)
     {
-        Display display = getEngine().getDisplay();
-        getLastBox().asScaledRectangle(getEngine().getScale()).getSubtraction(computeRenderingBox().asScaledRectangle(getEngine().getScale())).forEach(display::clear);
-    }
-
-    final void setEngine(Engine engine)
-    {
+        this.id = id;
         this.engine = engine;
     }
 
-    final boolean isRemoved()
+    public final boolean isRemoved()
     {
         return removed;
     }
 
     public void collideWith(Entity entity)
     {
-    }
-
-    protected Box computeRenderingBox()
-    {
-        return this;
     }
 
     public double getSpeed()
@@ -171,8 +151,9 @@ public class Entity extends AcceleratedBox
     {
     }
 
-    public void updateVelocity(double delta)
+    public Vector computeAcceleration()
     {
+        return new Vector();
     }
 
     public boolean isSolid()
@@ -180,8 +161,12 @@ public class Entity extends AcceleratedBox
         return true;
     }
 
-    public void render()
+    @Override
+    public Image generateImage(double scale)
     {
+        Image image = new Image.ImageBuilder().set(asScaledRectangle(scale)).build();
+        image.setData(Display.createFilledRectangle(image.getX(), image.getY(), 0xffffffff));
+        return image;
     }
 
     @Override

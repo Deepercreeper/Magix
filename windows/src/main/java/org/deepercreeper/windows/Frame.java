@@ -1,5 +1,7 @@
 package org.deepercreeper.windows;
 
+import org.deepercreeper.engine.util.Util;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -61,7 +63,7 @@ public class Frame extends JFrame
     private void resized()
     {
         image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-        frameDisplay.clear(frameDisplay.getRectangle());
+        frameDisplay.clear(0, 0, getWidth(), getHeight());
     }
 
     private void setLocation()
@@ -79,13 +81,7 @@ public class Frame extends JFrame
     {
         while (!closed)
         {
-            try
-            {
-                Thread.sleep(100);
-            }
-            catch (InterruptedException ignored)
-            {
-            }
+            Util.sleep(100);
         }
     }
 }

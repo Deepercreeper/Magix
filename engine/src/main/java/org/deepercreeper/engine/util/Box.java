@@ -12,7 +12,7 @@ public class Box
 
     private boolean hashCodeComputed = false;
 
-    protected Box(GenericBoxBuilder builder)
+    protected Box(GenericBoxBuilder<?> builder)
     {
         position = new Vector(builder.x, builder.y);
         size = new Vector(builder.width, builder.height);
@@ -229,7 +229,7 @@ public class Box
 
     public final Rectangle asScaledRectangle(double scale)
     {
-        return new Rectangle(position.times(scale).asPoint(), size.times(scale).asPoint());
+        return new Rectangle.RectangleBuilder().setPosition(position.times(scale).asPoint()).setSize(size.times(scale).asPoint()).build();
     }
 
     private void updateCenterAndHashCode()

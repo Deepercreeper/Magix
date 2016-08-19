@@ -4,6 +4,7 @@ import org.deepercreeper.engine.display.Display;
 import org.deepercreeper.engine.input.Input;
 import org.deepercreeper.engine.input.Key;
 import org.deepercreeper.engine.util.Box;
+import org.deepercreeper.engine.util.Updatable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,11 +14,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Engine
+@Deprecated
+public class Engine implements Updatable
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Engine.class);
 
-    private final Updater updater;
+    //    private final UpdateEngine updateEngine;
 
     private final List<Entity> entities = new ArrayList<>();
 
@@ -35,41 +37,13 @@ public class Engine
 
     private boolean pause = false;
 
-    public Engine(int fps, double scale, Display display, Input input)
+    public Engine(double scale, Display display, Input input)
     {
-        updater = new Updater(fps);
+        //        updateEngine = new UpdateEngine(this);
         this.scale = scale;
         this.display = display;
         this.input = input;
         LOGGER.info("Engine created");
-    }
-
-    public void addEntity(Entity entity)
-    {
-        addedEntities.add(entity);
-    }
-
-    public void setFps(int fps)
-    {
-        updater.setFps(fps);
-    }
-
-    public void start()
-    {
-        updater.setUpdating(true);
-        LOGGER.info("Engine started");
-    }
-
-    public void stop()
-    {
-        updater.setUpdating(false);
-        LOGGER.info("Engine stopped");
-    }
-
-    public void shutDown()
-    {
-        updater.shutDown();
-        LOGGER.info("Engine shut down");
     }
 
     public void setPause(boolean pause)
@@ -77,6 +51,7 @@ public class Engine
         this.pause = pause;
     }
 
+    @Override
     public void update(double delta)
     {
         addNewEntities();
@@ -92,10 +67,10 @@ public class Engine
         renderEntities();
     }
 
-    public void setSpeed(double speed)
-    {
-        updater.setSpeed(speed);
-    }
+    //    public void setSpeed(double speed)
+    //    {
+    //        updateEngine.setSpeed(speed);
+    //    }
 
     public Input getInput()
     {
@@ -146,13 +121,13 @@ public class Engine
 
     private void saveLastEntityBoxes()
     {
-        entities.forEach(Entity::saveBox);
+        //        entities.forEach(Entity::saveBox);
     }
 
     private void renderEntities()
     {
-        entities.forEach(Entity::clearLastBox);
-        entities.forEach(Entity::render);
+        //        entities.forEach(Entity::clearLastBox);
+        //        entities.forEach(Entity::render);
     }
 
     private void updateEntities(double delta)
@@ -172,7 +147,7 @@ public class Engine
 
     private void addNewEntities()
     {
-        addedEntities.forEach((Entity entity) -> entity.setEngine(this));
+        //        addedEntities.forEach((Entity entity) -> entity.init(this));
         entities.addAll(addedEntities);
         addedEntities.clear();
     }
@@ -185,89 +160,9 @@ public class Engine
             Entity entity = iterator.next();
             if (entity.isRemoved())
             {
-                entity.setEngine(null);
+                //                entity.init(null);
                 iterator.remove();
             }
-        }
-    }
-
-    private class Updater extends Thread
-    {
-        private double speed = 1;
-
-        private boolean running = true;
-
-        private boolean updating = false;
-
-        private int fps;
-
-        private Updater(int fps)
-        {
-            this.fps = fps;
-            start();
-        }
-
-        @Override
-        public void run()
-        {
-            long lastExecution = -1;
-            long timeStamp;
-            long difference;
-            long timeout;
-            while (running)
-            {
-                if (updating)
-                {
-                    if (lastExecution == -1)
-                    {
-                        lastExecution = System.currentTimeMillis();
-                    }
-                    timeStamp = System.currentTimeMillis();
-                    difference = timeStamp - lastExecution;
-                    timeout = Math.max(0, 1000 / fps - difference);
-                    trySleep(timeout);
-                    lastExecution = System.currentTimeMillis();
-                    update(1000 / fps * speed / 1000);
-                }
-                else
-                {
-                    lastExecution = -1;
-                    trySleep(1);
-                }
-            }
-        }
-
-        private void trySleep(long timeout)
-        {
-            if (timeout == 0)
-            {
-                return;
-            }
-            try
-            {
-                sleep(timeout);
-            }
-            catch (InterruptedException ignored) {}
-        }
-
-        public void setSpeed(double speed)
-        {
-            this.speed = speed;
-        }
-
-        public void setUpdating(boolean updating)
-        {
-            this.updating = updating;
-        }
-
-        public void setFps(int fps)
-        {
-            this.fps = fps;
-        }
-
-        public void shutDown()
-        {
-            running = false;
         }
     }
 }

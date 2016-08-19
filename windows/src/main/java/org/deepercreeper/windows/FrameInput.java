@@ -66,6 +66,14 @@ public class FrameInput implements Input
                 return Key.CROUCH.ordinal();
             case KeyEvent.VK_ESCAPE:
                 return Key.PAUSE.ordinal();
+            case KeyEvent.VK_LEFT:
+                return Key.CAMERA_LEFT.ordinal();
+            case KeyEvent.VK_RIGHT:
+                return Key.CAMERA_RIGHT.ordinal();
+            case KeyEvent.VK_UP:
+                return Key.CAMERA_UP.ordinal();
+            case KeyEvent.VK_DOWN:
+                return Key.CAMERA_DOWN.ordinal();
         }
         return -1;
     }
