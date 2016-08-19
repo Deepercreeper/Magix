@@ -9,9 +9,9 @@ import java.awt.*;
 
 public abstract class TestEntity extends Entity
 {
-    public TestEntity(double x, double y, double width, double height, double mass, double elasticity)
+    public TestEntity(double x, double y, double width, double height, double mass, double elasticity, double speed)
     {
-        super(new EntityBuilder().setX(x).setY(y).setWidth(width).setHeight(height).setMass(mass).setElasticity(elasticity));
+        super(new EntityBuilder().setX(x).setY(y).setWidth(width).setHeight(height).setMass(mass).setElasticity(elasticity).setSpeed(speed));
     }
 
     @Override

@@ -1,9 +1,6 @@
-package org.deepercreeper.engine.physics;
+package org.deepercreeper.engine.physics.engine.motion;
 
-import org.deepercreeper.engine.util.Vector;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.deepercreeper.engine.physics.Entity;
 
 public class Collision
 {
@@ -17,11 +14,13 @@ public class Collision
 
     private final int hashCode;
 
+    private boolean vertical;
+
     public Collision(Entity firstEntity, Entity secondEntity)
     {
         this.firstEntity = firstEntity;
         this.secondEntity = secondEntity;
-        delta = computeDelta();
+        delta = optimizeDelta(computeDelta());
         hashCode = computeHashCode();
     }
 
@@ -31,25 +30,121 @@ public class Collision
         {
             return 0;
         }
-        double delta = Double.POSITIVE_INFINITY;
-        Set<Double> deltas = new HashSet<>();
-        deltas.add((secondEntity.getMaxX() - firstEntity.getX()) / (firstEntity.getXVelocity() * firstEntity.getSpeed() - secondEntity.getXVelocity() * secondEntity.getSpeed()));
-        deltas.add((secondEntity.getX() - firstEntity.getMaxX()) / (firstEntity.getXVelocity() * firstEntity.getSpeed() - secondEntity.getXVelocity() * secondEntity.getSpeed()));
-        deltas.add((secondEntity.getMaxY() - firstEntity.getY()) / (firstEntity.getYVelocity() * firstEntity.getSpeed() - secondEntity.getYVelocity() * secondEntity.getSpeed()));
-        deltas.add((secondEntity.getY() - firstEntity.getMaxY()) / (firstEntity.getYVelocity() * firstEntity.getSpeed() - secondEntity.getYVelocity() * secondEntity.getSpeed()));
-        for (double deltaCandidate : deltas)
+        double verticalDelta = computeVerticalDelta();
+        double horizontalDelta = computeHorizontalDelta();
+        if (!isValidDelta(verticalDelta))
         {
-            if (Double.isFinite(deltaCandidate) && deltaCandidate >= 0 && deltaCandidate < delta)
+            vertical = false;
+            return horizontalDelta;
+        }
+        if (!isValidDelta(horizontalDelta))
+        {
+            vertical = true;
+            return verticalDelta;
+        }
+        vertical = verticalDelta < horizontalDelta;
+        return Math.min(verticalDelta, horizontalDelta);
+    }
+
+    private double computeHorizontalDelta()
+    {
+        if (firstEntity.getXAcceleration() != secondEntity.getXAcceleration())
+        {
+            double accelerationDifference = firstEntity.getXAcceleration() - secondEntity.getXAcceleration();
+            double velocityDifference = firstEntity.getXVelocity() - secondEntity.getXVelocity();
+            double aDaD = accelerationDifference * accelerationDifference;
+            double vDvD = velocityDifference * velocityDifference;
+            //TODO Get this right
+            double firstDelta = -velocityDifference / accelerationDifference + Math.sqrt(vDvD / aDaD - 2 * (firstEntity.getX() - secondEntity.getMaxX()) / accelerationDifference);
+            double secondDelta = -velocityDifference / accelerationDifference - Math.sqrt(vDvD / aDaD - 2 * (firstEntity.getX() - secondEntity.getMaxX()) / accelerationDifference);
+            double thirdDelta = -velocityDifference / accelerationDifference + Math.sqrt(vDvD / aDaD - 2 * (firstEntity.getMaxX() - secondEntity.getX()) / accelerationDifference);
+            double fourthDelta = -velocityDifference / accelerationDifference - Math.sqrt(vDvD / aDaD - 2 * (firstEntity.getMaxX() - secondEntity.getX()) / accelerationDifference);
+            return computeMinDelta(firstDelta, secondDelta, thirdDelta, fourthDelta);
+        }
+        double divisor = firstEntity.getXVelocity() * firstEntity.getSpeed() - secondEntity.getXVelocity() * secondEntity.getSpeed();
+        double firstDelta = (secondEntity.getMaxX() - firstEntity.getX()) / divisor;
+        double secondDelta = (secondEntity.getX() - firstEntity.getMaxX()) / divisor;
+        return computeMinDelta(firstDelta, secondDelta);
+    }
+
+    private double computeVerticalDelta()
+    {
+        if (firstEntity.getYAcceleration() != secondEntity.getYAcceleration())
+        {
+            double accelerationDifference = firstEntity.getYAcceleration() - secondEntity.getYAcceleration();
+            double velocityDifference = firstEntity.getYVelocity() - secondEntity.getYVelocity();
+            double aDaD = accelerationDifference * accelerationDifference;
+            double vDvD = velocityDifference * velocityDifference;
+            double firstDelta = -velocityDifference / accelerationDifference + Math.sqrt(vDvD / aDaD - 2 * (firstEntity.getY() - secondEntity.getMaxY()) / accelerationDifference);
+            double secondDelta = -velocityDifference / accelerationDifference - Math.sqrt(vDvD / aDaD - 2 * (firstEntity.getY() - secondEntity.getMaxY()) / accelerationDifference);
+            double thirdDelta = -velocityDifference / accelerationDifference + Math.sqrt(vDvD / aDaD - 2 * (firstEntity.getMaxY() - secondEntity.getY()) / accelerationDifference);
+            double fourthDelta = -velocityDifference / accelerationDifference - Math.sqrt(vDvD / aDaD - 2 * (firstEntity.getMaxY() - secondEntity.getY()) / accelerationDifference);
+            return computeMinDelta(firstDelta, secondDelta, thirdDelta, fourthDelta);
+        }
+        double divisor = firstEntity.getYVelocity() * firstEntity.getSpeed() - secondEntity.getYVelocity() * secondEntity.getSpeed();
+        double firstDelta = (secondEntity.getMaxY() - firstEntity.getY()) / divisor;
+        double secondDelta = (secondEntity.getY() - firstEntity.getMaxY()) / divisor;
+        return computeMinDelta(firstDelta, secondDelta);
+    }
+
+    private double computeMinDelta(double firstDelta, double secondDelta)
+    {
+        double value = Double.POSITIVE_INFINITY;
+        if (isValidDelta(firstDelta))
+        {
+            value = firstDelta;
+        }
+        if (isValidDelta(secondDelta) && secondDelta < value)
+        {
+            value = secondDelta;
+        }
+        return value;
+    }
+
+    private double computeMinDelta(double... deltas)
+    {
+        double value = -1;
+        for (double delta : deltas)
+        {
+            if (value < 0)
             {
-                delta = deltaCandidate;
+                value = delta;
+            }
+            else
+            {
+                value = computeMinDelta(value, delta);
             }
         }
-        return delta;
+        return value;
+    }
+
+    private double optimizeDelta(double delta)
+    {
+        if (delta == 0)
+        {
+            return 0;
+        }
+        double epsilon = 0;
+        while (firstEntity.isDeltaTouching(secondEntity, delta - epsilon))
+        {
+            epsilon += 10E-5;
+        }
+        return delta - epsilon;
+    }
+
+    private boolean isValidDelta(double delta)
+    {
+        return Double.isFinite(delta) && delta >= 0;
     }
 
     public double getDelta()
     {
         return delta;
+    }
+
+    public boolean isVertical()
+    {
+        return vertical;
     }
 
     public Entity getFirstEntity()
@@ -67,27 +162,17 @@ public class Collision
         firstEntity.collideWith(secondEntity);
         secondEntity.collideWith(firstEntity);
 
-        Vector difference = secondEntity.getCenter().minus(firstEntity.getCenter());
-
-        double xFirstCorner = difference.getX() > 0 ? firstEntity.getMaxX() : firstEntity.getX();
-        double yFirstCorner = difference.getY() > 0 ? firstEntity.getMaxY() : firstEntity.getY();
-        Vector firstCorner = new Vector(xFirstCorner, yFirstCorner);
-
-        double xSecondCorner = difference.getX() > 0 ? secondEntity.getX() : secondEntity.getMaxX();
-        double ySecondCorner = difference.getY() > 0 ? secondEntity.getY() : secondEntity.getMaxY();
-        Vector secondCorner = new Vector(xSecondCorner, ySecondCorner);
-
-        if (Math.abs(firstCorner.getX() - secondCorner.getX()) > Math.abs(firstCorner.getY() - secondCorner.getY()))
+        if (vertical)
         {
-            collideVertical(firstEntity, secondEntity);
+            collideVertical();
         }
         else
         {
-            collideHorizontal(firstEntity, secondEntity);
+            collideHorizontal();
         }
     }
 
-    private void collideVertical(Entity firstEntity, Entity secondEntity)
+    private void collideVertical()
     {
         double elasticity = Math.sqrt(firstEntity.getElasticity() * secondEntity.getElasticity());
         double firstVelocity;
@@ -116,7 +201,7 @@ public class Collision
             secondVelocity = massPoint - (firstEntity.getMass() * (secondEntity.getYVelocity() - firstEntity.getYVelocity()) * elasticity) / mass;
         }
 
-        setVerticalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity);
+        setVerticalVelocity(firstVelocity, secondVelocity);
 
         if (firstEntity.getCenterY() < secondEntity.getCenterY())
         {
@@ -128,7 +213,7 @@ public class Collision
         }
     }
 
-    private void setVerticalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity)
+    private void setVerticalVelocity(double firstVelocity, double secondVelocity)
     {
         double positionSignum = Math.signum(secondEntity.getCenterY() - firstEntity.getCenterY());
         double collisionVelocity = positionSignum * (firstEntity.getYVelocity() - secondEntity.getYVelocity());
@@ -163,7 +248,7 @@ public class Collision
         secondEntity.setYVelocity(secondVelocity);
     }
 
-    private void collideHorizontal(Entity firstEntity, Entity secondEntity)
+    private void collideHorizontal()
     {
         double elasticity = Math.sqrt(firstEntity.getElasticity() * secondEntity.getElasticity());
         double firstVelocity;
@@ -192,10 +277,10 @@ public class Collision
             secondVelocity = massPoint - (firstEntity.getMass() * (secondEntity.getXVelocity() - firstEntity.getXVelocity()) * elasticity) / mass;
         }
 
-        setHorizontalVelocity(firstEntity, firstVelocity, secondEntity, secondVelocity);
+        setHorizontalVelocity(firstVelocity, secondVelocity);
     }
 
-    private void setHorizontalVelocity(Entity firstEntity, double firstVelocity, Entity secondEntity, double secondVelocity)
+    private void setHorizontalVelocity(double firstVelocity, double secondVelocity)
     {
         double positionSignum = Math.signum(secondEntity.getCenterX() - firstEntity.getCenterX());
         double collisionVelocity = positionSignum * (firstEntity.getXVelocity() - secondEntity.getXVelocity());

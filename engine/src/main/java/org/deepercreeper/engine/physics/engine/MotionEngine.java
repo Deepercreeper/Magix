@@ -1,10 +1,19 @@
 package org.deepercreeper.engine.physics.engine;
 
 import org.deepercreeper.engine.physics.Entity;
+import org.deepercreeper.engine.physics.engine.motion.MotionComponent;
 import org.deepercreeper.engine.util.Updatable;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MotionEngine extends AbstractEngine implements Updatable
 {
+    private final List<MotionComponent> motionComponents = new ArrayList<>();
+
+    private double delta;
+
     private boolean pause = false;
 
     public MotionEngine(Engine engine)
@@ -27,16 +36,63 @@ public class MotionEngine extends AbstractEngine implements Updatable
     {
         if (!pause)
         {
-            updateMotion(delta);
+            this.delta = delta;
+            updateNonSolidMotion();
+            updateSolidMotion();
         }
     }
 
-    private void updateMotion(double delta)
+    private void updateNonSolidMotion()
     {
-        for (Entity entity : getEngine().getEntityEngine().getEntities())
+        //TODO Compute appropriate
+        getEngine().getEntityEngine().getNonSolidEntities().forEach(entity -> entity.update(delta));
+        getEngine().getEntityEngine().getNonSolidEntities().forEach(Entity::updateProperties);
+    }
+
+    private void updateSolidMotion()
+    {
+        computeMotionComponents();
+        moveMotionComponents();
+    }
+
+    private void computeMotionComponents()
+    {
+        motionComponents.clear();
+        getEngine().getEntityEngine().getSolidEntities().forEach(this::findMotionComponent);
+    }
+
+    private void findMotionComponent(Entity entity)
+    {
+        MotionComponent component = new MotionComponent(delta);
+        component.add(entity);
+        boolean changed;
+        do
         {
-            entity.update(delta);
-            entity.move(delta);
+            changed = addComponents(component);
+        } while (changed);
+        motionComponents.add(component);
+    }
+
+    private boolean addComponents(MotionComponent motionComponent)
+    {
+        boolean changed = false;
+        Iterator<MotionComponent> iterator = motionComponents.iterator();
+        while (iterator.hasNext())
+        {
+            MotionComponent component = iterator.next();
+            if (motionComponent.isTouching(component))
+            {
+                motionComponent.consume(component);
+                iterator.remove();
+                changed = true;
+            }
         }
+        return changed;
+    }
+
+    private void moveMotionComponents()
+    {
+        //TODO This may be executed in parallel
+        motionComponents.forEach(MotionComponent::move);
     }
 }

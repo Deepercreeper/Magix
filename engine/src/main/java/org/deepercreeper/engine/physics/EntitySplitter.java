@@ -2,6 +2,7 @@ package org.deepercreeper.engine.physics;
 
 import java.util.*;
 
+@Deprecated
 public class EntitySplitter
 {
     private static final double EPSILON = 10E-10;

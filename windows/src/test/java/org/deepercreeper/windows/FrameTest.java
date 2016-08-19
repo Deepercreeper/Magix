@@ -28,7 +28,7 @@ public class FrameTest
                 double y = (e.getY() + engine.getRenderingEngine().getPosition().getY()) / scale;
                 double width = movable ? .5 : 30;
                 double height = movable ? .5 : .5;
-                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, Math.random())
+                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, Math.random(), e.getButton() == MouseEvent.BUTTON2 ? 2 : 1)
                 {
                     @Override
                     public Vector computeAcceleration()
@@ -45,35 +45,59 @@ public class FrameTest
                     }
 
                     @Override
-                    public void update()
+                    public Vector computeVelocity()
                     {
                         if (movable && isOnGround() && getEngine().getInputEngine().getInput().isActive(Key.JUMP))
                         {
-                            getVelocity().add(0, -20);
+                            return new Vector(getXVelocity(), getYVelocity() - 20);
                         }
-                        if (movable)
+                        return getVelocity();
+                    }
+
+                    @Override
+                    public Vector computePosition()
+                    {
+                        if (!movable)
                         {
-                            if (getEngine().getInputEngine().getInput().isActive(Key.CROUCH) && getHeight() == height)
-                            {
-                                //                                getEngine().getDisplay().clear(asScaledRectangle(getEngine().getScale()));
-                                moveBy(0, height / 2);
-                            }
-                            if (!getEngine().getInputEngine().getInput().isActive(Key.CROUCH) && getHeight() == height / 2)
-                            {
-                                moveBy(0, -height / 2);
-                            }
-                            setHeight(getEngine().getInputEngine().getInput().isActive(Key.CROUCH) ? height / 2 : height);
+                            return getPosition();
                         }
+                        if (!isCrouching() && getEngine().getInputEngine().getInput().isActive(Key.CROUCH))
+                        {
+                            return new Vector(getX(), getY() + getHeight() / 2);
+                        }
+                        else if (isCrouching() && !getEngine().getInputEngine().getInput().isActive(Key.CROUCH))
+                        {
+                            return new Vector(getX(), getY() - getHeight() / 2);
+                        }
+                        return getPosition();
+                    }
+
+                    @Override
+                    public Vector computeSize()
+                    {
+                        if (!movable)
+                        {
+                            return getSize();
+                        }
+                        if (getEngine().getInputEngine().getInput().isActive(Key.CROUCH))
+                        {
+                            return new Vector(getWidth(), height / 2);
+                        }
+                        return new Vector(getWidth(), height);
+                    }
+
+                    @Override
+                    public void updateInternal(double delta)
+                    {
                         if (!getEngine().getRenderingEngine().isVisible(this))
                         {
                             remove();
                         }
                     }
 
-                    @Override
-                    public double getSpeed()
+                    private boolean isCrouching()
                     {
-                        return e.getButton() == MouseEvent.BUTTON2 ? 2 : 1;
+                        return getHeight() == height / 2;
                     }
                 });
             }
