@@ -9,6 +9,12 @@ public class Collider
 {
     private final Set<Collision> collisions = new HashSet<>();
 
+    private final Set<Collision> minCollisions = new HashSet<>();
+
+    private final Set<Collision> instantCollisions = new HashSet<>();
+
+    private final Splitter splitter = new Splitter();
+
     private final Set<Entity> entities;
 
     private boolean hadCollisions;
@@ -40,6 +46,7 @@ public class Collider
     private void computeCollisions()
     {
         collisions.clear();
+        instantCollisions.clear();
         List<Entity> entities = new ArrayList<>(this.entities);
         Iterator<Entity> iterator = entities.iterator();
         while (iterator.hasNext())
@@ -60,7 +67,17 @@ public class Collider
         {
             if (deltaBox.isTouching(collisionEntity.getDeltaBox(delta)))
             {
-                collisions.add(new Collision(entity, collisionEntity));
+                Collision collision = new Collision(entity, collisionEntity);
+                collision.computeDelta();
+                collision.optimizeDelta();
+                if (collision.isInstant())
+                {
+                    instantCollisions.add(collision);
+                }
+                else
+                {
+                    collisions.add(collision);
+                }
                 hadCollisions = true;
             }
         }
@@ -68,23 +85,16 @@ public class Collider
 
     private void collideInstantCollisions()
     {
-        Iterator<Collision> iterator = collisions.iterator();
-        while (iterator.hasNext())
-        {
-            Collision collision = iterator.next();
-            if (collision.getDelta() == 0)
-            {
-                collision.collide();
-                iterator.remove();
-            }
-        }
+        instantCollisions.forEach(Collision::collide);
     }
 
     private void collideMinCollisions()
     {
         double minDelta = computeMinDelta();
+        computeMinCollisions(minDelta);
         moveEntities(minDelta);
         collideEntities(minDelta);
+        splitEntities();
         delta -= minDelta;
     }
 
@@ -93,13 +103,38 @@ public class Collider
         return collisions.stream().map(Collision::getDelta).min(Double::compare).orElse(delta);
     }
 
+    private void computeMinCollisions(double delta)
+    {
+        minCollisions.clear();
+        for (Collision collision : collisions)
+        {
+            if (collision.getDelta() == delta)
+            {
+                minCollisions.add(collision);
+            }
+        }
+    }
+
     private void moveEntities(double delta)
     {
+        Entity lastEntity = null;
         for (Entity entity : entities)
         {
             //TODO Maybe inside the collisions. That would do the splitting. Maybe with move back until no touching is performed
             entity.update(delta);
+            if (lastEntity != null && lastEntity.isTouching(entity))
+            {
+                System.out.println("Bla");
+            }
+            lastEntity = entity;
         }
+    }
+
+    private void splitEntities()
+    {
+        //        splitter.split(entities);
+        instantCollisions.forEach(splitter::split);
+        minCollisions.forEach(splitter::split);
     }
 
     private void collideEntities(double delta)

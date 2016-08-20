@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class StepMotion
 {
-    private static final double MAX_STEP_DISTANCE = 1;
+    private static final double MAX_STEP_DISTANCE = .01;
 
     private final Set<Entity> entities;
 
@@ -54,7 +54,9 @@ public class StepMotion
         {
             return;
         }
-        double maxDistance = entities.stream().map(entity -> entity.getVelocity().times(entity.getSpeed() * delta).norm()).max(Double::compare).orElse(.0);
+        double maxDistance = entities.stream().map(entity -> entity.getVelocity().times(entity.getSpeed() * delta)
+                                                                   .plus(entity.getAcceleration().times(.5 * entity.getSpeed() * entity.getSpeed() * delta * delta)).norm())
+                                     .max(Double::compare).orElse(.0);
         if (maxDistance < MAX_STEP_DISTANCE)
         {
             stepDelta = delta;

@@ -1,5 +1,6 @@
 package org.deepercreeper.engine.physics;
 
+import org.deepercreeper.engine.util.Box;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,5 +34,15 @@ public class EntityTest
             System.arraycopy(testData, 0, massesAndScale, 0, 3);
             Assert.assertEquals(massesAndScale[2], firstEntity.getMassScaleTo(secondEntity), .01);
         }
+    }
+
+    @Test
+    public void testDeltaBox()
+    {
+        Entity entity = new Entity.EntityBuilder().setXVelocity(Math.random()).setX(Math.random()).setXAcceleration(Math.random()).build();
+        double delta = Math.random();
+        Box deltaBox = entity.getDeltaBox(delta);
+        entity.update(delta);
+        Assert.assertEquals(deltaBox.getX(), entity.getX(), 10E-20);
     }
 }

@@ -91,7 +91,7 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
 
     public final Box getDeltaBox(double delta)
     {
-        return shift(getVelocity().times(getSpeed() * delta).plus(getAcceleration().times(getSpeed() * getSpeed() * delta * delta)));
+        return shift(getVelocity().times(getSpeed() * delta).plus(getAcceleration().times(.5 * getSpeed() * getSpeed() * delta * delta)));
     }
 
     public final boolean isDeltaTouching(Entity entity, double delta)
@@ -99,19 +99,20 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         return getDeltaBox(delta).isTouching(entity.getDeltaBox(delta));
     }
 
-    public final Box getDistanceBox(Vector velocity, double delta)
+    public final Box getVelocityBox(Box box, Vector velocity, double delta)
     {
         Vector distance = velocity.times(getSpeed() * delta);
-        Box minXBox = shiftX(-distance.getAbsX());
-        Box minYBox = shiftY(-distance.getAbsY());
-        Box maxXBox = shiftX(distance.getAbsX());
-        Box maxYBox = shiftY(distance.getAbsY());
+        Box minXBox = box.shiftX(-distance.getAbsX());
+        Box minYBox = box.shiftY(-distance.getAbsY());
+        Box maxXBox = box.shiftX(distance.getAbsX());
+        Box maxYBox = box.shiftY(distance.getAbsY());
         return getContainment(minXBox, minYBox, maxXBox, maxYBox);
     }
 
-    public final Box getDistanceBox(double delta)
+    public final Box getDistanceBox(Vector velocity, double delta)
     {
-        return getDistanceBox(getVelocity(), delta);
+        Box acceleratedVelocityBox = getVelocityBox(shift(getAcceleration().times(.5 * getSpeed() * getSpeed() * delta * delta)), velocity, delta);
+        return getVelocityBox(this, velocity, delta).getContainment(acceleratedVelocityBox);
     }
 
     public final boolean isDistanceTouching(Vector distance, Entity entity, Vector entityVelocity, double delta)
