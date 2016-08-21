@@ -81,9 +81,9 @@ public class Collider
         Collision collision = new Collision(firstEntity, secondEntity);
         collision.computeDelta();
         collision.optimizeDelta();
+        collision.computeVelocity();
         if (collision.isInstant())
         {
-            collision.computeVelocity();
             instantCollisions.add(collision);
         }
         else
@@ -130,7 +130,6 @@ public class Collider
     {
         for (Collision collision : minCollisions)
         {
-            collision.computeVelocity();
             collision.collide();
         }
     }

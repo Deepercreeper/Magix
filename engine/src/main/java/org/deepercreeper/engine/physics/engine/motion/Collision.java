@@ -75,11 +75,11 @@ public class Collision
     {
         if (horizontal)
         {
-            velocity = Math.abs(firstEntity.getXVelocity() - secondEntity.getXVelocity());
+            velocity = Math.abs(firstEntity.getDeltaVelocity(delta).getX() - secondEntity.getDeltaVelocity(delta).getX());
         }
         else
         {
-            velocity = Math.abs(firstEntity.getYVelocity() - secondEntity.getYVelocity());
+            velocity = Math.abs(firstEntity.getDeltaVelocity(delta).getY() - secondEntity.getDeltaVelocity(delta).getY());
         }
     }
 

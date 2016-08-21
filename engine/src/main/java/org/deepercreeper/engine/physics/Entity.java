@@ -89,6 +89,11 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         return id;
     }
 
+    public final Vector getDeltaVelocity(double delta)
+    {
+        return getVelocity().plus(getAcceleration().times(getSpeed() * delta));
+    }
+
     public final Box getDeltaBox(double delta)
     {
         return shift(getVelocity().times(getSpeed() * delta).plus(getAcceleration().times(.5 * getSpeed() * getSpeed() * delta * delta)));
