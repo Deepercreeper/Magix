@@ -74,8 +74,6 @@ public class Collision
             double vd = firstEntity.getXVelocity() - secondEntity.getXVelocity();
             double quotient = vd * ad;
             double qq = quotient * quotient;
-
-            //TODO Make these deltas be checked right
             double firstDelta = -quotient + Math.sqrt(qq - 2 * (firstEntity.getMaxX() - secondEntity.getX()) * ad);
             double secondDelta = -quotient - Math.sqrt(qq - 2 * (firstEntity.getMaxX() - secondEntity.getX()) * ad);
             double thirdDelta = -quotient + Math.sqrt(qq - 2 * (firstEntity.getX() - secondEntity.getMaxX()) * ad);
@@ -141,7 +139,7 @@ public class Collision
 
     private boolean isValidDelta(double delta)
     {
-        return Double.isFinite(delta) && delta >= 0;
+        return Double.isFinite(delta) && delta >= 0 && firstEntity.isDeltaTouching(secondEntity, delta + 10E-5);
     }
 
     public double getDelta()

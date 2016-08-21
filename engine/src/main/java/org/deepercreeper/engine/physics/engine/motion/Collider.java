@@ -117,29 +117,31 @@ public class Collider
 
     private void moveEntities(double delta)
     {
-        Entity lastEntity = null;
+        moveNonCollidingEntities(delta);
+        if (minCollisions.size() > 1)
+        {
+            System.out.println(minCollisions.size());
+        }
         for (Entity entity : entities)
         {
-            //TODO Maybe inside the collisions. That would do the splitting. Maybe with move back until no touching is performed
             entity.update(delta);
-            if (lastEntity != null && lastEntity.isTouching(entity))
-            {
-                System.out.println("Bla");
-            }
-            lastEntity = entity;
         }
+    }
+
+    private void moveNonCollidingEntities(double delta){
+        //TODO Whuäh???
     }
 
     private void splitEntities()
     {
         //        splitter.split(entities);
-        instantCollisions.forEach(splitter::split);
-        minCollisions.forEach(splitter::split);
+        //        instantCollisions.forEach(splitter::split);
+        //        minCollisions.forEach(splitter::split);
     }
 
     private void collideEntities(double delta)
     {
-        for (Collision collision : collisions)
+        for (Collision collision : minCollisions)
         {
             if (collision.getDelta() == delta)
             {

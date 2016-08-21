@@ -7,6 +7,18 @@ import org.junit.Test;
 public class CollisionTest
 {
     @Test
+    public void testValidDelta()
+    {
+        Entity firstEntity = new Entity.EntityBuilder().setX(-1).setWidth(1).setHeight(1).setXVelocity(Math.random() * 5).setXAcceleration(Math.random() * 5).build();
+        Entity secondEntity = new Entity.EntityBuilder().setX(Math.random() * 5 + 1).setWidth(Math.random() * 5 + 1).setHeight(1).setXVelocity(-Math.random())
+                                                        .setXAcceleration(-Math.random()).build();
+        Collision collision = new Collision(firstEntity, secondEntity);
+        collision.computeDelta();
+        double delta = collision.getDelta();
+        assertDeltaValid(firstEntity, secondEntity, delta);
+    }
+
+    @Test
     public void testHorizontalDelta()
     {
         Entity firstEntity = new Entity.EntityBuilder().setX(-1).setWidth(1).setHeight(1).setXVelocity(Math.random() * 5).setXAcceleration(Math.random() * 5).build();
@@ -15,6 +27,7 @@ public class CollisionTest
         Collision collision = new Collision(firstEntity, secondEntity);
         collision.computeDelta();
         double delta = collision.getDelta();
+        assertDeltaValid(firstEntity, secondEntity, delta);
         double firstX = firstEntity.getMaxX() + firstEntity.getXVelocity() * delta + .5 * firstEntity.getXAcceleration() * delta * delta;
         double secondX = secondEntity.getX() + secondEntity.getXVelocity() * delta + .5 * secondEntity.getXAcceleration() * delta * delta;
 
@@ -30,6 +43,7 @@ public class CollisionTest
         Collision collision = new Collision(firstEntity, secondEntity);
         collision.computeDelta();
         double delta = collision.getDelta();
+        assertDeltaValid(firstEntity, secondEntity, delta);
         double firstY = firstEntity.getMaxY() + firstEntity.getYVelocity() * delta + .5 * firstEntity.getYAcceleration() * delta * delta;
         double secondY = secondEntity.getY() + secondEntity.getYVelocity() * delta + .5 * secondEntity.getYAcceleration() * delta * delta;
 
@@ -46,6 +60,7 @@ public class CollisionTest
         collision.computeDelta();
         collision.optimizeDelta();
         double delta = collision.getDelta();
+        assertDeltaValid(firstEntity, secondEntity, delta);
 
         Assert.assertFalse(firstEntity.isDeltaTouching(secondEntity, delta));
     }
@@ -69,7 +84,14 @@ public class CollisionTest
                                                         .build();
         Collision collision = new Collision(firstEntity, secondEntity);
         collision.computeDelta();
+        assertDeltaValid(firstEntity, secondEntity, collision.getDelta());
 
         Assert.assertEquals(offset < 0, collision.isHorizontal());
+    }
+
+    private void assertDeltaValid(Entity firstEntity, Entity secondEntity, double delta)
+    {
+        Assert.assertTrue(Double.isFinite(delta) && delta >= 0);
+        Assert.assertTrue(firstEntity.isDeltaTouching(secondEntity, delta + 10E-5));
     }
 }
