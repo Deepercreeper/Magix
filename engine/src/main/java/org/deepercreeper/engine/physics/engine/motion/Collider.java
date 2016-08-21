@@ -13,13 +13,13 @@ public class Collider
 
     private final Set<Collision> instantCollisions = new HashSet<>();
 
-    private final Splitter splitter = new Splitter();
-
     private final Set<Entity> entities;
 
     private boolean hadCollisions;
 
     private double delta;
+
+    private double minDelta;
 
     public Collider(Set<Entity> entities)
     {
@@ -38,8 +38,12 @@ public class Collider
         while (delta > 0)
         {
             computeCollisions();
-            collideInstantCollisions();
-            collideMinCollisions();
+            doInstantCollisions();
+            computeMinDelta();
+            computeMinCollisions();
+            moveEntities();
+            doMinCollisions();
+            delta -= minDelta;
         }
     }
 
@@ -67,86 +71,67 @@ public class Collider
         {
             if (deltaBox.isTouching(collisionEntity.getDeltaBox(delta)))
             {
-                Collision collision = new Collision(entity, collisionEntity);
-                collision.computeDelta();
-                collision.optimizeDelta();
-                if (collision.isInstant())
-                {
-                    instantCollisions.add(collision);
-                }
-                else
-                {
-                    collisions.add(collision);
-                }
-                hadCollisions = true;
+                addCollision(entity, collisionEntity);
             }
         }
     }
 
-    private void collideInstantCollisions()
+    private void addCollision(Entity firstEntity, Entity secondEntity)
     {
-        instantCollisions.forEach(Collision::collide);
+        Collision collision = new Collision(firstEntity, secondEntity);
+        collision.computeDelta();
+        collision.optimizeDelta();
+        if (collision.isInstant())
+        {
+            collision.computeVelocity();
+            instantCollisions.add(collision);
+        }
+        else
+        {
+            collisions.add(collision);
+        }
+        hadCollisions = true;
     }
 
-    private void collideMinCollisions()
+    private void doInstantCollisions()
     {
-        double minDelta = computeMinDelta();
-        computeMinCollisions(minDelta);
-        moveEntities(minDelta);
-        collideEntities(minDelta);
-        splitEntities();
-        delta -= minDelta;
+        for (Collision collision : instantCollisions)
+        {
+            collision.collide();
+        }
     }
 
-    private double computeMinDelta()
+    private void computeMinDelta()
     {
-        return collisions.stream().map(Collision::getDelta).min(Double::compare).orElse(delta);
+        minDelta = collisions.stream().map(Collision::getDelta).min(Double::compare).orElse(delta);
     }
 
-    private void computeMinCollisions(double delta)
+    private void computeMinCollisions()
     {
         minCollisions.clear();
         for (Collision collision : collisions)
         {
-            if (collision.getDelta() == delta)
+            if (collision.getDelta() == minDelta)
             {
                 minCollisions.add(collision);
             }
         }
     }
 
-    private void moveEntities(double delta)
+    private void moveEntities()
     {
-        moveNonCollidingEntities(delta);
-        if (minCollisions.size() > 1)
-        {
-            System.out.println(minCollisions.size());
-        }
         for (Entity entity : entities)
         {
-            entity.update(delta);
+            entity.update(minDelta);
         }
     }
 
-    private void moveNonCollidingEntities(double delta){
-        //TODO Whuäh???
-    }
-
-    private void splitEntities()
-    {
-        //        splitter.split(entities);
-        //        instantCollisions.forEach(splitter::split);
-        //        minCollisions.forEach(splitter::split);
-    }
-
-    private void collideEntities(double delta)
+    private void doMinCollisions()
     {
         for (Collision collision : minCollisions)
         {
-            if (collision.getDelta() == delta)
-            {
-                collision.collide();
-            }
+            collision.computeVelocity();
+            collision.collide();
         }
     }
 

@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class StepMotion
 {
-    private static final double MAX_STEP_DISTANCE = .01;
+    private static final double MAX_STEP_DISTANCE = .1;
 
     private final Set<Entity> entities;
 
