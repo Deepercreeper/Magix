@@ -182,6 +182,8 @@ public class Box
         return center.getY();
     }
 
+    public final double getVolume() { return getWidth()*getHeight(); }
+
     public final boolean isEmpty()
     {
         return getWidth() == 0 || getHeight() == 0;

@@ -8,6 +8,8 @@ public class StepMotion
 {
     private static final double MAX_STEP_DISTANCE = .1;
 
+    private final Splitter splitter = new Splitter();
+
     private final Set<Entity> entities;
 
     private final Collider collider;
@@ -36,6 +38,7 @@ public class StepMotion
     private void moveStep()
     {
         collider.collide(stepDelta);
+        splitter.split(entities);
         decreaseDelta();
         if (collider.hadCollisions())
         {
@@ -55,7 +58,10 @@ public class StepMotion
             return;
         }
         double maxDistance = entities.stream().map(entity -> entity.getVelocity().times(entity.getSpeed() * delta)
-                                                                   .plus(entity.getAcceleration().times(.5 * entity.getSpeed() * entity.getSpeed() * delta * delta)).norm())
+                                                                   .plus(entity.getAcceleration()
+                                                                               .times(.5 * entity.getSpeed() * entity
+                                                                                       .getSpeed() * delta * delta))
+                                                                   .norm())
                                      .max(Double::compare).orElse(.0);
         if (maxDistance < MAX_STEP_DISTANCE)
         {

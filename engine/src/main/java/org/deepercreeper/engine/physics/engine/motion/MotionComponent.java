@@ -29,9 +29,9 @@ public class MotionComponent
 
     private void update(Entity entity)
     {
-        if (Double.isFinite(entity.getMass()))
+        if (Double.isFinite(entity.getDensity()))
         {
-            this.momentum.add(entity.getVelocity(), entity.getMass());
+            this.momentum.add(entity.getVelocity(), entity.getDensity());
         }
         else
         {
@@ -68,9 +68,9 @@ public class MotionComponent
 
     private Vector getMaxVelocity(Entity entity)
     {
-        if (Double.isFinite(entity.getMass()))
+        if (Double.isFinite(entity.getDensity()))
         {
-            return momentum.times(2 / entity.getMass()).plus(velocity);
+            return momentum.times(2 / entity.getDensity()).plus(velocity);
         }
         return entity.getVelocity();
     }

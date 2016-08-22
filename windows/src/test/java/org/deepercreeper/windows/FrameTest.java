@@ -1,6 +1,7 @@
 package org.deepercreeper.windows;
 
 import org.deepercreeper.engine.input.Key;
+import org.deepercreeper.engine.physics.Entity;
 import org.deepercreeper.engine.physics.engine.Engine;
 import org.deepercreeper.engine.util.Util;
 import org.deepercreeper.engine.util.Vector;
@@ -22,14 +23,24 @@ public class FrameTest
             public void mousePressed(MouseEvent e)
             {
                 final boolean movable = e.getButton() != MouseEvent.BUTTON3;
-                double mass = movable ? 1 : Double.POSITIVE_INFINITY;
                 double scale = engine.getRenderingEngine().getScale();
                 double x = (e.getX() + engine.getRenderingEngine().getPosition().getX()) / scale;
                 double y = (e.getY() + engine.getRenderingEngine().getPosition().getY()) / scale;
+
+                Entity entity = getEntityAt(x, y);
+                if (entity != null)
+                {
+                    entity.setMass(entity.getDensity() * 2);
+                    return;
+                }
+
+                double mass = movable ? 1 : Double.POSITIVE_INFINITY;
                 double width = movable ? .5 : 30;
                 double height = movable ? .5 : .5;
-                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, Math.random(), e.getButton() == MouseEvent.BUTTON2 ? 2 : 1)
+                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, 1, e.getButton() == MouseEvent.BUTTON2 ? 2 : 1)
                 {
+                    private double maxHeight = 0;
+
                     @Override
                     public Vector computeAcceleration()
                     {
@@ -40,8 +51,8 @@ public class FrameTest
                         double accelerationCoefficient = isOnGround() ? 20 : 12;
                         double rightAcceleration = getEngine().getInputEngine().getInput().isActive(Key.RIGHT) ? accelerationCoefficient : 0;
                         double leftAcceleration = getEngine().getInputEngine().getInput().isActive(Key.LEFT) ? -accelerationCoefficient : 0;
-                        Vector friction = isOnGround() ? getVelocity().times(5) : getVelocity().times(3);
-                        return new Vector(rightAcceleration + leftAcceleration, 40).minus(friction);
+                        Vector friction = isOnGround() ? getVelocity().times(5) : getVelocity().times(0);
+                        return new Vector(rightAcceleration + leftAcceleration, 10).minus(friction);
                     }
 
                     @Override
@@ -89,10 +100,15 @@ public class FrameTest
                     @Override
                     public void updateInternal(double delta)
                     {
-                        if (!getEngine().getRenderingEngine().isVisible(this))
+                        if (maxHeight > getY())
                         {
-                            remove();
+                            maxHeight = getY();
+                            System.out.println("New maxHeight: " + maxHeight);
                         }
+                        //if (!getEngine().getRenderingEngine().isVisible(this))
+                        //{
+                        //   remove();
+                        //}
                     }
 
                     private boolean isCrouching()
@@ -100,6 +116,18 @@ public class FrameTest
                         return getHeight() == height / 2;
                     }
                 });
+            }
+
+            private Entity getEntityAt(double x, double y)
+            {
+                for (Entity entity : engine.getEntityEngine().getEntities())
+                {
+                    if (entity.getX() <= x && x <= entity.getMaxX() && entity.getY() <= y && y <= entity.getMaxY())
+                    {
+                        return entity;
+                    }
+                }
+                return null;
             }
         });
 

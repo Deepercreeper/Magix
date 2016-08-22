@@ -4,7 +4,7 @@ import org.deepercreeper.engine.physics.Entity;
 
 public class Collision
 {
-    private static final double WEAK_COLLISION_VELOCITY = 0.1;
+    private static final double WEAK_COLLISION_VELOCITY = .1;
 
     private final Entity topLeftEntity;
 
@@ -95,47 +95,42 @@ public class Collision
 
             topLeftEntity.setYVelocity(velocity);
             bottomRightEntity.setYVelocity(velocity);
+
+            topLeftEntity.hitGround();
             return;
         }
 
         double elasticity = Math.min(topLeftEntity.getElasticity(), bottomRightEntity.getElasticity());
         double firstVelocity;
         double secondVelocity;
-        if (Double.isInfinite(bottomRightEntity.getMass()) && Double.isInfinite(topLeftEntity.getMass()))
+        if (Double.isInfinite(bottomRightEntity.getDensity()) && Double.isInfinite(topLeftEntity.getDensity()))
         {
             double average = (topLeftEntity.getYVelocity() + bottomRightEntity.getYVelocity()) / 2;
             firstVelocity = average - (topLeftEntity.getYVelocity() - bottomRightEntity.getYVelocity()) * elasticity / 2;
             secondVelocity = average - (bottomRightEntity.getYVelocity() - topLeftEntity.getYVelocity()) * elasticity / 2;
         }
-        else if (Double.isInfinite(bottomRightEntity.getMass()))
+        else if (Double.isInfinite(bottomRightEntity.getDensity()))
         {
             firstVelocity = bottomRightEntity.getYVelocity() - (topLeftEntity.getYVelocity() - bottomRightEntity.getYVelocity()) * elasticity;
             secondVelocity = bottomRightEntity.getYVelocity();
         }
-        else if (Double.isInfinite(topLeftEntity.getMass()))
+        else if (Double.isInfinite(topLeftEntity.getDensity()))
         {
             firstVelocity = topLeftEntity.getYVelocity();
             secondVelocity = topLeftEntity.getYVelocity() - (bottomRightEntity.getYVelocity() - topLeftEntity.getYVelocity()) * elasticity;
         }
         else
         {
-            double mass = topLeftEntity.getMass() + bottomRightEntity.getMass();
-            double massPoint = (topLeftEntity.getMass() * topLeftEntity.getYVelocity() + bottomRightEntity.getMass() * bottomRightEntity.getYVelocity()) / mass;
-            firstVelocity = massPoint - (bottomRightEntity.getMass() * (topLeftEntity.getYVelocity() - bottomRightEntity.getYVelocity()) * elasticity) / mass;
-            secondVelocity = massPoint - (topLeftEntity.getMass() * (bottomRightEntity.getYVelocity() - topLeftEntity.getYVelocity()) * elasticity) / mass;
+            double mass = topLeftEntity.getDensity() + bottomRightEntity.getDensity();
+            double massPoint = (topLeftEntity.getDensity() * topLeftEntity.getYVelocity() + bottomRightEntity.getDensity() * bottomRightEntity.getYVelocity()) / mass;
+            firstVelocity = massPoint - (bottomRightEntity.getDensity() * (topLeftEntity.getYVelocity() - bottomRightEntity.getYVelocity()) * elasticity) / mass;
+            secondVelocity = massPoint - (topLeftEntity.getDensity() * (bottomRightEntity.getYVelocity() - topLeftEntity.getYVelocity()) * elasticity) / mass;
         }
 
         topLeftEntity.setYVelocity(firstVelocity);
         bottomRightEntity.setYVelocity(secondVelocity);
 
-        if (topLeftEntity.getCenterY() < bottomRightEntity.getCenterY())
-        {
-            topLeftEntity.hitGround();
-        }
-        else
-        {
-            bottomRightEntity.hitGround();
-        }
+        topLeftEntity.hitGround();
     }
 
     private void collideHorizontal()
@@ -152,28 +147,28 @@ public class Collision
         double elasticity = Math.min(topLeftEntity.getElasticity(), bottomRightEntity.getElasticity());
         double firstVelocity;
         double secondVelocity;
-        if (Double.isInfinite(bottomRightEntity.getMass()) && Double.isInfinite(topLeftEntity.getMass()))
+        if (Double.isInfinite(bottomRightEntity.getDensity()) && Double.isInfinite(topLeftEntity.getDensity()))
         {
             double average = (topLeftEntity.getXVelocity() + bottomRightEntity.getXVelocity()) / 2;
             firstVelocity = average - (topLeftEntity.getXVelocity() - bottomRightEntity.getXVelocity()) * elasticity / 2;
             secondVelocity = average - (bottomRightEntity.getXVelocity() - topLeftEntity.getXVelocity()) * elasticity / 2;
         }
-        else if (Double.isInfinite(bottomRightEntity.getMass()))
+        else if (Double.isInfinite(bottomRightEntity.getDensity()))
         {
             firstVelocity = bottomRightEntity.getXVelocity() - (topLeftEntity.getXVelocity() - bottomRightEntity.getXVelocity()) * elasticity;
             secondVelocity = bottomRightEntity.getXVelocity();
         }
-        else if (Double.isInfinite(topLeftEntity.getMass()))
+        else if (Double.isInfinite(topLeftEntity.getDensity()))
         {
             firstVelocity = topLeftEntity.getXVelocity();
             secondVelocity = topLeftEntity.getXVelocity() - (bottomRightEntity.getXVelocity() - topLeftEntity.getXVelocity()) * elasticity;
         }
         else
         {
-            double mass = topLeftEntity.getMass() + bottomRightEntity.getMass();
-            double massPoint = (topLeftEntity.getMass() * topLeftEntity.getXVelocity() + bottomRightEntity.getMass() * bottomRightEntity.getXVelocity()) / mass;
-            firstVelocity = massPoint - (bottomRightEntity.getMass() * (topLeftEntity.getXVelocity() - bottomRightEntity.getXVelocity()) * elasticity) / mass;
-            secondVelocity = massPoint - (topLeftEntity.getMass() * (bottomRightEntity.getXVelocity() - topLeftEntity.getXVelocity()) * elasticity) / mass;
+            double mass = topLeftEntity.getDensity() + bottomRightEntity.getDensity();
+            double massPoint = (topLeftEntity.getDensity() * topLeftEntity.getXVelocity() + bottomRightEntity.getDensity() * bottomRightEntity.getXVelocity()) / mass;
+            firstVelocity = massPoint - (bottomRightEntity.getDensity() * (topLeftEntity.getXVelocity() - bottomRightEntity.getXVelocity()) * elasticity) / mass;
+            secondVelocity = massPoint - (topLeftEntity.getDensity() * (bottomRightEntity.getXVelocity() - topLeftEntity.getXVelocity()) * elasticity) / mass;
         }
 
         topLeftEntity.setXVelocity(firstVelocity);

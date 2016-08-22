@@ -11,9 +11,9 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
 
     private int id = -1;
 
-    private double mass;
-
     private double elasticity;
+
+    private double mass;
 
     private double speed;
 
@@ -62,6 +62,11 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
             throw new IllegalArgumentException("Speed has to be a non negative value");
         }
         this.speed = speed;
+    }
+
+    public final double getDensity()
+    {
+        return getMass() / getVolume();
     }
 
     public final double getMass()
@@ -142,7 +147,6 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         updating = true;
         updateInternal(delta);
         updating = false;
-        onGround = false;
     }
 
     public final void updateAll(double delta)
@@ -163,6 +167,7 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         setElasticity(computeElasticity());
         setSpeed(computeSpeed());
         setMass(computeMass());
+        onGround = false;
     }
 
     public final void move(double delta)
@@ -214,15 +219,15 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
 
     public final double getMassScaleTo(Entity entity)
     {
-        if (Double.isInfinite(getMass()))
+        if (Double.isInfinite(getDensity()))
         {
-            return Double.isInfinite(entity.getMass()) ? 0.5 : 1;
+            return Double.isInfinite(entity.getDensity()) ? 0.5 : 1;
         }
-        if (Double.isInfinite(entity.getMass()))
+        if (Double.isInfinite(entity.getDensity()))
         {
             return 0;
         }
-        return getMass() / (getMass() + entity.getMass());
+        return getDensity() / (getDensity() + entity.getDensity());
     }
 
     public final void init(int id, Engine engine)
@@ -282,7 +287,7 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
 
     public double computeMass()
     {
-        return getMass();
+        return getDensity();
     }
 
     public double computeSpeed()
@@ -332,7 +337,7 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         return "Entity-" + id;
     }
 
-    public static abstract class GenericEntityBuilder <T extends GenericEntityBuilder<T>> extends GenericAcceleratedBoxBuilder<T>
+    public static abstract class GenericEntityBuilder<T extends GenericEntityBuilder<T>> extends GenericAcceleratedBoxBuilder<T>
     {
         protected boolean solid = true;
 
@@ -341,12 +346,6 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         protected double elasticity = .75;
 
         protected double speed = 1;
-
-        public T setMass(double mass)
-        {
-            this.mass = mass;
-            return getThis();
-        }
 
         public T setElasticity(double elasticity)
         {
@@ -366,10 +365,16 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
             return getThis();
         }
 
+        public T setMass(double mass)
+        {
+            this.mass = mass;
+            return getThis();
+        }
+
         public T set(Entity entity)
         {
             set((AcceleratedBox) entity);
-            mass = entity.getMass();
+            mass = entity.mass;
             elasticity = entity.getElasticity();
             speed = entity.getSpeed();
             return getThis();

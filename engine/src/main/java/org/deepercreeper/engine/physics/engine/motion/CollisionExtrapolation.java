@@ -60,18 +60,23 @@ public class CollisionExtrapolation
         {
             delta = 0;
         }
-        delta -= epsilon;
+        else
+        {
+            delta -= epsilon;
+        }
     }
 
     public void computeVelocity()
     {
         if (horizontal)
         {
-            velocity = Math.abs(firstEntity.getDeltaVelocity(delta).getX() - secondEntity.getDeltaVelocity(delta).getX());
+            velocity = Math
+                    .abs(firstEntity.getDeltaVelocity(delta).getX() - secondEntity.getDeltaVelocity(delta).getX());
         }
         else
         {
-            velocity = Math.abs(firstEntity.getDeltaVelocity(delta).getY() - secondEntity.getDeltaVelocity(delta).getY());
+            velocity = Math
+                    .abs(firstEntity.getDeltaVelocity(delta).getY() - secondEntity.getDeltaVelocity(delta).getY());
         }
     }
 
@@ -89,7 +94,8 @@ public class CollisionExtrapolation
             double fourthDelta = -quotient - Math.sqrt(qq - 2 * (firstEntity.getX() - secondEntity.getMaxX()) * ad);
             return computeMinDelta(firstDelta, secondDelta, thirdDelta, fourthDelta);
         }
-        double divisor = firstEntity.getXVelocity() * firstEntity.getSpeed() - secondEntity.getXVelocity() * secondEntity.getSpeed();
+        double divisor = firstEntity.getXVelocity() * firstEntity.getSpeed() - secondEntity
+                .getXVelocity() * secondEntity.getSpeed();
         double firstDelta = (secondEntity.getMaxX() - firstEntity.getX()) / divisor;
         double secondDelta = (secondEntity.getX() - firstEntity.getMaxX()) / divisor;
         return computeMinDelta(firstDelta, secondDelta);
@@ -109,7 +115,8 @@ public class CollisionExtrapolation
             double fourthDelta = -quotient - Math.sqrt(qq - 2 * (firstEntity.getY() - secondEntity.getMaxY()) * ad);
             return computeMinDelta(firstDelta, secondDelta, thirdDelta, fourthDelta);
         }
-        double divisor = firstEntity.getYVelocity() * firstEntity.getSpeed() - secondEntity.getYVelocity() * secondEntity.getSpeed();
+        double divisor = firstEntity.getYVelocity() * firstEntity.getSpeed() - secondEntity
+                .getYVelocity() * secondEntity.getSpeed();
         double firstDelta = (secondEntity.getMaxY() - firstEntity.getY()) / divisor;
         double secondDelta = (secondEntity.getY() - firstEntity.getMaxY()) / divisor;
         return computeMinDelta(firstDelta, secondDelta);
