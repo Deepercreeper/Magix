@@ -219,15 +219,15 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
 
     public final double getMassScaleTo(Entity entity)
     {
-        if (Double.isInfinite(getDensity()))
+        if (Double.isInfinite(getMass()))
         {
-            return Double.isInfinite(entity.getDensity()) ? 0.5 : 1;
+            return Double.isInfinite(entity.getMass()) ? 0.5 : 1;
         }
-        if (Double.isInfinite(entity.getDensity()))
+        if (Double.isInfinite(entity.getMass()))
         {
             return 0;
         }
-        return getDensity() / (getDensity() + entity.getDensity());
+        return getMass() / (getMass() + entity.getMass());
     }
 
     public final void init(int id, Engine engine)
@@ -287,7 +287,7 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
 
     public double computeMass()
     {
-        return getDensity();
+        return getMass();
     }
 
     public double computeSpeed()

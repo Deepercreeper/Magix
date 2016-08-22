@@ -182,7 +182,7 @@ public class Box
         return center.getY();
     }
 
-    public final double getVolume() { return getWidth()*getHeight(); }
+    public final double getVolume() { return getWidth() * getHeight(); }
 
     public final boolean isEmpty()
     {

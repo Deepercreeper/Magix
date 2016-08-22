@@ -8,6 +8,8 @@ public class CollisionExtrapolation
 
     private final Entity secondEntity;
 
+    private boolean valid = true;
+
     private boolean horizontal;
 
     private double delta;
@@ -29,6 +31,11 @@ public class CollisionExtrapolation
         }
         double verticalDelta = computeVerticalDelta();
         double horizontalDelta = computeHorizontalDelta();
+        if (!isValidDelta(verticalDelta) && !isValidDelta(horizontalDelta))
+        {
+            valid = false;
+            return;
+        }
         if (!isValidDelta(verticalDelta))
         {
             horizontal = true;
@@ -156,6 +163,11 @@ public class CollisionExtrapolation
     private boolean isValidDelta(double delta)
     {
         return Double.isFinite(delta) && delta >= 0 && firstEntity.isDeltaTouching(secondEntity, delta + 10E-5);
+    }
+
+    public boolean isValid()
+    {
+        return valid;
     }
 
     public double getDelta()

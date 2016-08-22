@@ -18,7 +18,7 @@ public class Splitter
     {
         this.entities.clear();
         this.entities.addAll(entities);
-        Collections.sort(this.entities, (e1, e2) -> Double.compare(e2.getDensity(), e1.getDensity()));
+        Collections.sort(this.entities, (e1, e2) -> Double.compare(e2.getMass(), e1.getMass()));
         split();
     }
 

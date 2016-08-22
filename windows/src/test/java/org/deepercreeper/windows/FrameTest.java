@@ -30,17 +30,15 @@ public class FrameTest
                 Entity entity = getEntityAt(x, y);
                 if (entity != null)
                 {
-                    entity.setMass(entity.getDensity() * 2);
+                    entity.setMass(entity.getMass() * 2);
                     return;
                 }
 
                 double mass = movable ? 1 : Double.POSITIVE_INFINITY;
                 double width = movable ? .5 : 30;
                 double height = movable ? .5 : .5;
-                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, 1, e.getButton() == MouseEvent.BUTTON2 ? 2 : 1)
+                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, .75, e.getButton() == MouseEvent.BUTTON2 ? 2 : 1)
                 {
-                    private double maxHeight = 0;
-
                     @Override
                     public Vector computeAcceleration()
                     {
@@ -100,15 +98,10 @@ public class FrameTest
                     @Override
                     public void updateInternal(double delta)
                     {
-                        if (maxHeight > getY())
+                        if (!getEngine().getRenderingEngine().isVisible(this))
                         {
-                            maxHeight = getY();
-                            System.out.println("New maxHeight: " + maxHeight);
+                            remove();
                         }
-                        //if (!getEngine().getRenderingEngine().isVisible(this))
-                        //{
-                        //   remove();
-                        //}
                     }
 
                     private boolean isCrouching()

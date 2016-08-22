@@ -81,6 +81,10 @@ public class Collider
     private void addCollision(Entity firstEntity, Entity secondEntity)
     {
         Collision collision = new Collision(firstEntity, secondEntity);
+        if (!collision.isValid())
+        {
+            return;
+        }
         if (!isKnown(collision))
         {
             unknownCollisions.add(collision);
