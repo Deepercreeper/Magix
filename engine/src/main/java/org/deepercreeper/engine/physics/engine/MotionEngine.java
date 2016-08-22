@@ -45,8 +45,7 @@ public class MotionEngine extends AbstractEngine implements Updatable
     private void updateNonSolidMotion()
     {
         //TODO Compute appropriate
-        getEngine().getEntityEngine().getNonSolidEntities().forEach(entity -> entity.update(delta));
-        getEngine().getEntityEngine().getNonSolidEntities().forEach(Entity::updateProperties);
+        getEngine().getEntityEngine().getNonSolidEntities().forEach(entity -> entity.updateAll(delta));
     }
 
     private void updateSolidMotion()

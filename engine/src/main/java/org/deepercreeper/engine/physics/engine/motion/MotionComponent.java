@@ -65,7 +65,6 @@ public class MotionComponent
     private void moveSingle()
     {
         Entity entity = entities.iterator().next();
-        entity.update(delta);
-        entity.updateProperties();
+        entity.updateAll(delta);
     }
 }

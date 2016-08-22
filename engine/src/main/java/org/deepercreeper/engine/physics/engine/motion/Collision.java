@@ -159,14 +159,19 @@ public class Collision
         return Double.isFinite(delta) && delta >= 0 && firstEntity.isDeltaTouching(secondEntity, delta + 10E-5);
     }
 
+    public boolean contains(Entity entity)
+    {
+        return firstEntity.equals(entity) || secondEntity.equals(entity);
+    }
+
     public double getDelta()
     {
         return delta;
     }
 
-    public boolean isInstant()
+    public double getVelocity()
     {
-        return delta == 0;
+        return velocity;
     }
 
     public boolean isWeak()

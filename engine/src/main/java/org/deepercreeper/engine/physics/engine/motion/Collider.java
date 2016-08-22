@@ -7,11 +7,11 @@ import java.util.*;
 
 public class Collider
 {
-    private final Set<Collision> collisions = new HashSet<>();
+    private final Set<Collision> minUnknownCollisions = new HashSet<>();
 
-    private final Set<Collision> minCollisions = new HashSet<>();
+    private final Set<Collision> unknownCollisions = new HashSet<>();
 
-    private final Set<Collision> instantCollisions = new HashSet<>();
+    private final Set<Collision> knownCollisions = new HashSet<>();
 
     private final Set<Entity> entities;
 
@@ -29,6 +29,7 @@ public class Collider
     public void collide(double delta)
     {
         this.delta = delta;
+        knownCollisions.clear();
         hadCollisions = false;
         collide();
     }
@@ -38,19 +39,17 @@ public class Collider
         while (delta > 0)
         {
             computeCollisions();
-            doInstantCollisions();
-            computeMinDelta();
-            computeMinCollisions();
-            moveEntities();
-            doMinCollisions();
+            computeMinima();
+            updateEntities();
+            doCollisions();
+            updateKnownCollisions();
             delta -= minDelta;
         }
     }
 
     private void computeCollisions()
     {
-        collisions.clear();
-        instantCollisions.clear();
+        unknownCollisions.clear();
         List<Entity> entities = new ArrayList<>(this.entities);
         Iterator<Entity> iterator = entities.iterator();
         while (iterator.hasNext())
@@ -82,56 +81,140 @@ public class Collider
         collision.computeDelta();
         collision.optimizeDelta();
         collision.computeVelocity();
-        if (collision.isInstant())
+        if (!isKnown(collision))
         {
-            instantCollisions.add(collision);
-        }
-        else
-        {
-            collisions.add(collision);
+            unknownCollisions.add(collision);
         }
         hadCollisions = true;
     }
 
-    private void doInstantCollisions()
+    private void computeMinima()
     {
-        for (Collision collision : instantCollisions)
+        minUnknownCollisions.clear();
+        minDelta = delta;
+        for (Collision collision : unknownCollisions)
         {
-            collision.collide();
-        }
-    }
-
-    private void computeMinDelta()
-    {
-        minDelta = collisions.stream().map(Collision::getDelta).min(Double::compare).orElse(delta);
-    }
-
-    private void computeMinCollisions()
-    {
-        minCollisions.clear();
-        for (Collision collision : collisions)
-        {
-            if (collision.getDelta() == minDelta)
+            if (collision.getDelta() < minDelta)
             {
-                minCollisions.add(collision);
+                minUnknownCollisions.clear();
+                minDelta = collision.getDelta();
+            }
+            else if (collision.getDelta() == minDelta)
+            {
+                minUnknownCollisions.add(collision);
             }
         }
     }
 
-    private void moveEntities()
+    private void updateEntities()
     {
         for (Entity entity : entities)
         {
-            entity.update(minDelta);
+            if (isColliding(entity))
+            {
+                updateCollidingEntity(entity);
+            }
+            else
+            {
+                entity.updateAll(minDelta);
+            }
         }
     }
 
-    private void doMinCollisions()
+    private void updateCollidingEntity(Entity entity)
     {
-        for (Collision collision : minCollisions)
+        boolean accelerateHorizontal = isHorizontalUnknown(entity);
+        boolean accelerateVertical = isVerticalUnknown(entity);
+
+        entity.move(minDelta);
+        if (accelerateHorizontal)
+        {
+            entity.accelerateX(minDelta);
+        }
+        if (accelerateVertical)
+        {
+            entity.accelerateY(minDelta);
+        }
+        entity.update(minDelta);
+    }
+
+    private boolean isHorizontalUnknown(Entity entity)
+    {
+        for (Collision collision : unknownCollisions)
+        {
+            if (collision.contains(entity) && !isKnown(collision) && collision.isHorizontal())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isVerticalUnknown(Entity entity)
+    {
+        for (Collision collision : unknownCollisions)
+        {
+            if (collision.contains(entity) && !isKnown(collision) && !collision.isHorizontal())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isColliding(Entity entity)
+    {
+        for (Collision collision : unknownCollisions)
+        {
+            if (collision.contains(entity))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void doCollisions()
+    {
+        for (Collision collision : minUnknownCollisions)
         {
             collision.collide();
+            if (collision.isWeak())
+            {
+                knownCollisions.add(collision);
+            }
         }
+    }
+
+    private boolean isKnown(Collision collision)
+    {
+        return collision.isWeak() && getKnownCollision(collision) != null;
+    }
+
+    private Collision getKnownCollision(Collision collision)
+    {
+        for (Collision knownCollision : knownCollisions)
+        {
+            if (knownCollision.equals(collision) && knownCollision.isHorizontal() == collision.isHorizontal() && knownCollision.getVelocity() == collision.getVelocity())
+            {
+                return knownCollision;
+            }
+        }
+        return null;
+    }
+
+    private void updateKnownCollisions()
+    {
+        Set<Collision> knownCollisions = new HashSet<>();
+        for (Collision collision : unknownCollisions)
+        {
+            Collision knownCollision = getKnownCollision(collision);
+            if (knownCollision != null)
+            {
+                knownCollisions.add(knownCollision);
+            }
+        }
+        this.knownCollisions.retainAll(knownCollisions);
     }
 
     public boolean hadCollisions()

@@ -138,12 +138,19 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
     @Override
     public final void update(double delta)
     {
-        move(delta);
-        accelerate(delta);
+        assertNotUpdating("update");
         updating = true;
         updateInternal(delta);
         updating = false;
         onGround = false;
+    }
+
+    public final void updateAll(double delta)
+    {
+        move(delta);
+        accelerate(delta);
+        update(delta);
+        updateProperties();
     }
 
     public final void updateProperties()
@@ -158,14 +165,28 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         setMass(computeMass());
     }
 
-    private void move(double delta)
+    public final void move(double delta)
     {
+        assertNotUpdating("move");
         moveBy(getVelocity().times(getSpeed() * delta).plus(getAcceleration().times(.5 * getSpeed() * getSpeed() * delta * delta)));
     }
 
-    private void accelerate(double delta)
+    public final void accelerate(double delta)
     {
+        assertNotUpdating("accelerate");
         getVelocity().add(getAcceleration().times(getSpeed() * delta));
+    }
+
+    public final void accelerateX(double delta)
+    {
+        assertNotUpdating("accelerate");
+        getVelocity().add(getAcceleration().getX() * getSpeed() * delta, 0);
+    }
+
+    public final void accelerateY(double delta)
+    {
+        assertNotUpdating("accelerate");
+        getVelocity().add(0, getAcceleration().getY() * getSpeed() * delta);
     }
 
     public final void hitGround()
@@ -299,7 +320,7 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         return "Entity-" + id;
     }
 
-    public static abstract class GenericEntityBuilder<T extends GenericEntityBuilder<T>> extends GenericAcceleratedBoxBuilder<T>
+    public static abstract class GenericEntityBuilder <T extends GenericEntityBuilder<T>> extends GenericAcceleratedBoxBuilder<T>
     {
         protected boolean solid = true;
 
