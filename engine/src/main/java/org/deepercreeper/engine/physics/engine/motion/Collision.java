@@ -98,7 +98,7 @@ public class Collision
             return;
         }
 
-        double elasticity = Math.sqrt(topLeftEntity.getElasticity() * bottomRightEntity.getElasticity());
+        double elasticity = Math.min(topLeftEntity.getElasticity(), bottomRightEntity.getElasticity());
         double firstVelocity;
         double secondVelocity;
         if (Double.isInfinite(bottomRightEntity.getMass()) && Double.isInfinite(topLeftEntity.getMass()))
@@ -149,7 +149,7 @@ public class Collision
             return;
         }
 
-        double elasticity = Math.sqrt(topLeftEntity.getElasticity() * bottomRightEntity.getElasticity());
+        double elasticity = Math.min(topLeftEntity.getElasticity(), bottomRightEntity.getElasticity());
         double firstVelocity;
         double secondVelocity;
         if (Double.isInfinite(bottomRightEntity.getMass()) && Double.isInfinite(topLeftEntity.getMass()))

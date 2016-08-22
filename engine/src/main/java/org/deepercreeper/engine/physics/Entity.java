@@ -171,6 +171,18 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         moveBy(getVelocity().times(getSpeed() * delta).plus(getAcceleration().times(.5 * getSpeed() * getSpeed() * delta * delta)));
     }
 
+    public final void moveXAccelerated(double delta)
+    {
+        assertNotUpdating("move");
+        moveBy(getXVelocity() * getSpeed() * delta + getXAcceleration() * .5 * getSpeed() * getSpeed() * delta * delta, 0);
+    }
+
+    public final void moveYAccelerated(double delta)
+    {
+        assertNotUpdating("move");
+        moveBy(0, getYVelocity() * getSpeed() * delta + getYAcceleration() * .5 * getSpeed() * getSpeed() * delta * delta);
+    }
+
     public final void accelerate(double delta)
     {
         assertNotUpdating("accelerate");

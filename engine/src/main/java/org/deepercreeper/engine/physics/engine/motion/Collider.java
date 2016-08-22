@@ -11,6 +11,8 @@ public class Collider
 
     private final Set<Collision> unknownCollisions = new HashSet<>();
 
+    private final Set<Collision> collisions = new HashSet<>();
+
     private final Set<Collision> knownCollisions = new HashSet<>();
 
     private final Set<Entity> entities;
@@ -49,6 +51,7 @@ public class Collider
 
     private void computeCollisions()
     {
+        collisions.clear();
         unknownCollisions.clear();
         List<Entity> entities = new ArrayList<>(this.entities);
         Iterator<Entity> iterator = entities.iterator();
@@ -82,6 +85,7 @@ public class Collider
         {
             unknownCollisions.add(collision);
         }
+        collisions.add(collision);
         hadCollisions = true;
     }
 
@@ -94,6 +98,7 @@ public class Collider
             if (collision.getDelta() < minDelta)
             {
                 minUnknownCollisions.clear();
+                minUnknownCollisions.add(collision);
                 minDelta = collision.getDelta();
             }
             else if (collision.getDelta() == minDelta)
@@ -123,13 +128,14 @@ public class Collider
         boolean accelerateHorizontal = isHorizontalUnknown(entity);
         boolean accelerateVertical = isVerticalUnknown(entity);
 
-        entity.move(minDelta);
         if (accelerateHorizontal)
         {
+            entity.moveXAccelerated(minDelta);
             entity.accelerateX(minDelta);
         }
         if (accelerateVertical)
         {
+            entity.moveYAccelerated(minDelta);
             entity.accelerateY(minDelta);
         }
         entity.update(minDelta);
@@ -137,9 +143,22 @@ public class Collider
 
     private boolean isHorizontalUnknown(Entity entity)
     {
+        boolean hasKnownCollision = false;
+        for (Collision collision : knownCollisions)
+        {
+            if (collision.contains(entity) && collision.isHorizontal())
+            {
+                hasKnownCollision = true;
+                break;
+            }
+        }
+        if (!hasKnownCollision)
+        {
+            return true;
+        }
         for (Collision collision : unknownCollisions)
         {
-            if (collision.contains(entity) && !isKnown(collision) && collision.isHorizontal())
+            if (collision.contains(entity) && collision.isHorizontal())
             {
                 return true;
             }
@@ -149,9 +168,22 @@ public class Collider
 
     private boolean isVerticalUnknown(Entity entity)
     {
+        boolean hasKnownCollision = false;
+        for (Collision collision : knownCollisions)
+        {
+            if (collision.contains(entity) && !collision.isHorizontal())
+            {
+                hasKnownCollision = true;
+                break;
+            }
+        }
+        if (!hasKnownCollision)
+        {
+            return true;
+        }
         for (Collision collision : unknownCollisions)
         {
-            if (collision.contains(entity) && !isKnown(collision) && !collision.isHorizontal())
+            if (collision.contains(entity) && !collision.isHorizontal())
             {
                 return true;
             }
@@ -161,14 +193,14 @@ public class Collider
 
     private boolean isColliding(Entity entity)
     {
-        for (Collision collision : unknownCollisions)
+        for (Collision collision : collisions)
         {
             if (collision.contains(entity))
             {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     private void doCollisions()
@@ -192,7 +224,7 @@ public class Collider
     {
         for (Collision knownCollision : knownCollisions)
         {
-            if (knownCollision.equals(collision) && knownCollision.isHorizontal() == collision.isHorizontal() && knownCollision.getVelocity() == collision.getVelocity())
+            if (knownCollision.equals(collision) && knownCollision.isHorizontal() == collision.isHorizontal())
             {
                 return knownCollision;
             }
@@ -203,7 +235,7 @@ public class Collider
     private void updateKnownCollisions()
     {
         Set<Collision> knownCollisions = new HashSet<>();
-        for (Collision collision : unknownCollisions)
+        for (Collision collision : collisions)
         {
             Collision knownCollision = getKnownCollision(collision);
             if (knownCollision != null)
