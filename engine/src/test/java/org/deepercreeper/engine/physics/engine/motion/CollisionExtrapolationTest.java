@@ -4,7 +4,7 @@ import org.deepercreeper.engine.physics.Entity;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CollisionTest
+public class CollisionExtrapolationTest
 {
     @Test
     public void testValidDelta()
@@ -12,7 +12,7 @@ public class CollisionTest
         Entity firstEntity = new Entity.EntityBuilder().setX(-1).setWidth(1).setHeight(1).setXVelocity(Math.random() * 5).setXAcceleration(Math.random() * 5).build();
         Entity secondEntity = new Entity.EntityBuilder().setX(Math.random() * 5 + 1).setWidth(Math.random() * 5 + 1).setHeight(1).setXVelocity(-Math.random())
                                                         .setXAcceleration(-Math.random()).build();
-        Collision collision = new Collision(firstEntity, secondEntity);
+        CollisionExtrapolation collision = new CollisionExtrapolation(firstEntity, secondEntity);
         collision.computeDelta();
         double delta = collision.getDelta();
         assertDeltaValid(firstEntity, secondEntity, delta);
@@ -24,7 +24,7 @@ public class CollisionTest
         Entity firstEntity = new Entity.EntityBuilder().setX(-1).setWidth(1).setHeight(1).setXVelocity(Math.random() * 5).setXAcceleration(Math.random() * 5).build();
         Entity secondEntity = new Entity.EntityBuilder().setX(Math.random() * 5 + 1).setWidth(Math.random() * 5 + 1).setHeight(1).setXVelocity(-Math.random())
                                                         .setXAcceleration(-Math.random()).build();
-        Collision collision = new Collision(firstEntity, secondEntity);
+        CollisionExtrapolation collision = new CollisionExtrapolation(firstEntity, secondEntity);
         collision.computeDelta();
         double delta = collision.getDelta();
         assertDeltaValid(firstEntity, secondEntity, delta);
@@ -40,7 +40,7 @@ public class CollisionTest
         Entity firstEntity = new Entity.EntityBuilder().setY(-1).setWidth(1).setHeight(1).setYVelocity(Math.random() * 5).setYAcceleration(Math.random() * 5).build();
         Entity secondEntity = new Entity.EntityBuilder().setY(Math.random() * 5 + 1).setWidth(Math.random() * 5 + 1).setHeight(1).setYVelocity(-Math.random())
                                                         .setYAcceleration(-Math.random()).build();
-        Collision collision = new Collision(firstEntity, secondEntity);
+        CollisionExtrapolation collision = new CollisionExtrapolation(firstEntity, secondEntity);
         collision.computeDelta();
         double delta = collision.getDelta();
         assertDeltaValid(firstEntity, secondEntity, delta);
@@ -56,7 +56,7 @@ public class CollisionTest
         Entity firstEntity = new Entity.EntityBuilder().setX(-1).setWidth(1).setHeight(1).setXVelocity(Math.random() * 5).setXAcceleration(Math.random() * 5).build();
         Entity secondEntity = new Entity.EntityBuilder().setX(Math.random() * 5 + 1).setWidth(Math.random() * 5 + 1).setHeight(1).setXVelocity(-Math.random())
                                                         .setXAcceleration(-Math.random()).build();
-        Collision collision = new Collision(firstEntity, secondEntity);
+        CollisionExtrapolation collision = new CollisionExtrapolation(firstEntity, secondEntity);
         collision.computeDelta();
         collision.optimizeDelta();
         double delta = collision.getDelta();
@@ -82,7 +82,7 @@ public class CollisionTest
                                                        .setYAcceleration(a1).build();
         Entity secondEntity = new Entity.EntityBuilder().setX(2).setY(2).setWidth(1).setHeight(1).setXVelocity(v2).setYVelocity(v2).setXAcceleration(a2).setYAcceleration(a2)
                                                         .build();
-        Collision collision = new Collision(firstEntity, secondEntity);
+        CollisionExtrapolation collision = new CollisionExtrapolation(firstEntity, secondEntity);
         collision.computeDelta();
         assertDeltaValid(firstEntity, secondEntity, collision.getDelta());
 

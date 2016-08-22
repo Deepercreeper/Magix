@@ -69,8 +69,8 @@ public class Splitter
 
     public void split(Collision collision)
     {
-        firstEntity = collision.getFirstEntity();
-        secondEntity = collision.getSecondEntity();
+        firstEntity = collision.getTopLeftEntity();
+        secondEntity = collision.getBottomRightEntity();
         if (collision.isHorizontal())
         {
             splitHorizontal(firstEntity.getCenterX() < secondEntity.getCenterX());

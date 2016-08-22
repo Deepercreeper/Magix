@@ -78,9 +78,6 @@ public class Collider
     private void addCollision(Entity firstEntity, Entity secondEntity)
     {
         Collision collision = new Collision(firstEntity, secondEntity);
-        collision.computeDelta();
-        collision.optimizeDelta();
-        collision.computeVelocity();
         if (!isKnown(collision))
         {
             unknownCollisions.add(collision);
