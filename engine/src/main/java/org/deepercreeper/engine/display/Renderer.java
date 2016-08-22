@@ -14,8 +14,6 @@ public interface Renderer
 
     void setPosition(Point position);
 
-    Point getPosition();
-
     void setDisplay(Display display);
 
     boolean isVisible(Rectangle rectangle);

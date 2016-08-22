@@ -31,12 +31,14 @@ public class AbstractRenderer implements Renderer
             return;
         }
         int[] yCroppedImage = new int[image.getWidth() * visibleRectangle.getHeight()];
-        System.arraycopy(image.getData(), Math.max(0, -visibleRectangle.getY()) * image.getWidth(), yCroppedImage, 0, image.getWidth() * visibleRectangle.getHeight());
+        System.arraycopy(image.getData(), Math.max(0, getRectangle().getY() - visibleRectangle.getY()) * image.getWidth(), yCroppedImage, 0, image.getWidth() * visibleRectangle
+                .getHeight());
 
         int[] xCroppedImage = new int[visibleRectangle.getWidth() * visibleRectangle.getHeight()];
         for (int i = 0; i < visibleRectangle.getHeight(); i++)
         {
-            System.arraycopy(yCroppedImage, i * image.getWidth() + Math.max(0, -image.getX()), xCroppedImage, i * visibleRectangle.getWidth(), visibleRectangle.getWidth());
+            System.arraycopy(yCroppedImage, i * image.getWidth() + Math.max(0, getRectangle().getX() - image.getX()), xCroppedImage, i * visibleRectangle
+                    .getWidth(), visibleRectangle.getWidth());
         }
         visibleRectangle.getPosition().subtract(position);
         display.render(visibleRectangle.getX(), visibleRectangle.getY(), visibleRectangle.getWidth(), visibleRectangle.getHeight(), xCroppedImage);
@@ -62,11 +64,6 @@ public class AbstractRenderer implements Renderer
     public void clear()
     {
         display.clear(0, 0, display.getWidth(), display.getHeight());
-    }
-
-    public Point getPosition()
-    {
-        return position;
     }
 
     public void setPosition(Point position)

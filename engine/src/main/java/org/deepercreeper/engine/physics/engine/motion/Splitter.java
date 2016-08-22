@@ -1,18 +1,24 @@
-package org.deepercreeper.engine.physics;
+package org.deepercreeper.engine.physics.engine.motion;
+
+import org.deepercreeper.engine.physics.Entity;
 
 import java.util.*;
 
-public class EntitySplitter
+public class Splitter
 {
-    private static final double EPSILON = 10E-10;
+    private static final double EPSILON = 10E-5;
 
     private final List<Entity> entities = new ArrayList<>();
+
+    private Entity firstEntity;
+
+    private Entity secondEntity;
 
     public void split(Set<Entity> entities)
     {
         this.entities.clear();
         this.entities.addAll(entities);
-        Collections.sort(this.entities, (e1, e2) -> Double.compare(e1.getMass(), e2.getMass()));
+        Collections.sort(this.entities, (e1, e2) -> Double.compare(e2.getMass(), e1.getMass()));
         split();
     }
 
@@ -30,28 +36,52 @@ public class EntitySplitter
         }
     }
 
-    private void split(Entity entity)
+    private void split(Entity firstEntity)
     {
-        entities.stream().filter(entity::isTouching).forEach(splitEntity -> split(entity, splitEntity));
+        for (Entity secondEntity : entities)
+        {
+            split(firstEntity, secondEntity);
+        }
     }
 
     private void split(Entity firstEntity, Entity secondEntity)
     {
+        if (!firstEntity.isTouching(secondEntity))
+        {
+            return;
+        }
+        this.firstEntity = firstEntity;
+        this.secondEntity = secondEntity;
+
         double positiveXDistance = firstEntity.getMaxX() - secondEntity.getX();
         double negativeXDistance = secondEntity.getMaxX() - firstEntity.getX();
         double positiveYDistance = firstEntity.getMaxY() - secondEntity.getY();
         double negativeYDistance = secondEntity.getMaxY() - firstEntity.getY();
         if (Math.min(Math.abs(positiveXDistance), Math.abs(negativeXDistance)) < Math.min(Math.abs(positiveYDistance), Math.abs(negativeYDistance)))
         {
-            splitHorizontal(firstEntity, secondEntity, firstEntity.getCenterX() < secondEntity.getCenterX());
+            splitHorizontal(firstEntity.getCenterX() < secondEntity.getCenterX());
         }
         else
         {
-            splitVertical(firstEntity, secondEntity, firstEntity.getCenterY() < secondEntity.getCenterY());
+            splitVertical(firstEntity.getCenterY() < secondEntity.getCenterY());
         }
     }
 
-    private void splitHorizontal(Entity firstEntity, Entity secondEntity, boolean firstOnLeft)
+    public void split(Collision collision)
+    {
+        firstEntity = collision.getTopLeftEntity();
+        secondEntity = collision.getBottomRightEntity();
+        if (collision.isHorizontal())
+        {
+            splitHorizontal(firstEntity.getCenterX() < secondEntity.getCenterX());
+        }
+        else
+        {
+            splitVertical(firstEntity.getCenterY() < secondEntity.getCenterY());
+        }
+    }
+
+    private void splitHorizontal(boolean firstOnLeft)
     {
         double scale = firstEntity.getMassScaleTo(secondEntity);
         double position;
@@ -73,7 +103,7 @@ public class EntitySplitter
         secondEntity.setX(secondX);
     }
 
-    private void splitVertical(Entity firstEntity, Entity secondEntity, boolean firstOnTop)
+    private void splitVertical(boolean firstOnTop)
     {
         double scale = firstEntity.getMassScaleTo(secondEntity);
         double position;

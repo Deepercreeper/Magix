@@ -29,6 +29,10 @@ public class RenderingEngine extends AbstractEngine implements Updatable
 
     public void setPosition(Vector position)
     {
+        if (this.position.equals(position))
+        {
+            return;
+        }
         this.position.set(position);
         renderer.setPosition(position.asPoint());
         renderer.clear();

@@ -15,6 +15,10 @@ public class EntityEngine extends AbstractEngine implements Updatable
 
     private final ModificationSet<Entity> entitySet = new ModificationSet<>();
 
+    private final ModificationSet<Entity> solidEntities = new ModificationSet<>();
+
+    private final ModificationSet<Entity> nonSolidEntities = new ModificationSet<>();
+
     private int idCounter = 0;
 
     public EntityEngine(Engine engine)
@@ -25,10 +29,17 @@ public class EntityEngine extends AbstractEngine implements Updatable
     @Override
     public void update(double delta)
     {
-        entitySet.setModifiable(true);
+        setSetsModifiable(true);
         removeEntities();
         addEntities();
-        entitySet.setModifiable(false);
+        setSetsModifiable(false);
+    }
+
+    private void setSetsModifiable(boolean modifiable)
+    {
+        entitySet.setModifiable(modifiable);
+        solidEntities.setModifiable(modifiable);
+        nonSolidEntities.setModifiable(modifiable);
     }
 
     public void add(Entity entity)
@@ -44,9 +55,22 @@ public class EntityEngine extends AbstractEngine implements Updatable
             Entity entity = iterator.next();
             if (entity.isRemoved())
             {
+                removeEntity(entity);
                 idCounter = Math.min(idCounter, entity.getId());
                 iterator.remove();
             }
+        }
+    }
+
+    private void removeEntity(Entity entity)
+    {
+        if (entity.isSolid())
+        {
+            solidEntities.remove(entity);
+        }
+        else
+        {
+            nonSolidEntities.remove(entity);
         }
     }
 
@@ -56,9 +80,22 @@ public class EntityEngine extends AbstractEngine implements Updatable
         {
             Entity entity = addedEntities.poll();
             entity.init(idCounter, getEngine());
-            entities.put(idCounter, entity);
-            entitySet.add(entity);
+            addEntity(entity);
             updateIdCounter();
+        }
+    }
+
+    private void addEntity(Entity entity)
+    {
+        entities.put(entity.getId(), entity);
+        entitySet.add(entity);
+        if (entity.isSolid())
+        {
+            solidEntities.add(entity);
+        }
+        else
+        {
+            nonSolidEntities.add(entity);
         }
     }
 
@@ -73,5 +110,15 @@ public class EntityEngine extends AbstractEngine implements Updatable
     public Set<Entity> getEntities()
     {
         return entitySet;
+    }
+
+    public Set<Entity> getNonSolidEntities()
+    {
+        return nonSolidEntities;
+    }
+
+    public Set<Entity> getSolidEntities()
+    {
+        return solidEntities;
     }
 }
