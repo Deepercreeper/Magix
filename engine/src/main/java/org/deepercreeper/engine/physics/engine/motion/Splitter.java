@@ -67,20 +67,6 @@ public class Splitter
         }
     }
 
-    public void split(Collision collision)
-    {
-        firstEntity = collision.getTopLeftEntity();
-        secondEntity = collision.getBottomRightEntity();
-        if (collision.isHorizontal())
-        {
-            splitHorizontal(firstEntity.getCenterX() < secondEntity.getCenterX());
-        }
-        else
-        {
-            splitVertical(firstEntity.getCenterY() < secondEntity.getCenterY());
-        }
-    }
-
     private void splitHorizontal(boolean firstOnLeft)
     {
         double scale = firstEntity.getMassScaleTo(secondEntity);

@@ -90,4 +90,27 @@ public class MotionComponent
         Entity entity = entities.iterator().next();
         entity.updateAll(delta);
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj instanceof MotionComponent)
+        {
+            MotionComponent component = (MotionComponent) obj;
+            return entities.equals(component.entities);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return entities.hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return entities.toString();
+    }
 }

@@ -4,13 +4,13 @@ import org.deepercreeper.engine.physics.Entity;
 import org.deepercreeper.engine.physics.engine.motion.MotionComponent;
 import org.deepercreeper.engine.util.Updatable;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 public class MotionEngine extends AbstractEngine implements Updatable
 {
-    private final List<MotionComponent> motionComponents = new ArrayList<>();
+    private final Set<MotionComponent> motionComponents = new HashSet<>();
 
     private double delta;
 
