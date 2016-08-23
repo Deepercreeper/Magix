@@ -31,7 +31,7 @@ public class Collider
     public void collide(double delta)
     {
         this.delta = delta;
-        knownCollisions.clear();
+        //        knownCollisions.clear();
         hadCollisions = false;
         collide();
     }
