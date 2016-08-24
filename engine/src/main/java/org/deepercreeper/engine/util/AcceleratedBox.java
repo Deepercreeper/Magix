@@ -10,28 +10,27 @@ public class AcceleratedBox extends VelocityBox
         setAcceleration(builder.xAcceleration, builder.yAcceleration);
     }
 
-    public final void setAcceleration(double xAcceleration, double yAcceleration)
+    public void setXAcceleration(double xAcceleration)
     {
-        acceleration.set(xAcceleration, yAcceleration);
+        getAcceleration().setX(xAcceleration);
+        updateHashCode();
+    }
+
+    public void setYAcceleration(double yAcceleration)
+    {
+        getAcceleration().setY(yAcceleration);
+        updateHashCode();
+    }
+
+    public void setAcceleration(double xAcceleration, double yAcceleration)
+    {
+        getAcceleration().set(xAcceleration, yAcceleration);
         updateHashCode();
     }
 
     public final void setAcceleration(Vector acceleration)
     {
-        this.acceleration.set(acceleration);
-        updateHashCode();
-    }
-
-    public final void setXAcceleration(double xAcceleration)
-    {
-        acceleration.setX(xAcceleration);
-        updateHashCode();
-    }
-
-    public final void setYAcceleration(double yAcceleration)
-    {
-        acceleration.setY(yAcceleration);
-        updateHashCode();
+        setAcceleration(acceleration.getX(), acceleration.getY());
     }
 
     public final Vector getAcceleration()
@@ -41,12 +40,12 @@ public class AcceleratedBox extends VelocityBox
 
     public final double getXAcceleration()
     {
-        return acceleration.getX();
+        return getAcceleration().getX();
     }
 
     public final double getYAcceleration()
     {
-        return acceleration.getY();
+        return getAcceleration().getY();
     }
 
     public static abstract class GenericAcceleratedBoxBuilder<T extends GenericVelocityBoxBuilder<T>> extends GenericVelocityBoxBuilder<T>

@@ -14,7 +14,7 @@ public class Vector
 
     public Vector(Vector vector)
     {
-        this(vector.x, vector.y);
+        this(vector.getX(), vector.getY());
     }
 
     public Vector()
@@ -22,135 +22,97 @@ public class Vector
         this(0, 0);
     }
 
-    public void set(double x, double y)
+    public final void setX(double x)
+    {
+        this.x = x;
+        modified();
+    }
+
+    public final void setY(double y)
+    {
+        this.y = y;
+        modified();
+    }
+
+    public final void set(double x, double y)
     {
         this.x = x;
         this.y = y;
+        modified();
     }
 
-    public void set(Vector vector)
-    {
-        x = vector.x;
-        y = vector.y;
-    }
-
-    public void setX(double x)
-    {
-        this.x = x;
-    }
-
-    public void setY(double y)
-    {
-        this.y = y;
-    }
-
-    public void add(Vector vector, double scalar)
-    {
-        x += vector.x * scalar;
-        y += vector.y * scalar;
-    }
-
-    public void add(double x, double y)
-    {
-        this.x += x;
-        this.y += y;
-    }
-
-    public void add(Vector vector)
-    {
-        add(vector.x, vector.y);
-    }
-
-    public void subtract(Vector vector, double scalar)
-    {
-        add(vector, -scalar);
-    }
-
-    public void subtract(Vector vector)
-    {
-        x -= vector.x;
-        y -= vector.y;
-    }
-
-    public void multiplicate(double scalar)
-    {
-        x *= scalar;
-        y *= scalar;
-    }
-
-    public double getX()
+    public final double getX()
     {
         return x;
     }
 
-    public double getY()
+    public final double getY()
     {
         return y;
     }
 
-    public double getAbsX()
+    public final void set(Vector vector)
     {
-        return Math.abs(x);
+        set(vector.getX(), vector.getY());
     }
 
-    public double getAbsY()
+    public final void add(Vector vector, double scalar)
     {
-        return Math.abs(y);
+        add(vector.getX() * scalar, vector.getY() * scalar);
     }
 
-    public Vector absolute(double scalar)
+    public final void add(double x, double y)
     {
-        return new Vector(getAbsX() * Math.abs(scalar), getAbsY() * Math.abs(scalar));
+        set(getX() + x, getY() + y);
     }
 
-    public Vector absolute()
+    public final void add(Vector vector)
+    {
+        add(vector.getX(), vector.getY());
+    }
+
+    public final double getAbsX()
+    {
+        return Math.abs(getX());
+    }
+
+    public final double getAbsY()
+    {
+        return Math.abs(getY());
+    }
+
+    public final Vector absolute()
     {
         return new Vector(getAbsX(), getAbsY());
     }
 
-    public Vector plus(Vector vector, double scalar)
+    public final Vector plus(Vector vector)
     {
-        return new Vector(x + vector.x * scalar, y + vector.y * scalar);
+        return new Vector(getX() + vector.getX(), getY() + vector.getY());
     }
 
-    public Vector plus(Vector vector)
+    public final Vector minus(Vector vector)
     {
-        return new Vector(x + vector.x, y + vector.y);
+        return new Vector(getX() - vector.getX(), getY() - vector.getY());
     }
 
-    public Vector minus(Vector vector, double scalar)
+    public final Vector times(double scalar)
     {
-        return plus(vector, -scalar);
+        return new Vector(getX() * scalar, getY() * scalar);
     }
 
-    public Vector minus(Vector vector)
+    public final double norm()
     {
-        return new Vector(x - vector.x, y - vector.y);
+        return Math.sqrt(getX() * getX() + getY() * getY());
     }
 
-    public Vector times(double scalar)
+    public final Point asPoint()
     {
-        return new Vector(scalar * x, scalar * y);
+        return new Point(getX(), getY());
     }
 
-    public Vector negative()
+    protected void modified()
     {
-        return new Vector(-x, -y);
-    }
-
-    public double norm()
-    {
-        return Math.sqrt(x * x + y * y);
-    }
-
-    public double times(Vector vector)
-    {
-        return x * vector.x + y * vector.y;
-    }
-
-    public Point asPoint()
-    {
-        return new Point(x, y);
     }
 
     @Override
@@ -159,7 +121,7 @@ public class Vector
         if (obj instanceof Vector)
         {
             Vector vector = (Vector) obj;
-            return x == vector.x && y == vector.y;
+            return getX() == vector.getX() && getY() == vector.getY();
         }
         return false;
     }
@@ -167,12 +129,12 @@ public class Vector
     @Override
     public int hashCode()
     {
-        return Double.hashCode(x) * 13 + Double.hashCode(y);
+        return Double.hashCode(getX()) * 13 + Double.hashCode(getY());
     }
 
     @Override
     public String toString()
     {
-        return "(" + x + ", " + y + ")";
+        return "(" + getX() + ", " + getY() + ")";
     }
 }

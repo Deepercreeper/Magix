@@ -10,28 +10,27 @@ public class VelocityBox extends Box
         setVelocity(builder.xVelocity, builder.yVelocity);
     }
 
-    public final void setVelocity(double xVelocity, double yVelocity)
+    public void setXVelocity(double xVelocity)
     {
-        velocity.set(xVelocity, yVelocity);
+        getVelocity().setX(xVelocity);
+        updateHashCode();
+    }
+
+    public void setYVelocity(double yVelocity)
+    {
+        getVelocity().setY(yVelocity);
+        updateHashCode();
+    }
+
+    public void setVelocity(double xVelocity, double yVelocity)
+    {
+        getVelocity().set(xVelocity, yVelocity);
         updateHashCode();
     }
 
     public final void setVelocity(Vector velocity)
     {
-        this.velocity.set(velocity);
-        updateHashCode();
-    }
-
-    public final void setXVelocity(double xVelocity)
-    {
-        velocity.setX(xVelocity);
-        updateHashCode();
-    }
-
-    public final void setYVelocity(double yVelocity)
-    {
-        velocity.setY(yVelocity);
-        updateHashCode();
+        setVelocity(velocity.getX(), velocity.getY());
     }
 
     public final Vector getVelocity()
@@ -41,12 +40,12 @@ public class VelocityBox extends Box
 
     public final double getXVelocity()
     {
-        return velocity.getX();
+        return getVelocity().getX();
     }
 
     public final double getYVelocity()
     {
-        return velocity.getY();
+        return getVelocity().getY();
     }
 
     @Override

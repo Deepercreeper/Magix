@@ -2,11 +2,11 @@ package org.deepercreeper.engine.util;
 
 public class Box
 {
+    private final Vector position = new Vector();
+
+    private final Vector size = new Vector();
+
     private final Vector center = new Vector();
-
-    private final Vector position;
-
-    private final Vector size;
 
     private int hashCode;
 
@@ -14,152 +14,142 @@ public class Box
 
     protected Box(GenericBoxBuilder<?> builder)
     {
-        position = new Vector(builder.x, builder.y);
-        size = new Vector(builder.width, builder.height);
+        setPosition(builder.x, builder.y);
+        setSize(builder.width, builder.height);
         updateCenterAndHashCode();
     }
 
-    public final void set(Box box)
+    public void setX(double x)
     {
-        position.set(box.position);
-        size.set(box.size);
-        center.set(box.center);
-        hashCode = box.hashCode;
-    }
-
-    public final void setPosition(double x, double y)
-    {
-        position.set(x, y);
+        getPosition().setX(x);
         updateCenterAndHashCode();
     }
 
-    public final void setPosition(Vector position)
+    public void setY(double y)
     {
-        this.position.set(position);
+        getPosition().setY(y);
         updateCenterAndHashCode();
     }
 
-    public final void setSize(double width, double height)
+    public void setPosition(double x, double y)
     {
-        size.set(width, height);
+        getPosition().set(x, y);
         updateCenterAndHashCode();
     }
 
-    public final void setSize(Vector size)
+    public void setWidth(double width)
     {
-        this.size.set(size);
+        getSize().setX(width);
         updateCenterAndHashCode();
     }
 
-    public final void setCenter(double x, double y)
+    public void setHeight(double height)
     {
-        center.set(x, y);
-        position.set(x - getWidth() * .5, y - getHeight() * .5);
+        getSize().setY(height);
+        updateCenterAndHashCode();
+    }
+
+    public void setSize(double width, double height)
+    {
+        getSize().set(width, height);
+        updateCenterAndHashCode();
+    }
+
+    public void setCenterX(double x)
+    {
+        getCenter().setX(x);
+        getPosition().setX(x - getWidth() * .5);
         updateHashCode();
     }
 
-    public final void setCenter(Vector center)
+    public void setCenterY(double y)
     {
-        this.center.set(center);
-        position.set(center.getX() - getWidth() * .5, center.getY() - getHeight() * .5);
+        getCenter().setY(y);
+        getPosition().setY(y - getHeight() * .5);
         updateHashCode();
     }
 
-    public final void setX(double x)
+    public void setCenter(double x, double y)
     {
-        position.setX(x);
-        updateCenterAndHashCode();
-    }
-
-    public final void setY(double y)
-    {
-        position.setY(y);
-        updateCenterAndHashCode();
-    }
-
-    public final void setMaxX(double x)
-    {
-        position.setX(x - getWidth());
-        updateCenterAndHashCode();
-    }
-
-    public final void setMaxY(double y)
-    {
-        position.setY(y - getHeight());
-        updateCenterAndHashCode();
-    }
-
-    public final void setCenterX(double x)
-    {
-        center.setX(x);
-        position.setX(x - getWidth() * .5);
+        getCenter().set(x, y);
+        getPosition().set(x - getWidth() * .5, y - getHeight() * .5);
         updateHashCode();
     }
 
-    public final void setCenterY(double y)
-    {
-        center.setY(y);
-        position.setY(y - getHeight() * .5);
-        updateHashCode();
-    }
-
-    public final void setWidth(double width)
-    {
-        size.setX(width);
-        updateCenterAndHashCode();
-    }
-
-    public final void setHeight(double height)
-    {
-        size.setY(height);
-        updateCenterAndHashCode();
-    }
-
-    public final void moveBy(double x, double y)
-    {
-        position.add(x, y);
-        updateCenterAndHashCode();
-    }
-
-    public final void moveBy(Vector vector)
-    {
-        position.add(vector);
-        updateCenterAndHashCode();
-    }
-
-    public final Vector getPosition()
+    public Vector getPosition()
     {
         return position;
     }
 
-    public final Vector getCenter()
+    public Vector getCenter()
     {
         return center;
     }
 
-    public final Vector getSize()
+    public Vector getSize()
     {
         return size;
     }
 
+    public final void set(Box box)
+    {
+        setPosition(box.getPosition());
+        setSize(box.getSize());
+    }
+
+    public final void setPosition(Vector position)
+    {
+        setPosition(position.getX(), position.getY());
+    }
+
+    public final void setSize(Vector size)
+    {
+        setSize(size.getX(), size.getY());
+    }
+
+    public final void setCenter(Vector center)
+    {
+        setCenter(center.getX(), center.getY());
+    }
+
+    public final void setMaxX(double x)
+    {
+        setX(x - getWidth());
+    }
+
+    public final void setMaxY(double y)
+    {
+        setY(y - getHeight());
+    }
+
+    public final void moveBy(double x, double y)
+    {
+        setPosition(getX() + x, getY() + y);
+    }
+
+    public final void moveBy(Vector vector)
+    {
+        moveBy(vector.getX(), vector.getY());
+    }
+
     public final double getX()
     {
-        return position.getX();
+        return getPosition().getX();
     }
 
     public final double getY()
     {
-        return position.getY();
+        return getPosition().getY();
     }
 
     public final double getWidth()
     {
-        return size.getX();
+        return getSize().getX();
     }
 
     public final double getHeight()
     {
-        return size.getY();
+        return getSize().getY();
     }
 
     public final double getMaxX()
@@ -174,20 +164,15 @@ public class Box
 
     public final double getCenterX()
     {
-        return center.getX();
+        return getCenter().getX();
     }
 
     public final double getCenterY()
     {
-        return center.getY();
+        return getCenter().getY();
     }
 
     public final double getVolume() { return getWidth() * getHeight(); }
-
-    public final boolean isEmpty()
-    {
-        return getWidth() == 0 || getHeight() == 0;
-    }
 
     public final boolean isTouching(Box box)
     {
@@ -206,7 +191,7 @@ public class Box
 
     public final Box shift(Vector vector)
     {
-        return new BoxBuilder().setX(getX() + vector.getX()).setY(getY() + vector.getY()).setSize(size).build();
+        return new BoxBuilder().setX(getX() + vector.getX()).setY(getY() + vector.getY()).setSize(getSize()).build();
     }
 
     public final Box getContainment(Box box)
@@ -231,12 +216,12 @@ public class Box
 
     public final Rectangle asScaledRectangle(double scale)
     {
-        return new Rectangle.RectangleBuilder().setPosition(position.times(scale).asPoint()).setSize(size.times(scale).asPoint()).build();
+        return new Rectangle.RectangleBuilder().setPosition(getPosition().times(scale).asPoint()).setSize(getSize().times(scale).asPoint()).build();
     }
 
     private void updateCenterAndHashCode()
     {
-        center.set(getX() + getWidth() * .5, getY() * getHeight() * .5);
+        getCenter().set(getX() + getWidth() * .5, getY() * getHeight() * .5);
         updateHashCode();
     }
 
@@ -246,7 +231,7 @@ public class Box
         if (obj instanceof Box)
         {
             Box box = (Box) obj;
-            return position.equals(box.position) && size.equals(box.size);
+            return getPosition().equals(box.getPosition()) && getSize().equals(box.getSize());
         }
         return false;
     }
@@ -283,7 +268,7 @@ public class Box
     @Override
     public String toString()
     {
-        return "(" + position + ", " + size + ")";
+        return "(" + getPosition() + ", " + getSize() + ")";
     }
 
     public static abstract class GenericBoxBuilder<T extends GenericBoxBuilder<T>> extends GenericBuilder<T>
