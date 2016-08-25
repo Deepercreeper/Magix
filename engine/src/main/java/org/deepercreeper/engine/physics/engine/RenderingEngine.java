@@ -22,6 +22,8 @@ public class RenderingEngine extends AbstractEngine implements Updatable
 
     private double scale = 48;
 
+    private int counter = 0;
+
     public RenderingEngine(Engine engine)
     {
         super(engine);
@@ -74,12 +76,13 @@ public class RenderingEngine extends AbstractEngine implements Updatable
 
     private void render()
     {
-        computeImage();
+        computeImages();
         clearEntities();
         renderEntities();
+        renderFrameRate();
     }
 
-    private void computeImage()
+    private void computeImages()
     {
         images.clear();
         for (Entity entity : getEngine().getEntityEngine().getEntities())
@@ -118,5 +121,19 @@ public class RenderingEngine extends AbstractEngine implements Updatable
         {
             renderer.render(image);
         }
+    }
+
+    private void renderFrameRate()
+    {
+        int difference = (int) getEngine().getUpdateEngine().getDifference();
+        if (difference > 0)
+        {
+            Image image = new Image.ImageBuilder().setX(counter).setY(100 - difference).setWidth(1).setHeight(difference)
+                                                  .setData(Display.createRectangle(1, difference, 0xffffffff)).build();
+            image.moveBy(position.asPoint());
+            renderer.clear(new Rectangle.RectangleBuilder().set(image).setY(position.asPoint().getY()).setHeight(100).build());
+            renderer.render(image);
+        }
+        counter = (counter + 1) % 100;
     }
 }

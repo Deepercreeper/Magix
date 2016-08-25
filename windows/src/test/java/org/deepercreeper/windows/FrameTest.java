@@ -63,7 +63,7 @@ public class FrameTest
                 double mass = movable ? 1 : Double.POSITIVE_INFINITY;
                 double width = movable ? .5 : 30;
                 double height = movable ? .5 : .5;
-                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, 1, e.getButton() == MouseEvent.BUTTON2 ? 2 : 1)
+                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, .75, e.getButton() == MouseEvent.BUTTON2 ? 2 : 1)
                 {
                     @Override
                     public Vector computeVelocity()
@@ -112,7 +112,7 @@ public class FrameTest
                     {
                         if (!getEngine().getRenderingEngine().isVisible(this))
                         {
-                            remove();
+                            //                            remove();
                         }
                     }
 

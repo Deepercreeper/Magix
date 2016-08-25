@@ -10,6 +10,8 @@ public class UpdateEngine extends AbstractEngine implements Runnable
 
     private double speed = 1;
 
+    private long difference;
+
     private int fps = 60;
 
     public UpdateEngine(Engine engine)
@@ -22,7 +24,6 @@ public class UpdateEngine extends AbstractEngine implements Runnable
     public void run()
     {
         long lastExecution = -1;
-        long difference;
         long timeout;
         while (running)
         {
@@ -44,6 +45,11 @@ public class UpdateEngine extends AbstractEngine implements Runnable
                 Util.sleep(1);
             }
         }
+    }
+
+    public long getDifference()
+    {
+        return difference;
     }
 
     public void setSpeed(double speed)

@@ -61,6 +61,11 @@ public class Engine implements Updatable
         return motionEngine;
     }
 
+    public UpdateEngine getUpdateEngine()
+    {
+        return updateEngine;
+    }
+
     public void add(Force force)
     {
         physicsEngine.add(force);
