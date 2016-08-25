@@ -60,16 +60,6 @@ public class Collision
         return velocity < WEAK_COLLISION_VELOCITY;
     }
 
-    public Entity getTopLeftEntity()
-    {
-        return topLeftEntity;
-    }
-
-    public Entity getBottomRightEntity()
-    {
-        return bottomRightEntity;
-    }
-
     public boolean isHorizontal()
     {
         return horizontal;
@@ -77,8 +67,14 @@ public class Collision
 
     public void collide()
     {
-        topLeftEntity.collideWith(bottomRightEntity);
-        bottomRightEntity.collideWith(topLeftEntity);
+        if (topLeftEntity.canTouch(bottomRightEntity))
+        {
+            topLeftEntity.collideWith(bottomRightEntity);
+        }
+        if (bottomRightEntity.canTouch(topLeftEntity))
+        {
+            bottomRightEntity.collideWith(topLeftEntity);
+        }
 
         if (horizontal)
         {
@@ -90,60 +86,20 @@ public class Collision
         }
     }
 
-    private void collideVertical()
-    {
-        if (isWeak())
-        {
-            double velocity = scale * topLeftEntity.getYVelocity() + (1 - scale) * bottomRightEntity.getYVelocity();
-
-            topLeftEntity.setYVelocity(velocity);
-            bottomRightEntity.setYVelocity(velocity);
-
-            topLeftEntity.hitGround();
-            return;
-        }
-
-        double elasticity = Math.min(topLeftEntity.getElasticity(), bottomRightEntity.getElasticity());
-        double firstVelocity;
-        double secondVelocity;
-        if (Double.isInfinite(bottomRightEntity.getMass()) && Double.isInfinite(topLeftEntity.getMass()))
-        {
-            double average = (topLeftEntity.getYVelocity() + bottomRightEntity.getYVelocity()) / 2;
-            firstVelocity = average - (topLeftEntity.getYVelocity() - bottomRightEntity.getYVelocity()) * elasticity / 2;
-            secondVelocity = average - (bottomRightEntity.getYVelocity() - topLeftEntity.getYVelocity()) * elasticity / 2;
-        }
-        else if (Double.isInfinite(bottomRightEntity.getMass()))
-        {
-            firstVelocity = bottomRightEntity.getYVelocity() - (topLeftEntity.getYVelocity() - bottomRightEntity.getYVelocity()) * elasticity;
-            secondVelocity = bottomRightEntity.getYVelocity();
-        }
-        else if (Double.isInfinite(topLeftEntity.getMass()))
-        {
-            firstVelocity = topLeftEntity.getYVelocity();
-            secondVelocity = topLeftEntity.getYVelocity() - (bottomRightEntity.getYVelocity() - topLeftEntity.getYVelocity()) * elasticity;
-        }
-        else
-        {
-            double mass = topLeftEntity.getMass() + bottomRightEntity.getMass();
-            double massPoint = (topLeftEntity.getMass() * topLeftEntity.getYVelocity() + bottomRightEntity.getMass() * bottomRightEntity.getYVelocity()) / mass;
-            firstVelocity = massPoint - (bottomRightEntity.getMass() * (topLeftEntity.getYVelocity() - bottomRightEntity.getYVelocity()) * elasticity) / mass;
-            secondVelocity = massPoint - (topLeftEntity.getMass() * (bottomRightEntity.getYVelocity() - topLeftEntity.getYVelocity()) * elasticity) / mass;
-        }
-
-        topLeftEntity.setYVelocity(firstVelocity);
-        bottomRightEntity.setYVelocity(secondVelocity);
-
-        topLeftEntity.hitGround();
-    }
-
     private void collideHorizontal()
     {
         if (isWeak())
         {
             double velocity = scale * topLeftEntity.getXVelocity() + (1 - scale) * bottomRightEntity.getXVelocity();
 
-            topLeftEntity.setXVelocity(velocity);
-            bottomRightEntity.setXVelocity(velocity);
+            if (topLeftEntity.canTouch(bottomRightEntity))
+            {
+                topLeftEntity.setXVelocity(velocity);
+            }
+            if (bottomRightEntity.canTouch(topLeftEntity))
+            {
+                bottomRightEntity.setXVelocity(velocity);
+            }
             return;
         }
 
@@ -174,8 +130,72 @@ public class Collision
             secondVelocity = massPoint - (topLeftEntity.getMass() * (bottomRightEntity.getXVelocity() - topLeftEntity.getXVelocity()) * elasticity) / mass;
         }
 
-        topLeftEntity.setXVelocity(firstVelocity);
-        bottomRightEntity.setXVelocity(secondVelocity);
+        if (topLeftEntity.canTouch(bottomRightEntity))
+        {
+            topLeftEntity.setXVelocity(firstVelocity);
+        }
+        if (bottomRightEntity.canTouch(topLeftEntity))
+        {
+            bottomRightEntity.setXVelocity(secondVelocity);
+        }
+    }
+
+    private void collideVertical()
+    {
+        if (isWeak())
+        {
+            double velocity = scale * topLeftEntity.getYVelocity() + (1 - scale) * bottomRightEntity.getYVelocity();
+
+            if (topLeftEntity.canTouch(bottomRightEntity))
+            {
+                topLeftEntity.setYVelocity(velocity);
+                topLeftEntity.hitGround();
+            }
+            if (bottomRightEntity.canTouch(topLeftEntity))
+            {
+                bottomRightEntity.setYVelocity(velocity);
+            }
+
+            return;
+        }
+
+        double elasticity = Math.min(topLeftEntity.getElasticity(), bottomRightEntity.getElasticity());
+        double firstVelocity;
+        double secondVelocity;
+        if (Double.isInfinite(bottomRightEntity.getMass()) && Double.isInfinite(topLeftEntity.getMass()))
+        {
+            double average = (topLeftEntity.getYVelocity() + bottomRightEntity.getYVelocity()) / 2;
+            firstVelocity = average - (topLeftEntity.getYVelocity() - bottomRightEntity.getYVelocity()) * elasticity / 2;
+            secondVelocity = average - (bottomRightEntity.getYVelocity() - topLeftEntity.getYVelocity()) * elasticity / 2;
+        }
+        else if (Double.isInfinite(bottomRightEntity.getMass()))
+        {
+            firstVelocity = bottomRightEntity.getYVelocity() - (topLeftEntity.getYVelocity() - bottomRightEntity.getYVelocity()) * elasticity;
+            secondVelocity = bottomRightEntity.getYVelocity();
+        }
+        else if (Double.isInfinite(topLeftEntity.getMass()))
+        {
+            firstVelocity = topLeftEntity.getYVelocity();
+            secondVelocity = topLeftEntity.getYVelocity() - (bottomRightEntity.getYVelocity() - topLeftEntity.getYVelocity()) * elasticity;
+        }
+        else
+        {
+            double mass = topLeftEntity.getMass() + bottomRightEntity.getMass();
+            double massPoint = (topLeftEntity.getMass() * topLeftEntity.getYVelocity() + bottomRightEntity.getMass() * bottomRightEntity.getYVelocity()) / mass;
+            firstVelocity = massPoint - (bottomRightEntity.getMass() * (topLeftEntity.getYVelocity() - bottomRightEntity.getYVelocity()) * elasticity) / mass;
+            secondVelocity = massPoint - (topLeftEntity.getMass() * (bottomRightEntity.getYVelocity() - topLeftEntity.getYVelocity()) * elasticity) / mass;
+        }
+
+        if (topLeftEntity.canTouch(bottomRightEntity))
+        {
+            topLeftEntity.setYVelocity(firstVelocity);
+            topLeftEntity.hitGround();
+        }
+        if (bottomRightEntity.canTouch(topLeftEntity))
+        {
+            bottomRightEntity.setYVelocity(secondVelocity);
+        }
+
     }
 
     @Override

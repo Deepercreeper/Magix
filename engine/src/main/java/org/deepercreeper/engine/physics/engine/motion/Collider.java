@@ -70,7 +70,9 @@ public class Collider
         Box deltaBox = entity.getDeltaBox(delta);
         for (Entity collisionEntity : entities)
         {
-            if (deltaBox.isTouching(collisionEntity.getDeltaBox(delta)))
+            boolean canTouch = entity.canTouch(collisionEntity) || collisionEntity.canTouch(entity);
+            boolean isTouching = deltaBox.isTouching(collisionEntity.getDeltaBox(delta));
+            if (canTouch && isTouching)
             {
                 addCollision(entity, collisionEntity);
             }

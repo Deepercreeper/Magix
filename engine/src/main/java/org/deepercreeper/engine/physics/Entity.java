@@ -257,13 +257,14 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         return removed;
     }
 
-    public void collideWith(Entity entity)
+    public boolean canTouch(Entity entity)
     {
+        return true;
     }
 
-    public void updateInternal(double delta)
-    {
-    }
+    public void collideWith(Entity entity) {}
+
+    public void updateInternal(double delta) {}
 
     public Vector computeAcceleration()
     {

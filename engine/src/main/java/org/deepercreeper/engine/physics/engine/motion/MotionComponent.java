@@ -57,7 +57,9 @@ public class MotionComponent
         {
             for (Entity componentEntity : component.entities)
             {
-                if (entity.isDistanceTouching(getMaxVelocity(entity), componentEntity, component.getMaxVelocity(componentEntity), delta))
+                boolean canTouch = entity.canTouch(componentEntity) || componentEntity.canTouch(entity);
+                boolean isTouching = entity.isDistanceTouching(getMaxVelocity(entity), componentEntity, component.getMaxVelocity(componentEntity), delta);
+                if (canTouch && isTouching)
                 {
                     return true;
                 }
