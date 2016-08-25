@@ -7,6 +7,8 @@ import org.deepercreeper.engine.util.Util;
 import org.deepercreeper.engine.util.Vector;
 import org.junit.Test;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -17,6 +19,20 @@ public class FrameTest
     {
         Frame frame = new Frame();
         Engine engine = new Engine(frame.getInput(), frame.getDisplay());
+        frame.addFocusListener(new FocusListener()
+        {
+            @Override
+            public void focusGained(FocusEvent e)
+            {
+                engine.getMotionEngine().setPause(false);
+            }
+
+            @Override
+            public void focusLost(FocusEvent e)
+            {
+                engine.getMotionEngine().setPause(true);
+            }
+        });
         frame.addMouseListener(new MouseAdapter()
         {
             @Override

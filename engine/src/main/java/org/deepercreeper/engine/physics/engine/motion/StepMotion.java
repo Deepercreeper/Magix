@@ -18,17 +18,17 @@ public class StepMotion
 
     private double stepDelta;
 
-    public StepMotion(Set<Entity> entities, double delta)
+    public StepMotion(Set<Entity> entities)
     {
         this.entities = entities;
-        this.delta = delta;
         collider = new Collider(entities);
     }
 
-    public void move()
+    public void move(double delta)
     {
+        this.delta = delta;
         computeStepDelta();
-        while (delta > 0)
+        while (this.delta > 0)
         {
             moveStep();
         }
