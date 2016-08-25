@@ -28,7 +28,7 @@ public class MotionEngine extends AbstractEngine implements Updatable
     {
         super(engine);
     }
-
+    
     public void setPause(boolean pause)
     {
         this.pause = pause;

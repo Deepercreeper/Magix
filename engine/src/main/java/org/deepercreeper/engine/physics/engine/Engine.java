@@ -3,11 +3,14 @@ package org.deepercreeper.engine.physics.engine;
 import org.deepercreeper.engine.display.Display;
 import org.deepercreeper.engine.input.Input;
 import org.deepercreeper.engine.physics.Entity;
+import org.deepercreeper.engine.physics.Force;
 import org.deepercreeper.engine.util.Updatable;
 
 public class Engine implements Updatable
 {
     private final InputEngine inputEngine = new InputEngine(this);
+
+    private final PhysicsEngine physicsEngine = new PhysicsEngine(this);
 
     private final EntityEngine entityEngine = new EntityEngine(this);
 
@@ -27,9 +30,15 @@ public class Engine implements Updatable
     public void update(double delta)
     {
         inputEngine.update(delta);
+        physicsEngine.update(delta);
         entityEngine.update(delta);
         motionEngine.update(delta);
         renderingEngine.update(delta);
+    }
+
+    public PhysicsEngine getPhysicsEngine()
+    {
+        return physicsEngine;
     }
 
     public EntityEngine getEntityEngine()
@@ -50,6 +59,11 @@ public class Engine implements Updatable
     public MotionEngine getMotionEngine()
     {
         return motionEngine;
+    }
+
+    public void add(Force force)
+    {
+        physicsEngine.add(force);
     }
 
     public void add(Entity entity)

@@ -3,7 +3,6 @@ package org.deepercreeper.windows;
 import org.deepercreeper.engine.input.Key;
 import org.deepercreeper.engine.physics.Entity;
 import org.deepercreeper.engine.physics.engine.Engine;
-import org.deepercreeper.engine.util.Util;
 import org.deepercreeper.engine.util.Vector;
 import org.junit.Test;
 
@@ -19,6 +18,17 @@ public class FrameTest
     {
         Frame frame = new Frame();
         Engine engine = new Engine(frame.getInput(), frame.getDisplay());
+
+        engine.add((entity) -> new Vector(0, 9.81 / entity.getMass()));
+        engine.add((entity) ->
+        {
+            double accelerationCoefficient = entity.isOnGround() ? 20 : 12;
+            double rightAcceleration = entity.getEngine().getInputEngine().getInput().isActive(Key.RIGHT) ? accelerationCoefficient : 0;
+            double leftAcceleration = entity.getEngine().getInputEngine().getInput().isActive(Key.LEFT) ? -accelerationCoefficient : 0;
+            double friction = entity.isOnGround() ? entity.getXVelocity() * 5 : 0;
+            return new Vector(rightAcceleration + leftAcceleration - friction, 0);
+        });
+
         frame.addFocusListener(new FocusListener()
         {
             @Override
@@ -53,22 +63,8 @@ public class FrameTest
                 double mass = movable ? 1 : Double.POSITIVE_INFINITY;
                 double width = movable ? .5 : 30;
                 double height = movable ? .5 : .5;
-                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, .75, e.getButton() == MouseEvent.BUTTON2 ? 2 : 1)
+                engine.add(new TestEntity(x - width / 2, y - height / 2, width, height, mass, 1, e.getButton() == MouseEvent.BUTTON2 ? 2 : 1)
                 {
-                    @Override
-                    public Vector computeAcceleration()
-                    {
-                        if (!movable)
-                        {
-                            return new Vector();
-                        }
-                        double accelerationCoefficient = isOnGround() ? 20 : 12;
-                        double rightAcceleration = getEngine().getInputEngine().getInput().isActive(Key.RIGHT) ? accelerationCoefficient : 0;
-                        double leftAcceleration = getEngine().getInputEngine().getInput().isActive(Key.LEFT) ? -accelerationCoefficient : 0;
-                        Vector friction = isOnGround() ? getVelocity().times(5) : getVelocity().times(0);
-                        return new Vector(rightAcceleration + leftAcceleration, 10).minus(friction);
-                    }
-
                     @Override
                     public Vector computeVelocity()
                     {
@@ -140,7 +136,6 @@ public class FrameTest
             }
         });
 
-        Util.sleep(10);
         engine.start();
         frame.waitUntilClosed();
         engine.shutDown();
