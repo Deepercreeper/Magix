@@ -3,14 +3,22 @@ package org.deepercreeper.engine.physics.engine;
 import org.deepercreeper.engine.physics.Entity;
 import org.deepercreeper.engine.physics.engine.motion.MotionComponent;
 import org.deepercreeper.engine.util.Updatable;
+import org.deepercreeper.engine.util.Util;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MotionEngine extends AbstractEngine implements Updatable
 {
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
+
     private final Set<MotionComponent> motionComponents = new HashSet<>();
+
+    private final AtomicInteger runningComponents = new AtomicInteger(0);
 
     private double delta;
 
@@ -20,7 +28,7 @@ public class MotionEngine extends AbstractEngine implements Updatable
     {
         super(engine);
     }
-
+    
     public void setPause(boolean pause)
     {
         this.pause = pause;
@@ -91,7 +99,12 @@ public class MotionEngine extends AbstractEngine implements Updatable
 
     private void moveMotionComponents()
     {
-        //TODO This may be executed in parallel
-        motionComponents.forEach(MotionComponent::move);
+        runningComponents.set(motionComponents.size());
+        motionComponents.forEach(component -> component.init(runningComponents));
+        motionComponents.forEach(executorService::execute);
+        while (runningComponents.get() > 0)
+        {
+            Util.sleep(1);
+        }
     }
 }

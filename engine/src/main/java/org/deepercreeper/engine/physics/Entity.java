@@ -5,8 +5,13 @@ import org.deepercreeper.engine.display.Renderable;
 import org.deepercreeper.engine.physics.engine.Engine;
 import org.deepercreeper.engine.util.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Entity extends AcceleratedBox implements Updatable, Renderable
 {
+    private final Set<Force> forces = new HashSet<>();
+
     private final boolean solid;
 
     private int id = -1;
@@ -62,6 +67,16 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
             throw new IllegalArgumentException("Speed has to be a non negative value");
         }
         this.speed = speed;
+    }
+
+    public final void addForce(Force force)
+    {
+        forces.add(force);
+    }
+
+    public final void removeforce(Force force)
+    {
+        forces.remove(force);
     }
 
     public final double getDensity()
@@ -138,6 +153,20 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
     public final void remove()
     {
         removed = true;
+    }
+
+    private Vector computeForce()
+    {
+        Vector forces = new Vector();
+        for (Force force : getEngine().getPhysicsEngine().getForces())
+        {
+            forces.add(force.of(this));
+        }
+        for (Force force : this.forces)
+        {
+            forces.add(force.of(this));
+        }
+        return forces;
     }
 
     @Override
@@ -268,7 +297,11 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
 
     public Vector computeAcceleration()
     {
-        return getAcceleration();
+        if (!Double.isFinite(getMass()))
+        {
+            return new Vector();
+        }
+        return computeForce().times(getMass());
     }
 
     public Vector computePosition()
@@ -338,7 +371,7 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         return "Entity-" + id;
     }
 
-    public static abstract class GenericEntityBuilder<T extends GenericEntityBuilder<T>> extends GenericAcceleratedBoxBuilder<T>
+    public static abstract class GenericEntityBuilder <T extends GenericEntityBuilder<T>> extends GenericAcceleratedBoxBuilder<T>
     {
         protected boolean solid = true;
 

@@ -5,16 +5,21 @@ import org.deepercreeper.engine.util.Vector;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class MotionComponent
+public class MotionComponent implements Runnable
 {
     private final Set<Entity> entities = new HashSet<>();
+
+    private final StepMotion stepMotion = new StepMotion(entities);
 
     private final Vector momentum = new Vector();
 
     private final Vector velocity = new Vector();
 
     private final double delta;
+
+    private AtomicInteger counter;
 
     public MotionComponent(double delta)
     {
@@ -77,14 +82,24 @@ public class MotionComponent
         return entity.getVelocity();
     }
 
-    public void move()
+    public void init(AtomicInteger counter)
+    {
+        this.counter = counter;
+    }
+
+    @Override
+    public void run()
     {
         if (entities.size() == 1)
         {
             moveSingle();
-            return;
         }
-        new StepMotion(entities, delta).move();
+        else
+        {
+            stepMotion.move(delta);
+        }
+        counter.decrementAndGet();
+        counter = null;
     }
 
     private void moveSingle()
