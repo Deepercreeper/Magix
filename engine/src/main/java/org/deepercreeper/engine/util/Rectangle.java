@@ -6,190 +6,154 @@ import java.util.Set;
 
 public class Rectangle
 {
+    private final Point position = new Point(this::updateCenterAndHashCode);
+
+    private final Point size = new Point(this::updateCenterAndHashCode);
+
     private final Point center = new Point();
-
-    private final Point position;
-
-    private final Point size;
 
     private int hashCode;
 
     public Rectangle(GenericRectangleBuilder<?> builder)
     {
-        position = new Point(builder.x, builder.y);
-        size = new Point(builder.width, builder.height);
-        updateCenterAndHashCode();
-    }
-
-    public final void set(Rectangle rectangle)
-    {
-        position.set(rectangle.position);
-        size.set(rectangle.size);
-        center.set(rectangle.center);
-        hashCode = rectangle.hashCode;
-    }
-
-    public final void setPosition(double x, double y)
-    {
-        position.set(x, y);
-        updateCenterAndHashCode();
-    }
-
-    public final void setPosition(int x, int y)
-    {
-        position.set(x, y);
-        updateCenterAndHashCode();
-    }
-
-    public final void setPosition(Point position)
-    {
-        this.position.set(position);
-        updateCenterAndHashCode();
-    }
-
-    public final void setSize(double width, double height)
-    {
-        size.set(width, height);
-        updateCenterAndHashCode();
-    }
-
-    public final void setSize(int width, int height)
-    {
-        size.set(width, height);
-        updateCenterAndHashCode();
-    }
-
-    public final void setSize(Point size)
-    {
-        this.size.set(size);
-        updateCenterAndHashCode();
-    }
-
-    public final void setCenter(double x, double y)
-    {
-        position.set(x - getWidth() * .5, y - getHeight() * .5);
-        center.set(x, y);
-        updateHashCode();
-    }
-
-    public final void setCenter(int x, int y)
-    {
-        position.set(x - getWidth() * .5, y - getHeight() * .5);
-        center.set(x, y);
-        updateHashCode();
-    }
-
-    public final void setCenter(Point center)
-    {
-        position.set(center.getX() - getWidth() * .5, center.getY() - getHeight() * .5);
-        this.center.set(center);
-        updateHashCode();
-    }
-
-    public final void setX(double x)
-    {
-        position.setX(x);
-        updateCenterAndHashCode();
+        setPosition(builder.x, builder.y);
+        setSize(builder.width, builder.height);
     }
 
     public final void setX(int x)
     {
-        position.setX(x);
-        updateCenterAndHashCode();
+        getPosition().setX(x);
     }
 
-    public final void setY(double y)
+    public final void setX(double x)
     {
-        position.setY(y);
-        updateCenterAndHashCode();
+        getPosition().setX(x);
     }
 
     public final void setY(int y)
     {
-        position.setY(y);
-        updateCenterAndHashCode();
+        getPosition().setY(y);
     }
 
-    public final void setMaxX(double x)
+    public final void setY(double y)
     {
-        position.setX(x - getWidth());
-        updateCenterAndHashCode();
+        getPosition().setY(y);
     }
 
-    public final void setMaxX(int x)
+    public final void setPosition(int x, int y)
     {
-        position.setX(x - getWidth());
-        updateCenterAndHashCode();
+        getPosition().set(x, y);
     }
 
-    public final void setMaxY(double y)
+    public final void setPosition(double x, double y)
     {
-        position.setY(y - getHeight());
-        updateCenterAndHashCode();
+        getPosition().set(x, y);
     }
 
-    public final void setMaxY(int y)
+    public final void setPosition(Point position)
     {
-        position.setY(y - getHeight());
-        updateCenterAndHashCode();
-    }
-
-    public final void setCenterX(double x)
-    {
-        center.setX(x);
-        position.setX(x - getWidth() * .5);
-        updateHashCode();
-    }
-
-    public final void setCenterX(int x)
-    {
-        center.setX(x);
-        position.setX(x - getWidth() * .5);
-        updateHashCode();
-    }
-
-    public final void setCenterY(double y)
-    {
-        center.setY(y);
-        position.setY(y - getHeight() * .5);
-        updateHashCode();
-    }
-
-    public final void setCenterY(int y)
-    {
-        center.setY(y);
-        position.setY(y - getHeight() * .5);
-        updateHashCode();
-    }
-
-    public final void setWidth(double width)
-    {
-        size.setX(width);
-        updateCenterAndHashCode();
+        getPosition().set(position);
     }
 
     public final void setWidth(int width)
     {
-        size.setX(width);
-        updateCenterAndHashCode();
+        getSize().setX(width);
     }
 
-    public final void setHeight(double height)
+    public final void setWidth(double width)
     {
-        size.setY(height);
-        updateCenterAndHashCode();
+        getSize().setX(width);
     }
 
     public final void setHeight(int height)
     {
-        size.setY(height);
-        updateCenterAndHashCode();
+        getSize().setY(height);
+    }
+
+    public final void setHeight(double height)
+    {
+        getSize().setY(height);
+    }
+
+    public final void setSize(int width, int height)
+    {
+        getSize().set(width, height);
+    }
+
+    public final void setSize(double width, double height)
+    {
+        getSize().set(width, height);
+    }
+
+    public final void setSize(Point size)
+    {
+        getSize().set(size);
+    }
+
+    public final void set(Rectangle rectangle)
+    {
+        setPosition(rectangle.getPosition());
+        setSize(rectangle.getSize());
+    }
+
+    public final void setCenter(double x, double y)
+    {
+        getPosition().set(x - getWidth() * .5, y - getHeight() * .5);
+    }
+
+    public final void setCenter(int x, int y)
+    {
+        getPosition().set(x - getWidth() * .5, y - getHeight() * .5);
+    }
+
+    public final void setCenter(Point center)
+    {
+        getPosition().set(center.getX() - getWidth() * .5, center.getY() - getHeight() * .5);
+    }
+
+    public final void setMaxX(double x)
+    {
+        setX(x - getWidth());
+    }
+
+    public final void setMaxX(int x)
+    {
+        setX(x - getWidth());
+    }
+
+    public final void setMaxY(double y)
+    {
+        setY(y - getHeight());
+    }
+
+    public final void setMaxY(int y)
+    {
+        setY(y - getHeight());
+    }
+
+    public final void setCenterX(double x)
+    {
+        setX(x - getWidth() * .5);
+    }
+
+    public final void setCenterX(int x)
+    {
+        setX(x - getWidth() * .5);
+    }
+
+    public final void setCenterY(double y)
+    {
+        setY(y - getHeight() * .5);
+    }
+
+    public final void setCenterY(int y)
+    {
+        setY(y - getHeight() * .5);
     }
 
     public final void moveBy(Point point)
     {
-        position.add(point);
-        updateCenterAndHashCode();
+        getPosition().add(point);
     }
 
     public final Point getPosition()
@@ -209,27 +173,27 @@ public class Rectangle
 
     public final Rectangle shift(Point point)
     {
-        return new RectangleBuilder().setX(getX() + point.getX()).setY(getY() + point.getY()).setSize(size).build();
+        return new RectangleBuilder().setX(getX() + point.getX()).setY(getY() + point.getY()).setSize(getSize()).build();
     }
 
     public final int getX()
     {
-        return position.getX();
+        return getPosition().getX();
     }
 
     public final int getY()
     {
-        return position.getY();
+        return getPosition().getY();
     }
 
     public final int getWidth()
     {
-        return size.getX();
+        return getSize().getX();
     }
 
     public final int getHeight()
     {
-        return size.getY();
+        return getSize().getY();
     }
 
     public final int getMaxX()
@@ -244,12 +208,12 @@ public class Rectangle
 
     public final int getCenterX()
     {
-        return center.getX();
+        return getCenter().getX();
     }
 
     public final int getCenterY()
     {
-        return center.getY();
+        return getCenter().getY();
     }
 
     public final boolean isEmpty()
@@ -328,7 +292,7 @@ public class Rectangle
 
     private void updateCenterAndHashCode()
     {
-        center.set(getX() + getWidth() * .5, getY() + getHeight() * .5);
+        getCenter().set(getX() + getWidth() * .5, getY() + getHeight() * .5);
         updateHashCode();
     }
 
@@ -338,7 +302,7 @@ public class Rectangle
         if (obj instanceof Rectangle)
         {
             Rectangle rectangle = (Rectangle) obj;
-            return position.equals(rectangle.position) && size.equals(rectangle.size);
+            return getPosition().equals(rectangle.getPosition()) && getSize().equals(rectangle.getSize());
         }
         return false;
     }
@@ -366,10 +330,10 @@ public class Rectangle
     @Override
     public String toString()
     {
-        return "(" + position + ", " + size + ")";
+        return "(" + getPosition() + ", " + getSize() + ")";
     }
 
-    public static abstract class GenericRectangleBuilder<T extends GenericRectangleBuilder<T>> extends GenericBuilder<T>
+    public static abstract class GenericRectangleBuilder <T extends GenericRectangleBuilder<T>> extends GenericBuilder<T>
     {
         protected int x = 0;
 

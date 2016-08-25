@@ -2,9 +2,9 @@ package org.deepercreeper.engine.util;
 
 public class Box
 {
-    private final Vector position = new Vector();
+    private final Vector position = new Vector(this::updateCenterAndHashCode);
 
-    private final Vector size = new Vector();
+    private final Vector size = new Vector(this::updateCenterAndHashCode);
 
     private final Vector center = new Vector();
 
@@ -16,64 +16,51 @@ public class Box
     {
         setPosition(builder.x, builder.y);
         setSize(builder.width, builder.height);
-        updateCenterAndHashCode();
     }
 
     public void setX(double x)
     {
         getPosition().setX(x);
-        updateCenterAndHashCode();
     }
 
     public void setY(double y)
     {
         getPosition().setY(y);
-        updateCenterAndHashCode();
     }
 
     public void setPosition(double x, double y)
     {
         getPosition().set(x, y);
-        updateCenterAndHashCode();
     }
 
     public void setWidth(double width)
     {
         getSize().setX(width);
-        updateCenterAndHashCode();
     }
 
     public void setHeight(double height)
     {
         getSize().setY(height);
-        updateCenterAndHashCode();
     }
 
     public void setSize(double width, double height)
     {
         getSize().set(width, height);
-        updateCenterAndHashCode();
     }
 
     public void setCenterX(double x)
     {
-        getCenter().setX(x);
-        getPosition().setX(x - getWidth() * .5);
-        updateHashCode();
+        setX(x - getWidth() * .5);
     }
 
     public void setCenterY(double y)
     {
-        getCenter().setY(y);
-        getPosition().setY(y - getHeight() * .5);
-        updateHashCode();
+        setY(y - getHeight() * .5);
     }
 
     public void setCenter(double x, double y)
     {
-        getCenter().set(x, y);
-        getPosition().set(x - getWidth() * .5, y - getHeight() * .5);
-        updateHashCode();
+        setPosition(x - getWidth() * .5, y - getHeight() * .5);
     }
 
     public Vector getPosition()
@@ -271,7 +258,7 @@ public class Box
         return "(" + getPosition() + ", " + getSize() + ")";
     }
 
-    public static abstract class GenericBoxBuilder<T extends GenericBoxBuilder<T>> extends GenericBuilder<T>
+    public static abstract class GenericBoxBuilder <T extends GenericBoxBuilder<T>> extends GenericBuilder<T>
     {
         protected double x = 0;
 

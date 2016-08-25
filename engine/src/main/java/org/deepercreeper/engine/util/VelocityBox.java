@@ -2,7 +2,7 @@ package org.deepercreeper.engine.util;
 
 public class VelocityBox extends Box
 {
-    private final Vector velocity = new Vector();
+    private final Vector velocity = new Vector(this::updateHashCode);
 
     protected VelocityBox(GenericVelocityBoxBuilder<?> builder)
     {
@@ -13,19 +13,16 @@ public class VelocityBox extends Box
     public void setXVelocity(double xVelocity)
     {
         getVelocity().setX(xVelocity);
-        updateHashCode();
     }
 
     public void setYVelocity(double yVelocity)
     {
         getVelocity().setY(yVelocity);
-        updateHashCode();
     }
 
     public void setVelocity(double xVelocity, double yVelocity)
     {
         getVelocity().set(xVelocity, yVelocity);
-        updateHashCode();
     }
 
     public final void setVelocity(Vector velocity)
@@ -57,7 +54,7 @@ public class VelocityBox extends Box
         return hashCode;
     }
 
-    public static abstract class GenericVelocityBoxBuilder<T extends GenericBoxBuilder<T>> extends GenericBoxBuilder<T>
+    public static abstract class GenericVelocityBoxBuilder <T extends GenericBoxBuilder<T>> extends GenericBoxBuilder<T>
     {
         protected double xVelocity;
 

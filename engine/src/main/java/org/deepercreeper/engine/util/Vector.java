@@ -2,19 +2,35 @@ package org.deepercreeper.engine.util;
 
 public class Vector
 {
+    private final Runnable modifyAction;
+
     private double x;
 
     private double y;
 
-    public Vector(double x, double y)
+    private int hashCode;
+
+    public Vector(double x, double y, Runnable modifyAction)
     {
         this.x = x;
         this.y = y;
+        this.modifyAction = modifyAction;
+        updateHashCode();
+    }
+
+    public Vector(double x, double y)
+    {
+        this(x, y, null);
     }
 
     public Vector(Vector vector)
     {
         this(vector.getX(), vector.getY());
+    }
+
+    public Vector(Runnable modifyAction)
+    {
+        this(0, 0, modifyAction);
     }
 
     public Vector()
@@ -24,21 +40,30 @@ public class Vector
 
     public final void setX(double x)
     {
-        this.x = x;
-        modified();
+        if (this.x != x)
+        {
+            this.x = x;
+            modified();
+        }
     }
 
     public final void setY(double y)
     {
-        this.y = y;
-        modified();
+        if (this.y != y)
+        {
+            this.y = y;
+            modified();
+        }
     }
 
     public final void set(double x, double y)
     {
-        this.x = x;
-        this.y = y;
-        modified();
+        if (this.x != x || this.y != y)
+        {
+            this.x = x;
+            this.y = y;
+            modified();
+        }
     }
 
     public final double getX()
@@ -111,8 +136,13 @@ public class Vector
         return new Point(getX(), getY());
     }
 
-    protected void modified()
+    private void modified()
     {
+        updateHashCode();
+        if (modifyAction != null)
+        {
+            modifyAction.run();
+        }
     }
 
     @Override
@@ -126,10 +156,15 @@ public class Vector
         return false;
     }
 
+    private void updateHashCode()
+    {
+        hashCode = Double.hashCode(getX()) * 13 + Double.hashCode(getY());
+    }
+
     @Override
     public int hashCode()
     {
-        return Double.hashCode(getX()) * 13 + Double.hashCode(getY());
+        return hashCode;
     }
 
     @Override
