@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MotionEngine extends AbstractEngine implements Updatable
 {
-    private final ExecutorService executorService = Executors.newFixedThreadPool(10);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(24);
 
     private final Set<MotionComponent> motionComponents = new HashSet<>();
 
@@ -28,7 +28,7 @@ public class MotionEngine extends AbstractEngine implements Updatable
     {
         super(engine);
     }
-    
+
     public void setPause(boolean pause)
     {
         this.pause = pause;
@@ -52,7 +52,6 @@ public class MotionEngine extends AbstractEngine implements Updatable
 
     private void updateNonSolidMotion()
     {
-        //TODO Compute appropriate
         getEngine().getEntityEngine().getNonSolidEntities().forEach(entity -> entity.updateAll(delta));
     }
 
