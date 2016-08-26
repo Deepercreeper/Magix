@@ -3,6 +3,10 @@ package org.deepercreeper.windows;
 import org.deepercreeper.engine.input.Key;
 import org.deepercreeper.engine.physics.Entity;
 import org.deepercreeper.engine.physics.engine.Engine;
+import org.deepercreeper.engine.physics.engine.motion.colliders.MinimumCollider;
+import org.deepercreeper.engine.physics.engine.motion.components.motion.StepMotion;
+import org.deepercreeper.engine.physics.engine.motion.splitters.AxialSplitter;
+import org.deepercreeper.engine.physics.engine.motion.strategies.BruteForceStrategy;
 import org.deepercreeper.engine.util.Vector;
 import org.junit.Test;
 
@@ -18,7 +22,7 @@ public class FrameTest
     {
         Frame frame = new Frame();
         Engine engine = new Engine(frame.getInput(), frame.getDisplay());
-//        engine.getMotionEngine().setStrategy(new BruteForceStrategy(new StepMotion(1, new AxialSplitter(10E-5), new MinimumCollider())));
+        engine.getMotionEngine().setStrategy(new BruteForceStrategy(new StepMotion(1, new AxialSplitter(10E-5), new MinimumCollider())));
         engine.add((entity) -> new Vector(0, 9.81 / entity.getMass()));
         engine.add((entity) ->
         {

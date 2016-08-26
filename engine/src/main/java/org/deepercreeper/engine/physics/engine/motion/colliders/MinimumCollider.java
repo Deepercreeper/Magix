@@ -21,6 +21,7 @@ public class MinimumCollider extends AbstractCollider
     @Override
     protected void collide()
     {
+        knownCollisions.clear();
         while (getDelta() > 0)
         {
             computeCollisions();
