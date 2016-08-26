@@ -1,19 +1,30 @@
-package org.deepercreeper.engine.physics.engine.motion;
+package org.deepercreeper.engine.physics.engine.motion.splitters;
 
 import org.deepercreeper.engine.physics.Entity;
 
 import java.util.*;
 
-public class Splitter
+public class AxialSplitter implements Splitter
 {
-    private static final double EPSILON = 10E-5;
-
     private final List<Entity> entities = new ArrayList<>();
+
+    private final double epsilon;
 
     private Entity firstEntity;
 
     private Entity secondEntity;
 
+    public AxialSplitter(double epsilon)
+    {
+        this.epsilon = epsilon;
+    }
+
+    public AxialSplitter()
+    {
+        this(10E-5);
+    }
+
+    @Override
     public void split(Set<Entity> entities)
     {
         this.entities.clear();
@@ -46,7 +57,7 @@ public class Splitter
 
     private void split(Entity firstEntity, Entity secondEntity)
     {
-        if (!firstEntity.isTouching(secondEntity))
+        if (!firstEntity.isTouching(secondEntity) || !firstEntity.canTouch(secondEntity) && !secondEntity.canTouch(firstEntity))
         {
             return;
         }
@@ -69,21 +80,21 @@ public class Splitter
 
     private void splitHorizontal(boolean firstOnLeft)
     {
-        double scale = firstEntity.getMassScaleTo(secondEntity);
+        double scale = getScale();
         double position;
         double firstX;
         double secondX;
         if (firstOnLeft)
         {
             position = (1 - scale) * secondEntity.getX() + scale * firstEntity.getMaxX();
-            firstX = position - firstEntity.getWidth() - (1 - scale) * EPSILON;
-            secondX = position + scale * EPSILON;
+            firstX = position - firstEntity.getWidth() - (1 - scale) * epsilon;
+            secondX = position + scale * epsilon;
         }
         else
         {
             position = (1 - scale) * secondEntity.getMaxX() + scale * firstEntity.getX();
-            firstX = position + (1 - scale) * EPSILON;
-            secondX = position - secondEntity.getWidth() - scale * EPSILON;
+            firstX = position + (1 - scale) * epsilon;
+            secondX = position - secondEntity.getWidth() - scale * epsilon;
         }
         firstEntity.setX(firstX);
         secondEntity.setX(secondX);
@@ -91,23 +102,36 @@ public class Splitter
 
     private void splitVertical(boolean firstOnTop)
     {
-        double scale = firstEntity.getMassScaleTo(secondEntity);
+        double scale = getScale();
         double position;
         double firstY;
         double secondY;
         if (firstOnTop)
         {
             position = (1 - scale) * secondEntity.getY() + scale * firstEntity.getMaxY();
-            firstY = position - firstEntity.getHeight() - (1 - scale) * EPSILON;
-            secondY = position + scale * EPSILON;
+            firstY = position - firstEntity.getHeight() - (1 - scale) * epsilon;
+            secondY = position + scale * epsilon;
         }
         else
         {
             position = (1 - scale) * secondEntity.getMaxY() + scale * firstEntity.getY();
-            firstY = position + (1 - scale) * EPSILON;
-            secondY = position - secondEntity.getHeight() - scale * EPSILON;
+            firstY = position + (1 - scale) * epsilon;
+            secondY = position - secondEntity.getHeight() - scale * epsilon;
         }
         firstEntity.setY(firstY);
         secondEntity.setY(secondY);
+    }
+
+    private double getScale()
+    {
+        if (!firstEntity.canTouch(secondEntity))
+        {
+            return 1;
+        }
+        if (!secondEntity.canTouch(firstEntity))
+        {
+            return 0;
+        }
+        return firstEntity.getMassScaleTo(secondEntity);
     }
 }

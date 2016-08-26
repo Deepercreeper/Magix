@@ -1,17 +1,17 @@
-package org.deepercreeper.engine.physics.engine.motion;
+package org.deepercreeper.engine.physics.engine.motion.components;
 
 import org.deepercreeper.engine.physics.Entity;
+import org.deepercreeper.engine.physics.engine.motion.components.motion.ComponentMotion;
 import org.deepercreeper.engine.util.Vector;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class MotionComponent implements Runnable
+public class DistanceMotionComponent implements MotionComponent<DistanceMotionComponent>
 {
     private final Set<Entity> entities = new HashSet<>();
 
-    private final StepMotion stepMotion = new StepMotion(entities);
+    private final ComponentMotion motion;
 
     private final Vector momentum = new Vector();
 
@@ -19,13 +19,16 @@ public class MotionComponent implements Runnable
 
     private final double delta;
 
-    private AtomicInteger counter;
+    private Runnable finishAction;
 
-    public MotionComponent(double delta)
+    public DistanceMotionComponent(ComponentMotion motion, double delta)
     {
+        this.motion = motion;
         this.delta = delta;
+        motion.init(entities);
     }
 
+    @Override
     public void add(Entity entity)
     {
         entities.add(entity);
@@ -44,19 +47,21 @@ public class MotionComponent implements Runnable
         }
     }
 
-    public void consume(MotionComponent component)
+    @Override
+    public void consume(DistanceMotionComponent component)
     {
         entities.addAll(component.entities);
         update(component);
     }
 
-    private void update(MotionComponent component)
+    private void update(DistanceMotionComponent component)
     {
         momentum.add(component.momentum);
         velocity.add(component.velocity);
     }
 
-    public boolean isTouching(MotionComponent component)
+    @Override
+    public boolean isTouching(DistanceMotionComponent component)
     {
         for (Entity entity : entities)
         {
@@ -82,9 +87,10 @@ public class MotionComponent implements Runnable
         return entity.getVelocity();
     }
 
-    public void init(AtomicInteger counter)
+    @Override
+    public void init(Runnable finishAction)
     {
-        this.counter = counter;
+        this.finishAction = finishAction;
     }
 
     @Override
@@ -96,10 +102,10 @@ public class MotionComponent implements Runnable
         }
         else
         {
-            stepMotion.move(delta);
+            motion.move(delta);
         }
-        counter.decrementAndGet();
-        counter = null;
+        finishAction.run();
+        finishAction = null;
     }
 
     private void moveSingle()
@@ -111,9 +117,9 @@ public class MotionComponent implements Runnable
     @Override
     public boolean equals(Object obj)
     {
-        if (obj instanceof MotionComponent)
+        if (obj instanceof DistanceMotionComponent)
         {
-            MotionComponent component = (MotionComponent) obj;
+            DistanceMotionComponent component = (DistanceMotionComponent) obj;
             return entities.equals(component.entities);
         }
         return false;

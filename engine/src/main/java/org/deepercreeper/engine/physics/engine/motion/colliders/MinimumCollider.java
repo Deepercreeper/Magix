@@ -1,11 +1,12 @@
-package org.deepercreeper.engine.physics.engine.motion;
+package org.deepercreeper.engine.physics.engine.motion.colliders;
 
 import org.deepercreeper.engine.physics.Entity;
+import org.deepercreeper.engine.physics.engine.motion.collisions.Collision;
 import org.deepercreeper.engine.util.Box;
 
 import java.util.*;
 
-public class Collider
+public class MinimumCollider extends AbstractCollider
 {
     private final Set<Collision> minUnknownCollisions = new HashSet<>();
 
@@ -15,36 +16,19 @@ public class Collider
 
     private final Set<Collision> knownCollisions = new HashSet<>();
 
-    private final Set<Entity> entities;
-
-    private boolean hadCollisions;
-
-    private double delta;
-
     private double minDelta;
 
-    public Collider(Set<Entity> entities)
+    @Override
+    protected void collide()
     {
-        this.entities = entities;
-    }
-
-    public void collide(double delta)
-    {
-        this.delta = delta;
-        hadCollisions = false;
-        collide();
-    }
-
-    private void collide()
-    {
-        while (delta > 0)
+        while (getDelta() > 0)
         {
             computeCollisions();
             computeMinima();
             updateEntities();
             doCollisions();
             updateKnownCollisions();
-            delta -= minDelta;
+            decreaseDeltaBy(minDelta);
         }
     }
 
@@ -52,7 +36,7 @@ public class Collider
     {
         collisions.clear();
         unknownCollisions.clear();
-        List<Entity> entities = new ArrayList<>(this.entities);
+        List<Entity> entities = new ArrayList<>(getEntities());
         Iterator<Entity> iterator = entities.iterator();
         while (iterator.hasNext())
         {
@@ -67,11 +51,11 @@ public class Collider
 
     private void computeCollisions(Entity entity, List<Entity> entities)
     {
-        Box deltaBox = entity.getDeltaBox(delta);
+        Box deltaBox = entity.getDeltaBox(getDelta());
         for (Entity collisionEntity : entities)
         {
             boolean canTouch = entity.canTouch(collisionEntity) || collisionEntity.canTouch(entity);
-            boolean isTouching = deltaBox.isTouching(collisionEntity.getDeltaBox(delta));
+            boolean isTouching = deltaBox.isTouching(collisionEntity.getDeltaBox(getDelta()));
             if (canTouch && isTouching)
             {
                 addCollision(entity, collisionEntity);
@@ -91,13 +75,13 @@ public class Collider
             unknownCollisions.add(collision);
         }
         collisions.add(collision);
-        hadCollisions = true;
+        velocitiesChanged();
     }
 
     private void computeMinima()
     {
         minUnknownCollisions.clear();
-        minDelta = delta;
+        minDelta = getDelta();
         for (Collision collision : unknownCollisions)
         {
             if (collision.getDelta() < minDelta)
@@ -115,7 +99,7 @@ public class Collider
 
     private void updateEntities()
     {
-        for (Entity entity : entities)
+        for (Entity entity : getEntities())
         {
             if (isColliding(entity))
             {
@@ -249,10 +233,5 @@ public class Collider
             }
         }
         this.knownCollisions.retainAll(knownCollisions);
-    }
-
-    public boolean hadCollisions()
-    {
-        return hadCollisions;
     }
 }

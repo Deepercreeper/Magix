@@ -1,6 +1,7 @@
 package org.deepercreeper.engine.physics.engine.motion;
 
 import org.deepercreeper.engine.physics.Entity;
+import org.deepercreeper.engine.physics.engine.motion.collisions.CollisionExtrapolation;
 import org.junit.Assert;
 import org.junit.Test;
 

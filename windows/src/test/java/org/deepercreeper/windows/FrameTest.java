@@ -18,7 +18,7 @@ public class FrameTest
     {
         Frame frame = new Frame();
         Engine engine = new Engine(frame.getInput(), frame.getDisplay());
-
+//        engine.getMotionEngine().setStrategy(new BruteForceStrategy(new StepMotion(1, new AxialSplitter(10E-5), new MinimumCollider())));
         engine.add((entity) -> new Vector(0, 9.81 / entity.getMass()));
         engine.add((entity) ->
         {

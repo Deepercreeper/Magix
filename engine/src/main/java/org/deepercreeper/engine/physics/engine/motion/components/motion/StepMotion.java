@@ -1,29 +1,47 @@
-package org.deepercreeper.engine.physics.engine.motion;
+package org.deepercreeper.engine.physics.engine.motion.components.motion;
 
 import org.deepercreeper.engine.physics.Entity;
+import org.deepercreeper.engine.physics.engine.motion.colliders.Collider;
+import org.deepercreeper.engine.physics.engine.motion.splitters.Splitter;
 
 import java.util.Set;
 
-public class StepMotion
+public class StepMotion implements ComponentMotion
 {
-    private static final double MAX_STEP_DISTANCE = .1;
+    private static final double DEFAULT_MAX_STEP_DISTANCE = .1;
 
-    private final Splitter splitter = new Splitter();
+    private final double maxStepDistance;
 
     private final Collider collider;
 
-    private final Set<Entity> entities;
+    private final Splitter splitter;
+
+    private Set<Entity> entities;
 
     private double delta;
 
     private double stepDelta;
 
-    public StepMotion(Set<Entity> entities)
+    public StepMotion(double maxStepDistance, Splitter splitter, Collider collider)
     {
-        this.entities = entities;
-        collider = new Collider(entities);
+        this.maxStepDistance = maxStepDistance;
+        this.splitter = splitter;
+        this.collider = collider;
     }
 
+    public StepMotion(Splitter splitter, Collider collider)
+    {
+        this(DEFAULT_MAX_STEP_DISTANCE, splitter, collider);
+    }
+
+    @Override
+    public void init(Set<Entity> entities)
+    {
+        this.entities = entities;
+        collider.init(entities);
+    }
+
+    @Override
     public void move(double delta)
     {
         this.delta = delta;
@@ -40,7 +58,7 @@ public class StepMotion
         collider.collide(stepDelta);
         splitter.split(entities);
         decreaseDelta();
-        if (collider.hadCollisions())
+        if (collider.changedVelocities())
         {
             computeStepDelta();
         }
@@ -60,12 +78,12 @@ public class StepMotion
         double maxDistance = entities.stream().map(entity -> entity.getVelocity().times(entity.getSpeed() * delta)
                                                                    .plus(entity.getAcceleration().times(.5 * entity.getSpeed() * entity.getSpeed() * delta * delta)).norm())
                                      .max(Double::compare).orElse(.0);
-        if (maxDistance < MAX_STEP_DISTANCE)
+        if (maxDistance < maxStepDistance)
         {
             stepDelta = delta;
             return;
         }
-        stepDelta = delta * MAX_STEP_DISTANCE / maxDistance;
+        stepDelta = delta * maxStepDistance / maxDistance;
     }
 
     private void updateAccelerations()

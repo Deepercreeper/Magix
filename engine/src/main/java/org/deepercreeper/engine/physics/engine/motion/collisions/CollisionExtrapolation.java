@@ -1,4 +1,4 @@
-package org.deepercreeper.engine.physics.engine.motion;
+package org.deepercreeper.engine.physics.engine.motion.collisions;
 
 import org.deepercreeper.engine.physics.Entity;
 

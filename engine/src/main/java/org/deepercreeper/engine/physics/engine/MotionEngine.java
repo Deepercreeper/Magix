@@ -1,24 +1,16 @@
 package org.deepercreeper.engine.physics.engine;
 
-import org.deepercreeper.engine.physics.Entity;
-import org.deepercreeper.engine.physics.engine.motion.MotionComponent;
+import org.deepercreeper.engine.physics.engine.motion.components.motion.StepMotion;
+import org.deepercreeper.engine.physics.engine.motion.colliders.MinimumCollider;
+import org.deepercreeper.engine.physics.engine.motion.components.DistanceMotionComponent;
+import org.deepercreeper.engine.physics.engine.motion.splitters.AxialSplitter;
+import org.deepercreeper.engine.physics.engine.motion.strategies.ComponentStepsStrategy;
+import org.deepercreeper.engine.physics.engine.motion.strategies.MotionStrategy;
 import org.deepercreeper.engine.util.Updatable;
-import org.deepercreeper.engine.util.Util;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MotionEngine extends AbstractEngine implements Updatable
 {
-    private final ExecutorService executorService = Executors.newFixedThreadPool(24);
-
-    private final Set<MotionComponent> motionComponents = new HashSet<>();
-
-    private final AtomicInteger runningComponents = new AtomicInteger(0);
+    private MotionStrategy strategy;
 
     private double delta;
 
@@ -27,6 +19,7 @@ public class MotionEngine extends AbstractEngine implements Updatable
     public MotionEngine(Engine engine)
     {
         super(engine);
+        setStrategy(new ComponentStepsStrategy<>(DistanceMotionComponent::new, () -> new StepMotion(new AxialSplitter(10E-5), new MinimumCollider())));
     }
 
     public void setPause(boolean pause)
@@ -37,6 +30,12 @@ public class MotionEngine extends AbstractEngine implements Updatable
     public void togglePause()
     {
         pause = !pause;
+    }
+
+    public void setStrategy(MotionStrategy strategy)
+    {
+        this.strategy = strategy;
+        strategy.init(getEngine().getEntityEngine().getSolidEntities());
     }
 
     @Override
@@ -57,53 +56,6 @@ public class MotionEngine extends AbstractEngine implements Updatable
 
     private void updateSolidMotion()
     {
-        computeMotionComponents();
-        moveMotionComponents();
-    }
-
-    private void computeMotionComponents()
-    {
-        motionComponents.clear();
-        getEngine().getEntityEngine().getSolidEntities().forEach(this::findMotionComponent);
-    }
-
-    private void findMotionComponent(Entity entity)
-    {
-        MotionComponent component = new MotionComponent(delta);
-        component.add(entity);
-        boolean changed;
-        do
-        {
-            changed = addComponents(component);
-        } while (changed);
-        motionComponents.add(component);
-    }
-
-    private boolean addComponents(MotionComponent motionComponent)
-    {
-        boolean changed = false;
-        Iterator<MotionComponent> iterator = motionComponents.iterator();
-        while (iterator.hasNext())
-        {
-            MotionComponent component = iterator.next();
-            if (motionComponent.isTouching(component))
-            {
-                motionComponent.consume(component);
-                iterator.remove();
-                changed = true;
-            }
-        }
-        return changed;
-    }
-
-    private void moveMotionComponents()
-    {
-        runningComponents.set(motionComponents.size());
-        motionComponents.forEach(component -> component.init(runningComponents));
-        motionComponents.forEach(executorService::execute);
-        while (runningComponents.get() > 0)
-        {
-            Util.sleep(1);
-        }
+        strategy.update(delta);
     }
 }
