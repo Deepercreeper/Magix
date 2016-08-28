@@ -8,19 +8,29 @@ public class ClientTest
     @Test
     public void testClient()
     {
-        String address = "";
+        String address = "127.0.0.1";
         int port = 8080;
+        int localPort = 8081;
 
-        Client client = new TestClient(address, port);
+        Client client = new TestClient(address, port, localPort);
         client.start();
 
-        Util.sleep(20 * 60 * 1000);
+        Util.sleep(1000);
+
+        client.send("Hi");
+
+        Util.sleep(1000);
 
         client.stop();
     }
 
     private class TestClient extends Client
     {
+        public TestClient(String address, int port, int localPort)
+        {
+            super(address, port, localPort);
+        }
+
         public TestClient(String address, int port)
         {
             super(address, port);

@@ -49,20 +49,27 @@ public abstract class Client<C extends Client<C>>
         {
             throw new IllegalStateException("Cannot send messages when not running or connected");
         }
-        out.write(message);
+        if (message.contains("\n"))
+        {
+            throw new IllegalArgumentException("Cannot send messages containing a console return");
+        }
+        out.write(message + '\n');
+        out.flush();
     }
 
     public final void stop()
     {
-        running = false;
+        if (!isRunning())
+        {
+            throw new IllegalStateException("Cannot stop server when not running");
+        }
         close();
-        disconnected();
-        closeAction.run();
     }
 
-    final void closed()
+    final void close()
     {
         running = false;
+        disconnect();
         disconnected();
         closeAction.run();
     }
@@ -78,7 +85,7 @@ public abstract class Client<C extends Client<C>>
         return in;
     }
 
-    private void close()
+    private void disconnect()
     {
         try
         {

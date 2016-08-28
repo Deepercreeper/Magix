@@ -12,6 +12,8 @@ public abstract class Client
 
     private final int port;
 
+    private final int localPort;
+
     private Socket socket = null;
 
     private boolean running = false;
@@ -20,10 +22,16 @@ public abstract class Client
 
     private BufferedReader in;
 
-    public Client(String address, int port)
+    public Client(String address, int port, int localPort)
     {
         this.address = address;
         this.port = port;
+        this.localPort = localPort;
+    }
+
+    public Client(String address, int port)
+    {
+        this(address, port, -1);
     }
 
     public final boolean isRunning()
@@ -38,7 +46,16 @@ public abstract class Client
 
     public final void send(String message)
     {
-        out.write(message);
+        if (!isRunning() || !isConnected())
+        {
+            throw new IllegalStateException("Cannot send messages when not running or connected");
+        }
+        if (message.contains("\n"))
+        {
+            throw new IllegalArgumentException("Cannot send messages containing a console return");
+        }
+        out.write(message + '\n');
+        out.flush();
     }
 
     public final void start()
@@ -57,14 +74,13 @@ public abstract class Client
         {
             throw new IllegalStateException("Cannot stop when not running");
         }
-        running = false;
-        disconnect();
-        disconnected();
+        close();
     }
 
-    final void closed()
+    final void close()
     {
         running = false;
+        disconnect();
         disconnected();
     }
 
@@ -77,7 +93,7 @@ public abstract class Client
     {
         try
         {
-            socket = new Socket(address, port);
+            socket = localPort >= 0 ? new Socket(address, port, null, localPort) : new Socket(address, port);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             new Thread(new MessageListener(this)).start();

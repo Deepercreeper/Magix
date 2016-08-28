@@ -23,17 +23,13 @@ class MessageListener implements Runnable
     private void receive()
     {
         String message = readLine();
-        if (!client.isRunning())
-        {
-            return;
-        }
         if (message != null)
         {
             client.receive(message);
         }
-        else if (!client.isConnected())
+        else
         {
-            client.closed();
+            client.close();
         }
     }
 

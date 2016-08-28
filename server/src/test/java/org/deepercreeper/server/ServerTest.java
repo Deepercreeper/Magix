@@ -13,9 +13,7 @@ public class ServerTest
         int port = 8080;
         Server<TestClient> server = new Server<>(TestClient::new, port);
         server.start();
-
-        Util.sleep(20 * 60 * 1000);
-
+        Util.sleep(10 * 1000);
         server.stop();
     }
 
@@ -24,6 +22,7 @@ public class ServerTest
         public TestClient(Server<TestClient> server, Socket socket) throws Exception
         {
             super(server, socket);
+            System.out.println("Connected");
         }
 
         @Override

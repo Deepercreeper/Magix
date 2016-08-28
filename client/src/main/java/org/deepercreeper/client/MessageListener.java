@@ -31,9 +31,9 @@ class MessageListener implements Runnable
         {
             client.receive(message);
         }
-        else if (!client.isConnected())
+        else
         {
-            client.closed();
+            client.close();
         }
     }
 
