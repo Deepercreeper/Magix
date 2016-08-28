@@ -2,7 +2,7 @@ package org.deepercreeper.server;
 
 import java.net.Socket;
 
-public interface ClientFactory<T extends Client>
+public interface ClientFactory<C extends Client<C>>
 {
-    T create(Socket socket) throws Exception;
+    C create(Server<C> server, Socket socket) throws Exception;
 }

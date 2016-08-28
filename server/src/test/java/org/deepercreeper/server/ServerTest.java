@@ -11,7 +11,7 @@ public class ServerTest
     public void testServer()
     {
         int port = 8080;
-        Server server = new Server<>(TestClient::new, port);
+        Server<TestClient> server = new Server<>(TestClient::new, port);
         server.start();
 
         Util.sleep(20 * 60 * 1000);
@@ -19,11 +19,11 @@ public class ServerTest
         server.stop();
     }
 
-    private class TestClient extends Client
+    private class TestClient extends Client<TestClient>
     {
-        public TestClient(Socket socket) throws Exception
+        public TestClient(Server<TestClient> server, Socket socket) throws Exception
         {
-            super(socket);
+            super(server, socket);
         }
 
         @Override

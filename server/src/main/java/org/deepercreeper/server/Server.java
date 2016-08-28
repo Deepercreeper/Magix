@@ -2,10 +2,11 @@ package org.deepercreeper.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-public class Server<C extends Client>
+public class Server<C extends Client<C>>
 {
     private final List<C> clients = new Vector<>();
 
@@ -31,6 +32,11 @@ public class Server<C extends Client>
     public final boolean isConnected()
     {
         return socket != null && !socket.isClosed();
+    }
+
+    public final List<C> getClients()
+    {
+        return new ArrayList<>(clients);
     }
 
     public final void start()
