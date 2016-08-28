@@ -2,7 +2,7 @@ package org.deepercreeper.server;
 
 import java.net.SocketTimeoutException;
 
-class ClientListener<C extends Client> implements Runnable
+class ClientListener<C extends Client<C>> implements Runnable
 {
     private final Server<C> server;
 
@@ -27,7 +27,7 @@ class ClientListener<C extends Client> implements Runnable
     {
         try
         {
-            C client = clientFactory.create(server.getSocket().accept());
+            C client = clientFactory.create(server, server.getSocket().accept());
             server.add(client);
             client.init(() -> server.remove(client));
         }
