@@ -1,6 +1,6 @@
 package org.deepercreeper.engine.physics.engine;
 
-import org.deepercreeper.engine.util.Util;
+import org.deepercreeper.common.util.Util;
 
 public class UpdateEngine extends AbstractEngine implements Runnable
 {

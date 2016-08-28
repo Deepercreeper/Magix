@@ -11,6 +11,9 @@
     <modules>
         <module>engine</module>
         <module>windows</module>
+        <module>server</module>
+        <module>common</module>
+        <module>client</module>
     </modules>
 
     <dependencies>

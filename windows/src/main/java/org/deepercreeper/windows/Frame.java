@@ -1,6 +1,6 @@
 package org.deepercreeper.windows;
 
-import org.deepercreeper.engine.util.Util;
+import org.deepercreeper.common.util.Util;
 
 import javax.swing.*;
 import java.awt.*;

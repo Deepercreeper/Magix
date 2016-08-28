@@ -1,10 +1,10 @@
 package org.deepercreeper.engine.physics.engine.motion.strategies;
 
+import org.deepercreeper.common.util.Util;
 import org.deepercreeper.engine.physics.Entity;
 import org.deepercreeper.engine.physics.engine.motion.components.MotionComponent;
 import org.deepercreeper.engine.physics.engine.motion.components.MotionComponentFactory;
 import org.deepercreeper.engine.physics.engine.motion.components.motion.ComponentMotionFactory;
-import org.deepercreeper.engine.util.Util;
 
 import java.util.HashSet;
 import java.util.Iterator;

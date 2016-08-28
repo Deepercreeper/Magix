@@ -1,4 +1,4 @@
-package org.deepercreeper.engine.util;
+package org.deepercreeper.common.util;
 
 public class Util
 {
