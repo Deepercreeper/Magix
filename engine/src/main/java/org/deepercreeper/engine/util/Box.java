@@ -191,14 +191,14 @@ public class Box
         return builder.build();
     }
 
-    public final Box getContainment(Box... boxes)
+    public final Box getExpandedBox(Vector distance)
     {
-        Box containmentBox = this;
-        for (Box box : boxes)
-        {
-            containmentBox = containmentBox.getContainment(box);
-        }
-        return containmentBox;
+        Box expandedBox = new BoxBuilder().build();
+        expandedBox.setX(getX() - distance.getAbsX());
+        expandedBox.setY(getY() - distance.getAbsY());
+        expandedBox.setWidth(getWidth() + 2 * distance.getAbsX());
+        expandedBox.setHeight(getHeight() + 2 * distance.getAbsY());
+        return expandedBox;
     }
 
     public final Rectangle asScaledRectangle(double scale)

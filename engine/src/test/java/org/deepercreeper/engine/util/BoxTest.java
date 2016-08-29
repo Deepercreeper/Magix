@@ -112,4 +112,16 @@ public class BoxTest
         Assert.assertEquals(1, scaledRectangle.getWidth());
         Assert.assertEquals(1, scaledRectangle.getHeight());
     }
+
+    @Test
+    public void testExpandedBox()
+    {
+        Box box = new Box.BoxBuilder().setX(1).setY(1).setWidth(2).setHeight(2).build();
+        Box expandedBox = box.getExpandedBox(new Vector(1, 1));
+
+        Assert.assertEquals(0, expandedBox.getX(), 0);
+        Assert.assertEquals(0, expandedBox.getY(), 0);
+        Assert.assertEquals(4, expandedBox.getMaxX(), 0);
+        Assert.assertEquals(4, expandedBox.getMaxY(), 0);
+    }
 }

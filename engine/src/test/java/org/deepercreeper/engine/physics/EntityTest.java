@@ -6,34 +6,38 @@ import org.junit.Test;
 
 public class EntityTest
 {
-    private static final double[][] TEST_DATA = new double[][]{
-            {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, .5},
-            {Double.POSITIVE_INFINITY, 1, 1},
-            {1, Double.POSITIVE_INFINITY, 0},
-            {1, 1000, 0},
-            {1, 4, .2},
-            {1, 2, .33},
-            {1, 1.5, .4},
-            {1, 1, .5},
-            {1.5, 1, .6},
-            {2, 1, .66},
-            {4, 1, .8},
-            {1000, 1, 1},
-            };
-
     @Test
-    public void testMassScale()
+    public void testInfiniteMassScale()
     {
-        double[] massesAndScale = new double[3];
         Entity firstEntity = new Entity.EntityBuilder().build();
         Entity secondEntity = new Entity.EntityBuilder().build();
-        for (double[] testData : TEST_DATA)
-        {
-            firstEntity.setMass(testData[0]);
-            secondEntity.setMass(testData[1]);
-            System.arraycopy(testData, 0, massesAndScale, 0, 3);
-            Assert.assertEquals(massesAndScale[2], firstEntity.getMassScaleTo(secondEntity), .01);
-        }
+
+        firstEntity.setMass(Double.POSITIVE_INFINITY);
+        secondEntity.setMass(1);
+
+        Assert.assertEquals(1, firstEntity.getMassScaleTo(secondEntity), 0);
+        Assert.assertEquals(0, secondEntity.getMassScaleTo(firstEntity), 0);
+
+        secondEntity.setMass(Double.POSITIVE_INFINITY);
+
+        Assert.assertEquals(.5, firstEntity.getMassScaleTo(secondEntity), 0);
+    }
+
+    @Test
+    public void testFiniteMassScale()
+    {
+        Entity firstEntity = new Entity.EntityBuilder().build();
+        Entity secondEntity = new Entity.EntityBuilder().build();
+
+        firstEntity.setMass(100);
+        secondEntity.setMass(1);
+
+        Assert.assertTrue(firstEntity.getMassScaleTo(secondEntity) > .5);
+        Assert.assertTrue(secondEntity.getMassScaleTo(firstEntity) < .5);
+
+        secondEntity.setMass(100);
+
+        Assert.assertEquals(.5, firstEntity.getMassScaleTo(secondEntity), 0);
     }
 
     @Test
@@ -42,7 +46,21 @@ public class EntityTest
         Entity entity = new Entity.EntityBuilder().setXVelocity(Math.random()).setX(Math.random()).setXAcceleration(Math.random()).build();
         double delta = Math.random();
         Box deltaBox = entity.getDeltaBox(delta);
-        entity.update(delta);
-        Assert.assertEquals(deltaBox.getX(), entity.getX(), 10E-20);
+
+        entity.move(delta);
+
+        Assert.assertEquals(entity.getX(), deltaBox.getX(), 0);
+    }
+
+    @Test
+    public void testDeltaVelocity()
+    {
+        Entity entity = new Entity.EntityBuilder().setXVelocity(Math.random()).setX(Math.random()).setXAcceleration(Math.random()).build();
+        double delta = Math.random();
+        double deltaVelocity = entity.getDeltaVelocity(delta).getX();
+
+        entity.accelerateX(delta);
+
+        Assert.assertEquals(entity.getXVelocity(), deltaVelocity, 0);
     }
 }

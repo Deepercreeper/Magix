@@ -74,7 +74,7 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         forces.add(force);
     }
 
-    public final void removeforce(Force force)
+    public final void removeForce(Force force)
     {
         forces.remove(force);
     }
@@ -124,20 +124,11 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
         return getDeltaBox(delta).isTouching(entity.getDeltaBox(delta));
     }
 
-    public final Box getVelocityBox(Box box, Vector velocity, double delta)
-    {
-        Vector distance = velocity.times(getSpeed() * delta);
-        Box minXBox = box.shiftX(-distance.getAbsX());
-        Box minYBox = box.shiftY(-distance.getAbsY());
-        Box maxXBox = box.shiftX(distance.getAbsX());
-        Box maxYBox = box.shiftY(distance.getAbsY());
-        return getContainment(minXBox, minYBox, maxXBox, maxYBox);
-    }
-
     public final Box getDistanceBox(Vector velocity, double delta)
     {
-        Box acceleratedVelocityBox = getVelocityBox(shift(getAcceleration().times(.5 * getSpeed() * getSpeed() * delta * delta)), velocity, delta);
-        return getVelocityBox(this, velocity, delta).getContainment(acceleratedVelocityBox);
+        Vector distance = velocity.times(getSpeed() * delta);
+        Box acceleratedExpandedBox = shift(getAcceleration().times(.5 * getSpeed() * getSpeed() * delta * delta)).getExpandedBox(distance);
+        return getExpandedBox(distance).getContainment(acceleratedExpandedBox);
     }
 
     public final boolean isDistanceTouching(Vector distance, Entity entity, Vector entityVelocity, double delta)

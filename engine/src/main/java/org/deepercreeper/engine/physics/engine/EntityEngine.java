@@ -72,6 +72,7 @@ public class EntityEngine extends AbstractEngine implements Updatable
         {
             nonSolidEntities.remove(entity);
         }
+        entity.clear();
     }
 
     private void addEntities()
