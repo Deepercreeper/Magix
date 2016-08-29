@@ -151,6 +151,16 @@ public class Rectangle
         setY(y - getHeight() * .5);
     }
 
+    public final void moveBy(double x, double y)
+    {
+        getPosition().add(x, y);
+    }
+
+    public final void moveBy(int x, int y)
+    {
+        getPosition().add(x, y);
+    }
+
     public final void moveBy(Point point)
     {
         getPosition().add(point);

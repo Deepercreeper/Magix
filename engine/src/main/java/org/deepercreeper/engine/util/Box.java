@@ -181,6 +181,24 @@ public class Box
         return new BoxBuilder().setX(getX() + vector.getX()).setY(getY() + vector.getY()).setSize(getSize()).build();
     }
 
+    public final double getXDistanceTo(Box box)
+    {
+        if (getMaxX() >= box.getX() && box.getMaxX() >= getX())
+        {
+            return 0;
+        }
+        return Math.min(Math.abs(getX() - box.getMaxX()), Math.abs(getMaxX() - box.getX()));
+    }
+
+    public final double getYDistanceTo(Box box)
+    {
+        if (getMaxY() >= box.getY() && box.getMaxY() >= getY())
+        {
+            return 0;
+        }
+        return Math.min(Math.abs(getY() - box.getMaxY()), Math.abs(getMaxY() - box.getY()));
+    }
+
     public final Box getContainment(Box box)
     {
         BoxBuilder builder = new BoxBuilder();
@@ -191,14 +209,14 @@ public class Box
         return builder.build();
     }
 
-    public final Box getContainment(Box... boxes)
+    public final Box getExpandedBox(Vector distance)
     {
-        Box containmentBox = this;
-        for (Box box : boxes)
-        {
-            containmentBox = containmentBox.getContainment(box);
-        }
-        return containmentBox;
+        Box expandedBox = new BoxBuilder().build();
+        expandedBox.setX(getX() - distance.getAbsX());
+        expandedBox.setY(getY() - distance.getAbsY());
+        expandedBox.setWidth(getWidth() + 2 * distance.getAbsX());
+        expandedBox.setHeight(getHeight() + 2 * distance.getAbsY());
+        return expandedBox;
     }
 
     public final Rectangle asScaledRectangle(double scale)
