@@ -181,6 +181,24 @@ public class Box
         return new BoxBuilder().setX(getX() + vector.getX()).setY(getY() + vector.getY()).setSize(getSize()).build();
     }
 
+    public final double getXDistanceTo(Box box)
+    {
+        if (getMaxX() >= box.getX() && box.getMaxX() >= getX())
+        {
+            return 0;
+        }
+        return Math.min(Math.abs(getX() - box.getMaxX()), Math.abs(getMaxX() - box.getX()));
+    }
+
+    public final double getYDistanceTo(Box box)
+    {
+        if (getMaxY() >= box.getY() && box.getMaxY() >= getY())
+        {
+            return 0;
+        }
+        return Math.min(Math.abs(getY() - box.getMaxY()), Math.abs(getMaxY() - box.getY()));
+    }
+
     public final Box getContainment(Box box)
     {
         BoxBuilder builder = new BoxBuilder();

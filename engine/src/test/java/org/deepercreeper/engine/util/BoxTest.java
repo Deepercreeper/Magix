@@ -124,4 +124,34 @@ public class BoxTest
         Assert.assertEquals(4, expandedBox.getMaxX(), 0);
         Assert.assertEquals(4, expandedBox.getMaxY(), 0);
     }
+
+    @Test
+    public void testXDistance()
+    {
+        Box firstBox = new Box.BoxBuilder().setWidth(1).setHeight(1).build();
+        Box secondBox = new Box.BoxBuilder().setX(2).setY(2).setWidth(1).setHeight(1).build();
+        
+        Assert.assertEquals(1, firstBox.getXDistanceTo(secondBox), 0);
+        Assert.assertEquals(1, secondBox.getXDistanceTo(firstBox), 0);
+
+        secondBox.setPosition(.5, .5);
+
+        Assert.assertEquals(0, firstBox.getXDistanceTo(secondBox), 0);
+        Assert.assertEquals(0, secondBox.getXDistanceTo(firstBox), 0);
+    }
+
+    @Test
+    public void testYDistance()
+    {
+        Box firstBox = new Box.BoxBuilder().setWidth(1).setHeight(1).build();
+        Box secondBox = new Box.BoxBuilder().setX(2).setY(2).setWidth(1).setHeight(1).build();
+
+        Assert.assertEquals(1, firstBox.getYDistanceTo(secondBox), 0);
+        Assert.assertEquals(1, secondBox.getYDistanceTo(firstBox), 0);
+
+        secondBox.setPosition(.5, .5);
+
+        Assert.assertEquals(0, firstBox.getYDistanceTo(secondBox), 0);
+        Assert.assertEquals(0, secondBox.getYDistanceTo(firstBox), 0);
+    }
 }

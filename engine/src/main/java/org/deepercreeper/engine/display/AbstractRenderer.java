@@ -25,23 +25,15 @@ public class AbstractRenderer implements Renderer
             return;
         }
         image.validate();
-        Rectangle visibleRectangle = getRectangle().getCut(image);
-        if (visibleRectangle.isEmpty())
+        Image visibleImage = new Image.ImageBuilder().set(getRectangle().getCut(image)).build();
+        if (visibleImage.isEmpty())
         {
             return;
         }
-        int[] yCroppedImage = new int[image.getWidth() * visibleRectangle.getHeight()];
-        System.arraycopy(image.getData(), Math.max(0, getRectangle().getY() - visibleRectangle.getY()) * image.getWidth(), yCroppedImage, 0, image.getWidth() * visibleRectangle
-                .getHeight());
-
-        int[] xCroppedImage = new int[visibleRectangle.getWidth() * visibleRectangle.getHeight()];
-        for (int i = 0; i < visibleRectangle.getHeight(); i++)
-        {
-            System.arraycopy(yCroppedImage, i * image.getWidth() + Math.max(0, getRectangle().getX() - image.getX()), xCroppedImage, i * visibleRectangle
-                    .getWidth(), visibleRectangle.getWidth());
-        }
-        visibleRectangle.getPosition().subtract(position);
-        display.render(visibleRectangle.getX(), visibleRectangle.getY(), visibleRectangle.getWidth(), visibleRectangle.getHeight(), xCroppedImage);
+        visibleImage.setData(Display.createFilledRectangle(visibleImage.getWidth(), visibleImage.getHeight(), 0));
+        image.drawOver(visibleImage);
+        visibleImage.getPosition().subtract(position);
+        display.render(visibleImage.getX(), visibleImage.getY(), visibleImage.getWidth(), visibleImage.getHeight(), visibleImage.getData());
     }
 
     @Override
