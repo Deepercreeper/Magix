@@ -70,4 +70,98 @@ public class RectangleTest
         }
         return true;
     }
+
+    @Test
+    public void testCenterUpdate()
+    {
+        Rectangle box = new Rectangle.RectangleBuilder().setWidth(2).setHeight(2).build();
+
+        Assert.assertEquals(1, box.getCenterX(), 0);
+
+        box.setX(1);
+
+        Assert.assertEquals(2, box.getCenterX(), 0);
+    }
+
+    @Test
+    public void testSetters()
+    {
+        Rectangle rectangle = new Rectangle.RectangleBuilder().setWidth(2).setHeight(2).build();
+
+        rectangle.setX(1);
+
+        Assert.assertEquals(1, rectangle.getX(), 0);
+
+        rectangle.setMaxX(2);
+
+        Assert.assertEquals(0, rectangle.getX(), 0);
+
+        rectangle.setCenterX(2);
+
+        Assert.assertEquals(1, rectangle.getX(), 0);
+    }
+
+    @Test
+    public void testMove()
+    {
+        Rectangle rectangle = new Rectangle.RectangleBuilder().setWidth(2).setHeight(2).build();
+
+        rectangle.moveBy(1, 1);
+
+        Assert.assertEquals(1, rectangle.getX(), 0);
+        Assert.assertEquals(1, rectangle.getY(), 0);
+
+        rectangle.moveBy(new Point(-1, -1));
+
+        Assert.assertEquals(0, rectangle.getX(), 0);
+        Assert.assertEquals(0, rectangle.getY(), 0);
+    }
+
+    @Test
+    public void testTouching()
+    {
+        Rectangle firstRectangle = new Rectangle.RectangleBuilder().setWidth(2).setHeight(2).build();
+        Rectangle secondRectangle = new Rectangle.RectangleBuilder().setX(2).setWidth(2).setHeight(2).build();
+
+        Assert.assertFalse(firstRectangle.isTouching(secondRectangle));
+        Assert.assertFalse(secondRectangle.isTouching(firstRectangle));
+
+        secondRectangle.setX(1);
+
+        Assert.assertTrue(firstRectangle.isTouching(secondRectangle));
+        Assert.assertTrue(secondRectangle.isTouching(firstRectangle));
+
+        secondRectangle.setX(-2);
+
+        Assert.assertFalse(firstRectangle.isTouching(secondRectangle));
+        Assert.assertFalse(secondRectangle.isTouching(firstRectangle));
+
+        secondRectangle.setX(-1);
+
+        Assert.assertTrue(firstRectangle.isTouching(secondRectangle));
+        Assert.assertTrue(secondRectangle.isTouching(firstRectangle));
+
+        secondRectangle.setY(-1);
+
+        Assert.assertTrue(firstRectangle.isTouching(secondRectangle));
+        Assert.assertTrue(secondRectangle.isTouching(firstRectangle));
+
+        secondRectangle.setX(-2);
+
+        Assert.assertFalse(firstRectangle.isTouching(secondRectangle));
+        Assert.assertFalse(secondRectangle.isTouching(firstRectangle));
+    }
+
+    @Test
+    public void testContainment()
+    {
+        Rectangle firstRectangle = new Rectangle.RectangleBuilder().setWidth(2).setHeight(2).build();
+        Rectangle secondRectangle = new Rectangle.RectangleBuilder().setX(2).setY(2).setWidth(2).setHeight(2).build();
+        Rectangle containment = firstRectangle.getContainment(secondRectangle);
+
+        Assert.assertEquals(firstRectangle.getX(), containment.getX(), 0);
+        Assert.assertEquals(secondRectangle.getMaxX(), containment.getMaxX(), 0);
+        Assert.assertEquals(firstRectangle.getY(), containment.getY(), 0);
+        Assert.assertEquals(secondRectangle.getMaxY(), containment.getMaxY(), 0);
+    }
 }
