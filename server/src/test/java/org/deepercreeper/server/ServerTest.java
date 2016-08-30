@@ -53,6 +53,7 @@ public class ServerTest
                 }
             });
             frame.pack();
+            frame.setVisible(true);
         }
 
         @Override
