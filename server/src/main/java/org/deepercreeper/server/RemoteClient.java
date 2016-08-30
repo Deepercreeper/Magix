@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public abstract class Client<C extends Client<C>>
+public abstract class RemoteClient<C extends RemoteClient<C>>
 {
     private final Server<C> server;
 
@@ -20,10 +20,11 @@ public abstract class Client<C extends Client<C>>
 
     private boolean running = true;
 
-    public Client(Server<C> server, Socket socket) throws Exception
+    public RemoteClient(Server<C> server, Socket socket) throws IOException
     {
         this.server = server;
         this.socket = socket;
+        socket.setReuseAddress(true);
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }

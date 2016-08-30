@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public abstract class Client
@@ -93,7 +94,13 @@ public abstract class Client
     {
         try
         {
-            socket = localPort >= 0 ? new Socket(address, port, null, localPort) : new Socket(address, port);
+            socket = new Socket();
+            socket.setReuseAddress(true);
+            if (localPort >= 0)
+            {
+                socket.bind(new InetSocketAddress(localPort));
+            }
+            socket.connect(new InetSocketAddress(address, port));
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             new Thread(new MessageListener(this)).start();
@@ -101,28 +108,25 @@ public abstract class Client
         catch (IOException e)
         {
             running = false;
-            socket = null;
-            out = null;
-            in = null;
+            disconnect();
             throw new RuntimeException(e);
         }
     }
 
     private void disconnect()
     {
-        if (socket == null)
+        if (socket != null)
         {
-            return;
+            try
+            {
+                socket.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            socket = null;
         }
-        try
-        {
-            socket.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        socket = null;
         out = null;
         in = null;
     }

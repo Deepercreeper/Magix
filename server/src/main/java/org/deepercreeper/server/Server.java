@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-public class Server<C extends Client<C>>
+public class Server<C extends RemoteClient<C>>
 {
     private final List<C> clients = new Vector<>();
 
-    private final ClientFactory<C> clientFactory;
+    private final RemoteClientFactory<C> remoteClientFactory;
 
     private final int port;
 
@@ -18,10 +18,10 @@ public class Server<C extends Client<C>>
 
     private boolean running = false;
 
-    public Server(ClientFactory<C> clientFactory, int port)
+    public Server(RemoteClientFactory<C> remoteClientFactory, int port)
     {
         this.port = port;
-        this.clientFactory = clientFactory;
+        this.remoteClientFactory = remoteClientFactory;
     }
 
     public final boolean isRunning()
@@ -56,7 +56,7 @@ public class Server<C extends Client<C>>
             throw new IllegalStateException("Cannot stop not running server");
         }
         running = false;
-        clients.forEach(C::stop);
+        new ArrayList<>(clients).forEach(C::stop);
         disconnect();
     }
 
@@ -80,13 +80,14 @@ public class Server<C extends Client<C>>
         try
         {
             socket = new ServerSocket(port);
+            socket.setReuseAddress(true);
             socket.setSoTimeout(10 * 1000);
-            new Thread(new ClientListener<>(this, clientFactory)).start();
+            new Thread(new ClientListener<>(this, remoteClientFactory)).start();
         }
         catch (IOException e)
         {
             running = false;
-            socket = null;
+            disconnect();
             throw new RuntimeException(e);
         }
     }

@@ -1,20 +1,21 @@
 package org.deepercreeper.server;
 
 import java.io.IOException;
+import java.net.SocketException;
 
 class MessageListener implements Runnable
 {
-    private final Client client;
+    private final RemoteClient remoteClient;
 
-    MessageListener(Client client)
+    MessageListener(RemoteClient remoteClient)
     {
-        this.client = client;
+        this.remoteClient = remoteClient;
     }
 
     @Override
     public void run()
     {
-        while (client.isRunning() && client.isConnected())
+        while (remoteClient.isRunning() && remoteClient.isConnected())
         {
             receive();
         }
@@ -25,11 +26,11 @@ class MessageListener implements Runnable
         String message = readLine();
         if (message != null)
         {
-            client.receive(message);
+            remoteClient.receive(message);
         }
         else
         {
-            client.close();
+            remoteClient.close();
         }
     }
 
@@ -38,7 +39,14 @@ class MessageListener implements Runnable
         String message = null;
         try
         {
-            message = client.getIn().readLine();
+            message = remoteClient.getIn().readLine();
+        }
+        catch (SocketException e)
+        {
+            if (!e.getMessage().equals("Socket closed"))
+            {
+                e.printStackTrace();
+            }
         }
         catch (IOException e)
         {

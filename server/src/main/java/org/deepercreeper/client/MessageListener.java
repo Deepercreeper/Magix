@@ -1,6 +1,7 @@
 package org.deepercreeper.client;
 
 import java.io.IOException;
+import java.net.SocketException;
 
 class MessageListener implements Runnable
 {
@@ -43,6 +44,13 @@ class MessageListener implements Runnable
         try
         {
             message = client.getIn().readLine();
+        }
+        catch (SocketException e)
+        {
+            if (!e.getMessage().equals("Socket closed"))
+            {
+                e.printStackTrace();
+            }
         }
         catch (IOException e)
         {

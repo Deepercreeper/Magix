@@ -1,17 +1,20 @@
 package org.deepercreeper.server;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
-class ClientListener<C extends Client<C>> implements Runnable
+class ClientListener<C extends RemoteClient<C>> implements Runnable
 {
     private final Server<C> server;
 
-    private final ClientFactory<C> clientFactory;
+    private final RemoteClientFactory<C> remoteClientFactory;
 
-    ClientListener(Server<C> server, ClientFactory<C> clientFactory)
+    ClientListener(Server<C> server, RemoteClientFactory<C> remoteClientFactory)
     {
         this.server = server;
-        this.clientFactory = clientFactory;
+        this.remoteClientFactory = remoteClientFactory;
     }
 
     @Override
@@ -27,14 +30,22 @@ class ClientListener<C extends Client<C>> implements Runnable
     {
         try
         {
-            C client = clientFactory.create(server, server.getSocket().accept());
+            Socket socket = server.getSocket().accept();
+            C client = remoteClientFactory.create(server, socket);
             server.add(client);
             client.init(() -> server.remove(client));
         }
         catch (SocketTimeoutException ignored)
         {
         }
-        catch (Exception e)
+        catch (SocketException e)
+        {
+            if (!e.getMessage().equals("Socket operation on nonsocket: configureBlocking"))
+            {
+                e.printStackTrace();
+            }
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }
