@@ -1,9 +1,12 @@
 package org.deepercreeper.engine.physics.engine;
 
 import org.deepercreeper.common.util.Util;
+import org.deepercreeper.engine.util.Updatable;
 
-public class UpdateEngine extends AbstractEngine implements Runnable
+public class UpdateEngine implements Runnable
 {
+    private final Updatable updatable;
+
     private boolean running = true;
 
     private boolean updating = false;
@@ -14,9 +17,9 @@ public class UpdateEngine extends AbstractEngine implements Runnable
 
     private int fps = 60;
 
-    public UpdateEngine(Engine engine)
+    public UpdateEngine(Updatable updatable)
     {
-        super(engine);
+        this.updatable = updatable;
         new Thread(this, "Updater").start();
     }
 
@@ -37,7 +40,7 @@ public class UpdateEngine extends AbstractEngine implements Runnable
                 timeout = Math.max(0, 1000 / fps - difference);
                 Util.sleep(timeout);
                 lastExecution = System.currentTimeMillis();
-                getEngine().update(speed / fps);
+                updatable.update(speed / fps);
             }
             else
             {
