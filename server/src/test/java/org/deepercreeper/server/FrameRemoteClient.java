@@ -31,7 +31,9 @@ public class FrameRemoteClient extends RemoteClient<FrameRemoteClient>
             {
                 if (e.getExtendedKeyCode() == KeyEvent.VK_ENTER)
                 {
-                    send(field.getText());
+                    String message = field.getText();
+                    send(message);
+                    System.out.println("Sent: " + message);
                     field.setText("");
                 }
             }
@@ -43,7 +45,7 @@ public class FrameRemoteClient extends RemoteClient<FrameRemoteClient>
     @Override
     protected void receive(String message)
     {
-        System.out.println(message);
+        System.out.println("Received: " + message);
         frame.setVisible(true);
     }
 

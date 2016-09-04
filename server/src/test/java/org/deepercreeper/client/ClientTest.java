@@ -39,7 +39,9 @@ public class ClientTest
             {
                 if (e.getExtendedKeyCode() == KeyEvent.VK_ENTER)
                 {
-                    client.send(field.getText());
+                    String message = field.getText();
+                    client.send(message);
+                    System.out.println("Sent: " + message);
                     field.setText("");
                 }
             }
@@ -67,7 +69,7 @@ public class ClientTest
         @Override
         protected void receive(String message)
         {
-            System.out.println(message);
+            System.out.println("Received: " + message);
         }
 
         @Override
