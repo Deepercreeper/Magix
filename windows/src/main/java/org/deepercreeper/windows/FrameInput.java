@@ -74,6 +74,8 @@ public class FrameInput implements Input
                 return Key.CAMERA_UP.ordinal();
             case KeyEvent.VK_DOWN:
                 return Key.CAMERA_DOWN.ordinal();
+            case KeyEvent.VK_F:
+                return Key.FRAME_RATE.ordinal();
         }
         return -1;
     }
