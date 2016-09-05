@@ -329,7 +329,7 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
     public Image generateImage(double scale)
     {
         Image image = new Image.ImageBuilder().set(asScaledRectangle(scale)).build();
-        image.setData(Display.createFilledRectangle(image.getX(), image.getY(), 0xffffffff));
+        image.setData(Display.createFilledRectangle(image.getWidth(), image.getHeight(), 0xffffffff));
         return image;
     }
 

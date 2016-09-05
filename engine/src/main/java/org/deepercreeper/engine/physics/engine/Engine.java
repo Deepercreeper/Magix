@@ -16,14 +16,19 @@ public class Engine implements Updatable
 
     private final MotionEngine motionEngine = new MotionEngine(this);
 
-    private final RenderingEngine renderingEngine = new RenderingEngine(this);
-
     private final UpdateEngine updateEngine = new UpdateEngine(this);
+
+    private final RenderingEngine renderingEngine = new RenderingEngine(entityEngine, updateEngine);
 
     public Engine(Input input, Display display)
     {
         inputEngine.setInput(input);
         renderingEngine.setDisplay(display);
+    }
+
+    public Engine()
+    {
+        this(null, null);
     }
 
     @Override

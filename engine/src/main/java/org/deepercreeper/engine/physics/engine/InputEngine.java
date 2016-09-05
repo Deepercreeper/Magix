@@ -39,6 +39,10 @@ public class InputEngine extends AbstractEngine implements Updatable
         {
             getEngine().getMotionEngine().togglePause();
         }
+        if (input.checkHit(Key.FRAME_RATE))
+        {
+            getEngine().getRenderingEngine().toggleFrameRate();
+        }
         Vector position = getEngine().getRenderingEngine().getPosition();
         if (input.isActive(Key.CAMERA_RIGHT))
         {

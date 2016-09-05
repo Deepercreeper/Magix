@@ -10,5 +10,6 @@ public enum Key
     CAMERA_LEFT,
     CAMERA_RIGHT,
     CAMERA_UP,
-    CAMERA_DOWN
+    CAMERA_DOWN,
+    FRAME_RATE
 }

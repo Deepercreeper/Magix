@@ -2,7 +2,9 @@ package org.deepercreeper.engine.display;
 
 public class TestDisplay implements Display
 {
-    private int modifications = 0;
+    private int renderings = 0;
+
+    private int clears = 0;
 
     private final int width;
 
@@ -26,9 +28,14 @@ public class TestDisplay implements Display
         return height;
     }
 
-    public int getModifications()
+    public int getRenderings()
     {
-        return modifications;
+        return renderings;
+    }
+
+    public int getClears()
+    {
+        return clears;
     }
 
     @Override
@@ -42,16 +49,16 @@ public class TestDisplay implements Display
         {
             throw new IllegalArgumentException("Image data has a different length as the given width * height");
         }
-        modifications++;
+        renderings++;
     }
 
     @Override
     public void clear(int x, int y, int width, int height)
     {
-        if (x < 0 || y < 0 || x + width >= getWidth() || y + height >= getHeight())
+        if (x < 0 || y < 0 || x + width > getWidth() || y + height > getHeight())
         {
             throw new IllegalArgumentException("Cannot draw outside of display bounds");
         }
-        modifications++;
+        clears++;
     }
 }

@@ -9,7 +9,7 @@ public class EntityEngineTest
     @Test
     public void testSolidAddition()
     {
-        EntityEngine engine = new EntityEngine(new TestEngine());
+        EntityEngine engine = new EntityEngine(new Engine());
 
         engine.add(new Entity.EntityBuilder().build());
 
@@ -26,7 +26,7 @@ public class EntityEngineTest
     @Test
     public void testNonSolidAddition()
     {
-        EntityEngine engine = new EntityEngine(new TestEngine());
+        EntityEngine engine = new EntityEngine(new Engine());
 
         engine.add(new Entity.EntityBuilder().setSolid(false).build());
 
@@ -43,7 +43,7 @@ public class EntityEngineTest
     @Test(expected = IllegalStateException.class)
     public void testIllegalModification()
     {
-        EntityEngine engine = new EntityEngine(new TestEngine());
+        EntityEngine engine = new EntityEngine(new Engine());
         Entity entity = new Entity.EntityBuilder().build();
 
         engine.add(entity);
@@ -51,9 +51,10 @@ public class EntityEngineTest
 
         engine.getEntities().remove(entity);
     }
-    
+
     @Test
-    public void testRemoval(){
-        
+    public void testRemoval()
+    {
+
     }
 }

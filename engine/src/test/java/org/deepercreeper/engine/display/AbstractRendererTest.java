@@ -16,7 +16,7 @@ public class AbstractRendererTest
 
         renderer.render(new Image.ImageBuilder().setX(2).setWidth(6).setY(2).setHeight(6).setData(new int[36]).build());
 
-        Assert.assertEquals(1, display.getModifications());
+        Assert.assertEquals(1, display.getRenderings());
     }
 
     @Test
@@ -28,7 +28,7 @@ public class AbstractRendererTest
 
         renderer.render(new Image.ImageBuilder().setX(11).setWidth(4).setHeight(2).setData(new int[8]).build());
 
-        Assert.assertEquals(0, display.getModifications());
+        Assert.assertEquals(0, display.getRenderings());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class AbstractRendererTest
 
         renderer.render(new Image.ImageBuilder().setX(-8).setWidth(6).setY(2).setHeight(6).setData(new int[36]).build());
 
-        Assert.assertEquals(1, display.getModifications());
+        Assert.assertEquals(1, display.getRenderings());
     }
 
     @Test
@@ -54,7 +54,7 @@ public class AbstractRendererTest
 
         renderer.render(new Image.ImageBuilder().setX(2).setWidth(6).setY(2).setHeight(6).setData(new int[36]).build());
 
-        Assert.assertEquals(0, display.getModifications());
+        Assert.assertEquals(0, display.getRenderings());
     }
 
     @Test
@@ -66,7 +66,7 @@ public class AbstractRendererTest
 
         renderer.render(new Image.ImageBuilder().setX(5).setWidth(10).setY(5).setHeight(10).setData(new int[100]).build());
 
-        Assert.assertEquals(1, display.getModifications());
+        Assert.assertEquals(1, display.getRenderings());
     }
 
     @Test(expected = IllegalStateException.class)

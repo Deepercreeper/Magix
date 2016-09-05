@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class RenderingEngine extends AbstractEngine implements Updatable
+public class RenderingEngine implements Updatable
 {
     private final Map<Entity, Image> images = new HashMap<>();
 
@@ -18,15 +18,22 @@ public class RenderingEngine extends AbstractEngine implements Updatable
 
     private final Vector position = new Vector();
 
+    private final EntityEngine entityEngine;
+
+    private final UpdateEngine updateEngine;
+
     private Renderer renderer = new AbstractRenderer();
+
+    private boolean frameRate = false;
 
     private double scale = 48;
 
     private int counter = 0;
 
-    public RenderingEngine(Engine engine)
+    public RenderingEngine(EntityEngine entityEngine, UpdateEngine updateEngine)
     {
-        super(engine);
+        this.entityEngine = entityEngine;
+        this.updateEngine = updateEngine;
     }
 
     public void setPosition(Vector position)
@@ -53,6 +60,16 @@ public class RenderingEngine extends AbstractEngine implements Updatable
     public void setScale(double scale)
     {
         this.scale = scale;
+    }
+
+    public void setFrameRate(boolean frameRate)
+    {
+        this.frameRate = frameRate;
+    }
+
+    public void toggleFrameRate()
+    {
+        frameRate = !frameRate;
     }
 
     public boolean isVisible(Box box)
@@ -85,7 +102,7 @@ public class RenderingEngine extends AbstractEngine implements Updatable
     private void computeImages()
     {
         images.clear();
-        for (Entity entity : getEngine().getEntityEngine().getEntities())
+        for (Entity entity : entityEngine.getEntities())
         {
             images.put(entity, entity.generateImage(scale));
         }
@@ -125,7 +142,11 @@ public class RenderingEngine extends AbstractEngine implements Updatable
 
     private void renderFrameRate()
     {
-        int difference = (int) getEngine().getUpdateEngine().getDifference();
+        if (!frameRate)
+        {
+            return;
+        }
+        int difference = (int) updateEngine.getDifference();
         if (difference > 0)
         {
             Image image = new Image.ImageBuilder().setX(counter).setY(100 - difference).setWidth(1).setHeight(difference)
