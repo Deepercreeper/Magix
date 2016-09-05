@@ -2,7 +2,7 @@ package org.deepercreeper.engine.util;
 
 import java.util.HashSet;
 
-public class ModificationSet<T> extends HashSet<T>
+public class ModificationSet <T> extends HashSet<T>
 {
     private boolean modifiable = true;
 
@@ -29,7 +29,7 @@ public class ModificationSet<T> extends HashSet<T>
     {
         if (!modifiable)
         {
-            throw new UnsupportedOperationException("Modification is not supported");
+            throw new IllegalStateException("Modification is not enabled");
         }
     }
 }

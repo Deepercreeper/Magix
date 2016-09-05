@@ -21,7 +21,7 @@ public class ModificationSetTest
         Assert.assertTrue(set.isEmpty());
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = IllegalStateException.class)
     public void testPermittedModification()
     {
         ModificationSet<String> set = new ModificationSet<>();
