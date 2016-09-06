@@ -24,6 +24,7 @@ public class EntityEngine extends AbstractEngine implements Updatable
     public EntityEngine(Engine engine)
     {
         super(engine);
+        setSetsModifiable(false);
     }
 
     @Override

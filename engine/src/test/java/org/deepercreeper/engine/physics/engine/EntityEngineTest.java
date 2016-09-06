@@ -41,11 +41,17 @@ public class EntityEngineTest
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testIllegalModification()
+    public void testIllegalAddition()
+    {
+        EntityEngine engine = new EntityEngine(new Engine());
+        engine.getEntities().add(new Entity.EntityBuilder().build());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testIllegalRemoval()
     {
         EntityEngine engine = new EntityEngine(new Engine());
         Entity entity = new Entity.EntityBuilder().build();
-
         engine.add(entity);
         engine.update(1);
 
@@ -55,6 +61,17 @@ public class EntityEngineTest
     @Test
     public void testRemoval()
     {
+        EntityEngine engine = new EntityEngine(new Engine());
+        Entity entity = new Entity.EntityBuilder().build();
+        engine.add(entity);
+        engine.update(1);
 
+        entity.remove();
+
+        Assert.assertFalse(engine.getEntities().isEmpty());
+
+        engine.update(1);
+
+        Assert.assertTrue(engine.getEntities().isEmpty());
     }
 }

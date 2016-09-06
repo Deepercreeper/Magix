@@ -8,7 +8,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class PhysicsEngine extends AbstractEngine implements Updatable
+public class PhysicsEngine implements Updatable
 {
     private final ModificationSet<Force> forces = new ModificationSet<>();
 
@@ -16,9 +16,9 @@ public class PhysicsEngine extends AbstractEngine implements Updatable
 
     private final Queue<Force> removedForces = new LinkedBlockingQueue<>();
 
-    public PhysicsEngine(Engine engine)
+    public PhysicsEngine()
     {
-        super(engine);
+        forces.setModifiable(false);
     }
 
     public void add(Force force)

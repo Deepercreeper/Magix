@@ -1,24 +1,26 @@
 package org.deepercreeper.engine.physics.engine;
 
-import org.deepercreeper.engine.physics.engine.motion.components.motion.StepMotion;
 import org.deepercreeper.engine.physics.engine.motion.colliders.MinimumCollider;
 import org.deepercreeper.engine.physics.engine.motion.components.DistanceMotionComponent;
+import org.deepercreeper.engine.physics.engine.motion.components.motion.StepMotion;
 import org.deepercreeper.engine.physics.engine.motion.splitters.AxialSplitter;
 import org.deepercreeper.engine.physics.engine.motion.strategies.ComponentStepsStrategy;
 import org.deepercreeper.engine.physics.engine.motion.strategies.MotionStrategy;
 import org.deepercreeper.engine.util.Updatable;
 
-public class MotionEngine extends AbstractEngine implements Updatable
+public class MotionEngine implements Updatable
 {
+    private final EntityEngine entityEngine;
+
     private MotionStrategy strategy;
 
     private double delta;
 
     private boolean pause = false;
 
-    public MotionEngine(Engine engine)
+    public MotionEngine(EntityEngine entityEngine)
     {
-        super(engine);
+        this.entityEngine = entityEngine;
         setStrategy(new ComponentStepsStrategy<>(DistanceMotionComponent::new, () -> new StepMotion(new AxialSplitter(10E-5), new MinimumCollider())));
     }
 
@@ -35,7 +37,7 @@ public class MotionEngine extends AbstractEngine implements Updatable
     public void setStrategy(MotionStrategy strategy)
     {
         this.strategy = strategy;
-        strategy.init(getEngine().getEntityEngine().getSolidEntities());
+        strategy.init(entityEngine.getSolidEntities());
     }
 
     @Override
@@ -51,7 +53,7 @@ public class MotionEngine extends AbstractEngine implements Updatable
 
     private void updateNonSolidMotion()
     {
-        getEngine().getEntityEngine().getNonSolidEntities().forEach(entity -> entity.updateAll(delta));
+        entityEngine.getNonSolidEntities().forEach(entity -> entity.updateAll(delta));
     }
 
     private void updateSolidMotion()

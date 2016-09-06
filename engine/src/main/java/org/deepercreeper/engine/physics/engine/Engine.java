@@ -8,15 +8,15 @@ import org.deepercreeper.engine.util.Updatable;
 
 public class Engine implements Updatable
 {
-    private final InputEngine inputEngine = new InputEngine(this);
+    private final PhysicsEngine physicsEngine = new PhysicsEngine();
 
-    private final PhysicsEngine physicsEngine = new PhysicsEngine(this);
+    private final UpdateEngine updateEngine = new UpdateEngine(this);
+
+    private final InputEngine inputEngine = new InputEngine(this);
 
     private final EntityEngine entityEngine = new EntityEngine(this);
 
-    private final MotionEngine motionEngine = new MotionEngine(this);
-
-    private final UpdateEngine updateEngine = new UpdateEngine(this);
+    private final MotionEngine motionEngine = new MotionEngine(entityEngine);
 
     private final RenderingEngine renderingEngine = new RenderingEngine(entityEngine, updateEngine);
 
