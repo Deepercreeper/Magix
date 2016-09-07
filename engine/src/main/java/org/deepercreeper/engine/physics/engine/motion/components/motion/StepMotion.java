@@ -4,9 +4,7 @@ import org.deepercreeper.engine.physics.Entity;
 import org.deepercreeper.engine.physics.engine.motion.colliders.Collider;
 import org.deepercreeper.engine.physics.engine.motion.splitters.Splitter;
 
-import java.util.Set;
-
-public class StepMotion implements ComponentMotion
+public class StepMotion extends AbstractComponentMotion
 {
     private static final double DEFAULT_MAX_STEP_DISTANCE = .1;
 
@@ -15,10 +13,6 @@ public class StepMotion implements ComponentMotion
     private final Collider collider;
 
     private final Splitter splitter;
-
-    private Set<Entity> entities;
-
-    private double delta;
 
     private double stepDelta;
 
@@ -35,18 +29,16 @@ public class StepMotion implements ComponentMotion
     }
 
     @Override
-    public void init(Set<Entity> entities)
+    public void init()
     {
-        this.entities = entities;
-        collider.init(entities);
+        collider.init(getEntities());
     }
 
     @Override
-    public void move(double delta)
+    public void move()
     {
-        this.delta = delta;
         computeStepDelta();
-        while (this.delta > 0)
+        while (getDelta() > 0)
         {
             moveStep();
         }
@@ -56,38 +48,33 @@ public class StepMotion implements ComponentMotion
     private void moveStep()
     {
         collider.collide(stepDelta);
-        splitter.split(entities);
-        decreaseDelta();
+        splitter.split(getEntities());
+        decreaseDelta(stepDelta);
         if (collider.changedVelocities())
         {
             computeStepDelta();
         }
     }
 
-    private void decreaseDelta()
-    {
-        delta -= stepDelta;
-    }
-
     private void computeStepDelta()
     {
-        if (delta <= 0)
+        if (getDelta() <= 0)
         {
             return;
         }
-        double maxDistance = entities.stream().map(entity -> entity.getVelocity().times(entity.getSpeed() * delta)
-                                                                   .plus(entity.getAcceleration().times(.5 * entity.getSpeed() * entity.getSpeed() * delta * delta)).norm())
-                                     .max(Double::compare).orElse(.0);
+        double maxDistance = getEntities().stream().map(entity -> entity.getVelocity().times(entity.getSpeed() * getDelta())
+                                                                        .plus(entity.getAcceleration().times(.5 * entity.getSpeed() * entity.getSpeed() * getDelta() * getDelta()))
+                                                                        .norm()).max(Double::compare).orElse(.0);
         if (maxDistance < maxStepDistance)
         {
-            stepDelta = delta;
+            stepDelta = getDelta();
             return;
         }
-        stepDelta = delta * maxStepDistance / maxDistance;
+        stepDelta = getDelta() * maxStepDistance / maxDistance;
     }
 
     private void updateAccelerations()
     {
-        entities.forEach(Entity::updateProperties);
+        getEntities().forEach(Entity::updateProperties);
     }
 }

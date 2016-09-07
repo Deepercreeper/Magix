@@ -78,15 +78,6 @@ public class DistanceMotionComponent implements MotionComponent<DistanceMotionCo
         return false;
     }
 
-    private Vector getMaxVelocity(Entity entity)
-    {
-        if (Double.isFinite(entity.getMass()))
-        {
-            return momentum.times(2 / entity.getMass()).plus(velocity);
-        }
-        return entity.getVelocity();
-    }
-
     @Override
     public void init(Runnable finishAction)
     {
@@ -112,6 +103,25 @@ public class DistanceMotionComponent implements MotionComponent<DistanceMotionCo
     {
         Entity entity = entities.iterator().next();
         entity.updateAll(delta);
+    }
+
+    Vector getMaxVelocity(Entity entity)
+    {
+        if (Double.isFinite(entity.getMass()))
+        {
+            return momentum.times(2 / entity.getMass()).plus(velocity);
+        }
+        return entity.getVelocity();
+    }
+
+    Vector getVelocity()
+    {
+        return velocity;
+    }
+
+    Vector getMomentum()
+    {
+        return momentum;
     }
 
     @Override

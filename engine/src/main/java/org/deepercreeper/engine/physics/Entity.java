@@ -149,9 +149,12 @@ public class Entity extends AcceleratedBox implements Updatable, Renderable
     private Vector computeForce()
     {
         Vector forces = new Vector();
-        for (Force force : getEngine().getPhysicsEngine().getForces())
+        if (getEngine() != null && getEngine().getPhysicsEngine() != null)
         {
-            forces.add(force.of(this));
+            for (Force force : getEngine().getPhysicsEngine().getForces())
+            {
+                forces.add(force.of(this));
+            }
         }
         for (Force force : this.forces)
         {
