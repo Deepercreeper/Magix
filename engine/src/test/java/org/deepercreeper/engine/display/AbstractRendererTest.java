@@ -2,6 +2,7 @@ package org.deepercreeper.engine.display;
 
 import org.deepercreeper.engine.util.Image;
 import org.deepercreeper.engine.util.Point;
+import org.deepercreeper.engine.util.Rectangle;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -77,5 +78,19 @@ public class AbstractRendererTest
         renderer.setDisplay(display);
 
         renderer.render(new Image.ImageBuilder().setX(-8).setWidth(6).setY(2).setHeight(6).setData(new int[30]).build());
+    }
+
+    @Test
+    public void testVisibility()
+    {
+        AbstractRenderer renderer = new AbstractRenderer();
+        TestDisplay display = new TestDisplay(10, 10);
+        renderer.setDisplay(display);
+        renderer.setPosition(new Point(-5, -5));
+
+        Assert.assertTrue(renderer.isVisible(new Rectangle.RectangleBuilder().setX(-9).setY(-9).setWidth(5).setHeight(5).build()));
+        Assert.assertFalse(renderer.isVisible(new Rectangle.RectangleBuilder().setX(-10).setY(-10).setWidth(5).setHeight(5).build()));
+        Assert.assertTrue(renderer.isVisible(new Rectangle.RectangleBuilder().setX(4).setY(4).setWidth(5).setHeight(5).build()));
+        Assert.assertFalse(renderer.isVisible(new Rectangle.RectangleBuilder().setX(5).setY(5).setWidth(5).setHeight(5).build()));
     }
 }
